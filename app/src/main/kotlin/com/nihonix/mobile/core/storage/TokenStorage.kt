@@ -2,11 +2,14 @@ package com.nihonix.mobile.core.storage
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 interface TokenStorage {
+    val isAuthenticated: StateFlow<Boolean>
     fun saveTokens(accessToken: String, refreshToken: String)
     fun getAccessToken(): String?
     fun getRefreshToken(): String?
@@ -14,13 +17,20 @@ interface TokenStorage {
     fun hasAccessToken(): Boolean
 }
 
-class SecureTokenStorage(context: Context) : TokenStorage {
+class SecureStorageUnavailableException : IllegalStateException(
+    "Secure sign-in storage is unavailable. Restart the app and try again."
+)
 
-    private val prefs: SharedPreferences = try {
+/** Never reads or writes credentials through an unencrypted fallback. */
+class SecureTokenStorage internal constructor(
+    createEncryptedPreferences: () -> SharedPreferences
+) : TokenStorage {
+    constructor(context: Context) : this({
+        // Discard credentials written by older versions' insecure fallback.
+        context.deleteSharedPreferences("nihonix_tokens_fallback")
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
-
         EncryptedSharedPreferences.create(
             context,
             PREFS_NAME,
@@ -28,41 +38,48 @@ class SecureTokenStorage(context: Context) : TokenStorage {
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
-    } catch (e: Exception) {
-        Log.w(TAG, "EncryptedSharedPreferences initialization failed, falling back to standard prefs", e)
-        context.getSharedPreferences(PREFS_FALLBACK_NAME, Context.MODE_PRIVATE)
-    }
+    })
+
+    private val prefs = runCatching(createEncryptedPreferences).getOrNull()
+    private val _isAuthenticated = MutableStateFlow(
+        !readToken(KEY_ACCESS_TOKEN).isNullOrBlank() && !readToken(KEY_REFRESH_TOKEN).isNullOrBlank()
+    )
+    override val isAuthenticated: StateFlow<Boolean> = _isAuthenticated.asStateFlow()
 
     override fun saveTokens(accessToken: String, refreshToken: String) {
-        prefs.edit()
-            .putString(KEY_ACCESS_TOKEN, accessToken)
-            .putString(KEY_REFRESH_TOKEN, refreshToken)
-            .apply()
+        require(accessToken.isNotBlank() && refreshToken.isNotBlank()) { "Invalid authentication tokens." }
+        val encryptedPrefs = prefs ?: throw SecureStorageUnavailableException()
+        val saved = runCatching {
+            encryptedPrefs.edit()
+                .putString(KEY_ACCESS_TOKEN, accessToken)
+                .putString(KEY_REFRESH_TOKEN, refreshToken)
+                .commit()
+        }.getOrDefault(false)
+        if (!saved) {
+            clearTokens()
+            throw SecureStorageUnavailableException()
+        }
+        _isAuthenticated.value = true
     }
 
-    override fun getAccessToken(): String? {
-        return prefs.getString(KEY_ACCESS_TOKEN, null)
-    }
+    override fun getAccessToken(): String? =
+        if (_isAuthenticated.value) readToken(KEY_ACCESS_TOKEN) else null
 
-    override fun getRefreshToken(): String? {
-        return prefs.getString(KEY_REFRESH_TOKEN, null)
-    }
+    override fun getRefreshToken(): String? =
+        if (_isAuthenticated.value) readToken(KEY_REFRESH_TOKEN) else null
 
     override fun clearTokens() {
-        prefs.edit()
-            .remove(KEY_ACCESS_TOKEN)
-            .remove(KEY_REFRESH_TOKEN)
-            .apply()
+        _isAuthenticated.value = false
+        runCatching { prefs?.edit()?.clear()?.apply() }
     }
 
-    override fun hasAccessToken(): Boolean {
-        return !getAccessToken().isNullOrBlank()
-    }
+    override fun hasAccessToken(): Boolean = !getAccessToken().isNullOrBlank()
+
+    private fun readToken(key: String): String? =
+        runCatching { prefs?.getString(key, null) }.getOrNull()
 
     companion object {
-        private const val TAG = "SecureTokenStorage"
         private const val PREFS_NAME = "nihonix_secure_tokens"
-        private const val PREFS_FALLBACK_NAME = "nihonix_tokens_fallback"
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
     }

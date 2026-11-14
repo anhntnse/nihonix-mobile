@@ -2,11 +2,15 @@ package com.nihonix.mobile.core.network.interceptor
 
 import com.nihonix.mobile.core.network.ApiConstants
 import com.nihonix.mobile.core.storage.TokenStorage
+import com.nihonix.mobile.core.storage.UserStorage
 import okhttp3.Interceptor
 import okhttp3.Response
 
+data class SessionRequest(val userId: String?)
+
 class AuthInterceptor(
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
+    private val userStorage: UserStorage
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -24,6 +28,7 @@ class AuthInterceptor(
         return if (!accessToken.isNullOrBlank()) {
             val authenticatedRequest = originalRequest.newBuilder()
                 .header(ApiConstants.HEADER_AUTHORIZATION, "${ApiConstants.BEARER_PREFIX}$accessToken")
+                .tag(SessionRequest::class.java, SessionRequest(userStorage.getUser()?.id))
                 .build()
             chain.proceed(authenticatedRequest)
         } else {

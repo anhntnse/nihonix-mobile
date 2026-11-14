@@ -6,7 +6,7 @@ import com.nihonix.mobile.core.network.interceptor.AuthInterceptor
 import com.nihonix.mobile.core.storage.TokenStorage
 import com.nihonix.mobile.core.storage.UserStorage
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import com.nihonix.mobile.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -17,12 +17,13 @@ class NetworkModule(
     private val gson: Gson,
     private val baseUrl: String = ApiConstants.DEFAULT_BASE_URL
 ) {
-    val okHttpClient: OkHttpClient by lazy {
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
+    init {
+        ApiEndpoint.validate(baseUrl, allowDevelopmentHttp = BuildConfig.DEBUG)
+    }
 
-        val authInterceptor = AuthInterceptor(tokenStorage)
+    val okHttpClient: OkHttpClient by lazy {
+
+        val authInterceptor = AuthInterceptor(tokenStorage, userStorage)
         val tokenAuthenticator = TokenAuthenticator(tokenStorage, userStorage, gson, baseUrl)
 
         OkHttpClient.Builder()
@@ -30,7 +31,6 @@ class NetworkModule(
             .readTimeout(ApiConstants.TIMEOUT_READ_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(ApiConstants.TIMEOUT_WRITE_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(authInterceptor)
-            .addInterceptor(loggingInterceptor)
             .authenticator(tokenAuthenticator)
             .build()
     }

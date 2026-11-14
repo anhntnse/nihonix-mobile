@@ -1,10 +1,10 @@
 package com.nihonix.mobile.core.network.authenticator
 
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nihonix.mobile.core.network.ApiConstants
 import com.nihonix.mobile.core.network.dto.ApiResponseDto
+import com.nihonix.mobile.core.network.interceptor.SessionRequest
 import com.nihonix.mobile.core.storage.TokenStorage
 import com.nihonix.mobile.core.storage.UserStorage
 import com.nihonix.mobile.feature.auth.data.dto.RefreshTokenResponseDto
@@ -15,6 +15,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.Route
+import java.util.concurrent.TimeUnit
 
 class TokenAuthenticator(
     private val tokenStorage: TokenStorage,
@@ -22,111 +23,76 @@ class TokenAuthenticator(
     private val gson: Gson,
     private val baseUrl: String = ApiConstants.DEFAULT_BASE_URL
 ) : Authenticator {
-
     private val lock = Any()
+    private val refreshClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS).callTimeout(45, TimeUnit.SECONDS).build()
 
     override fun authenticate(route: Route?, response: Response): Request? {
-        // Prevent infinite loops (e.g. if retry also fails with 401)
-        if (responseCount(response) >= 3) {
-            Log.w(TAG, "Max retry count reached for 401 response")
-            return null
-        }
-
-        // Do not authenticate requests to login or refresh endpoints
-        val requestUrl = response.request.url.toString()
-        if (requestUrl.contains("auth/refresh") || requestUrl.contains("auth/login")) {
-            return null
-        }
-
+        val authorization = response.request.header(ApiConstants.HEADER_AUTHORIZATION) ?: return null
+        if (response.request.url.encodedPath.endsWith("/auth/login") ||
+            response.request.url.encodedPath.endsWith("/auth/refresh")) return null
         synchronized(lock) {
-            val currentAccessToken = tokenStorage.getAccessToken()
-            val requestToken = response.request.header(ApiConstants.HEADER_AUTHORIZATION)
-                ?.removePrefix(ApiConstants.BEARER_PREFIX)
+            val requestUser = response.request.tag(SessionRequest::class.java)
+            if (requestUser != null && requestUser.userId != userStorage.getUser()?.id) return null
+            val current = tokenStorage.getAccessToken() ?: return null
+            val refresh = tokenStorage.getRefreshToken()
+            if (refresh.isNullOrBlank()) { clearSession(); return null }
+            if (responseCount(response) >= 2) { clearSession(); return null }
+            val failedToken = authorization.removePrefix(ApiConstants.BEARER_PREFIX)
+            if (current != failedToken) return retry(response.request, current)
 
-            // If another thread already refreshed the token, retry with the updated token
-            if (currentAccessToken != null && currentAccessToken != requestToken) {
-                return response.request.newBuilder()
-                    .header(ApiConstants.HEADER_AUTHORIZATION, "${ApiConstants.BEARER_PREFIX}$currentAccessToken")
-                    .build()
-            }
-
-            val refreshToken = tokenStorage.getRefreshToken()
-            if (refreshToken.isNullOrBlank()) {
-                Log.w(TAG, "No refresh token available, clearing auth session")
-                clearSession()
-                return null
-            }
-
-            // Attempt synchronous refresh call
-            val newTokens = performRefreshToken(refreshToken)
-            if (newTokens != null) {
-                tokenStorage.saveTokens(newTokens.accessToken, newTokens.refreshToken)
-                return response.request.newBuilder()
-                    .header(ApiConstants.HEADER_AUTHORIZATION, "${ApiConstants.BEARER_PREFIX}${newTokens.accessToken}")
-                    .build()
-            } else {
-                Log.w(TAG, "Token refresh failed or expired, clearing auth session")
-                clearSession()
-                return null
-            }
-        }
-    }
-
-    private fun performRefreshToken(refreshToken: String): RefreshTokenResponseDto? {
-        return try {
-            val cleanBaseUrl = if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/"
-            val refreshUrl = "${cleanBaseUrl}auth/refresh"
-
-            val jsonBody = gson.toJson(mapOf("refreshToken" to refreshToken))
-            val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
-
-            val request = Request.Builder()
-                .url(refreshUrl)
-                .post(requestBody)
-                .header(ApiConstants.HEADER_NO_AUTH, "true")
-                .build()
-
-            // Direct standalone OkHttpClient to avoid interceptor recursion
-            val client = OkHttpClient.Builder().build()
-            client.newCall(request).execute().use { res ->
-                if (!res.isSuccessful) {
-                    Log.e(TAG, "Refresh HTTP failed with status: ${res.code}")
-                    return null
+            return when (val outcome = performRefresh(refresh)) {
+                is RefreshOutcome.Success -> {
+                    // Never restore a session that was logged out/switched while the call was in flight.
+                    if (tokenStorage.getRefreshToken() != refresh) return null
+                    try {
+                        tokenStorage.saveTokens(outcome.tokens.accessToken, outcome.tokens.refreshToken)
+                        retry(response.request, outcome.tokens.accessToken)
+                    } catch (_: Exception) { clearSession(); null }
                 }
-
-                val bodyString = res.body?.string() ?: return null
-                val type = object : TypeToken<ApiResponseDto<RefreshTokenResponseDto>>() {}.type
-                val envelope: ApiResponseDto<RefreshTokenResponseDto> = gson.fromJson(bodyString, type)
-
-                if (envelope.success && envelope.data != null) {
-                    envelope.data
-                } else {
-                    Log.e(TAG, "Refresh API returned error envelope: ${envelope.message}")
+                RefreshOutcome.Expired -> {
+                    if (tokenStorage.getRefreshToken() == refresh) clearSession()
                     null
                 }
+                RefreshOutcome.TemporaryFailure -> null
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Exception during token refresh", e)
-            null
         }
     }
 
-    private fun clearSession() {
-        tokenStorage.clearTokens()
-        userStorage.clearUser()
-    }
+    private fun retry(request: Request, token: String): Request =
+        request.newBuilder().header(ApiConstants.HEADER_AUTHORIZATION, ApiConstants.BEARER_PREFIX + token).build()
+
+    private fun performRefresh(token: String): RefreshOutcome = try {
+        val request = Request.Builder().url(baseUrl.trimEnd('/') + "/auth/refresh")
+            .post(gson.toJson(mapOf("refreshToken" to token)).toRequestBody("application/json; charset=utf-8".toMediaType()))
+            .build()
+        refreshClient.newCall(request).execute().use { response ->
+            if (response.code == 401 || response.code == 403) return RefreshOutcome.Expired
+            if (!response.isSuccessful) return RefreshOutcome.TemporaryFailure
+            val body = response.body?.string() ?: return RefreshOutcome.TemporaryFailure
+            val type = object : TypeToken<ApiResponseDto<RefreshTokenResponseDto>>() {}.type
+            val envelope: ApiResponseDto<RefreshTokenResponseDto> = gson.fromJson(body, type)
+            val tokens = envelope.data
+            if (envelope.success && tokens != null && !tokens.accessToken.isNullOrBlank() && !tokens.refreshToken.isNullOrBlank()) {
+                RefreshOutcome.Success(tokens)
+            } else if (envelope.statusCode in listOf(401, 403)) RefreshOutcome.Expired
+            else RefreshOutcome.TemporaryFailure
+        }
+    } catch (_: Exception) { RefreshOutcome.TemporaryFailure }
+
+    private fun clearSession() { tokenStorage.clearTokens(); userStorage.clearUser() }
 
     private fun responseCount(response: Response): Int {
         var count = 1
-        var prior = response.priorResponse
-        while (prior != null) {
-            count++
-            prior = prior.priorResponse
-        }
+        var previous = response.priorResponse
+        while (previous != null) { count++; previous = previous.priorResponse }
         return count
     }
 
-    companion object {
-        private const val TAG = "TokenAuthenticator"
+    private sealed interface RefreshOutcome {
+        data class Success(val tokens: RefreshTokenResponseDto) : RefreshOutcome
+        data object Expired : RefreshOutcome
+        data object TemporaryFailure : RefreshOutcome
     }
 }

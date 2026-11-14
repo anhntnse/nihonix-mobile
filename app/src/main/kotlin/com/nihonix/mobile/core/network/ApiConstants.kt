@@ -1,11 +1,9 @@
 package com.nihonix.mobile.core.network
 
+import com.nihonix.mobile.BuildConfig
+
 object ApiConstants {
-    /**
-     * Default base URL for Android Emulator pointing to host loopback.
-     * Port 3010 matches the backend development configuration.
-     */
-    const val DEFAULT_BASE_URL = "http://10.0.2.2:3010/api/"
+    const val DEFAULT_BASE_URL = BuildConfig.API_BASE_URL
 
     const val HEADER_AUTHORIZATION = "Authorization"
     const val HEADER_NO_AUTH = "No-Authentication"

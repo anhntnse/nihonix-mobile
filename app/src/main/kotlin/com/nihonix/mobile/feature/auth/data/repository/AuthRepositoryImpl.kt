@@ -32,23 +32,20 @@ class AuthRepositoryImpl(
         val result = safeApiCall(
             gson = gson,
             apiCall = { apiService.login(LoginRequestDto(username.trim(), password)) },
-            transform = { it }
-        )
-
-        when (result) {
-            is Resource.Success -> {
-                val loginData = result.data
-                tokenStorage.saveTokens(loginData.accessToken, loginData.refreshToken)
+            transform = { loginData ->
                 val user = loginData.user.toDomain()
-                userStorage.saveUser(user)
-                emit(Resource.Success(user, result.message))
+                try {
+                    tokenStorage.saveTokens(loginData.accessToken, loginData.refreshToken)
+                    userStorage.saveUser(user)
+                } catch (error: Exception) {
+                    tokenStorage.clearTokens()
+                    userStorage.clearUser()
+                    throw error
+                }
+                user
             }
-            is Resource.Error -> {
-                emit(Resource.Error(result.message, result.statusCode, result.validationErrors))
-            }
-            is Resource.Empty -> emit(Resource.Empty)
-            is Resource.Loading -> Unit
-        }
+        )
+        emit(result)
     }.flowOn(Dispatchers.IO)
 
     override fun register(
@@ -93,13 +90,25 @@ class AuthRepositoryImpl(
 
     override fun getCurrentUser(): Flow<Resource<User>> = flow {
         emit(Resource.Loading)
+        val initialUser = userStorage.getUser()
+        val initialToken = tokenStorage.getAccessToken()
         val result = safeApiCall(
             gson = gson,
             apiCall = { apiService.getProfile() },
-            transform = { it.toDomain() }
+            transform = { dto ->
+                val remote = dto.toDomain()
+                val current = userStorage.getUser()
+                val sameAccount = current?.id == remote.id || (current == null && tokenStorage.getAccessToken() == initialToken)
+                check(tokenStorage.hasAccessToken() && sameAccount) { "Your session changed. Sign in again." }
+                // A profile/level edit completed while this fetch was in flight.
+                if (current != null && current != initialUser) current else remote
+            }
         )
 
-        if (result is Resource.Success) {
+        if (result is Resource.Success && tokenStorage.hasAccessToken() &&
+            (userStorage.getUser()?.id == result.data.id ||
+                (userStorage.getUser() == null && tokenStorage.getAccessToken() == initialToken))
+        ) {
             userStorage.saveUser(result.data)
         }
         emit(result)

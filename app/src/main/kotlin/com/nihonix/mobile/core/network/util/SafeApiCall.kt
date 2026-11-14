@@ -6,6 +6,7 @@ import com.nihonix.mobile.core.network.dto.ApiResponseDto
 import com.nihonix.mobile.core.result.Resource
 import retrofit2.Response
 import java.io.IOException
+import kotlinx.coroutines.CancellationException
 
 suspend inline fun <T, R> safeApiCall(
     gson: Gson,
@@ -22,9 +23,7 @@ suspend inline fun <T, R> safeApiCall(
                 if (body.data != null) {
                     Resource.Success(transform(body.data), body.message)
                 } else {
-                    // When data is null but request was successful (e.g. Unit / Message)
-                    @Suppress("UNCHECKED_CAST")
-                    Resource.Success(Unit as R, body.message)
+                    Resource.Empty
                 }
             } else {
                 val errorMsg = body?.extractErrorMessage() ?: "Request was not successful"
@@ -58,6 +57,8 @@ suspend inline fun <T, R> safeApiCall(
                 )
             }
         }
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: IOException) {
         Resource.Error(
             message = "Unable to connect to server. Please check your network connection.",
