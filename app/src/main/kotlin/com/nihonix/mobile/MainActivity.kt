@@ -1,5 +1,12 @@
 package com.nihonix.mobile
 
+import androidx.navigation.compose.rememberNavController
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.nihonix.mobile.core.di.ServiceLocator
+import com.nihonix.mobile.feature.system.StartupViewModel
+import com.nihonix.mobile.feature.system.StartupGate
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -27,11 +34,19 @@ import com.nihonix.mobile.feature.auth.presentation.navigation.NihonixNavHost
 import com.nihonix.mobile.ui.theme.NihonixTheme
 
 class MainActivity : ComponentActivity() {
+    private val startupViewModel: StartupViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                StartupViewModel(ServiceLocator.startupRepository, BuildConfig.VERSION_CODE.toLong()) as T
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             NihonixTheme {
+                val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                         if (BuildConfig.DEBUG &&
@@ -39,7 +54,9 @@ class MainActivity : ComponentActivity() {
                         ) {
                             LocalNetworkAccessNotice(this@MainActivity)
                         }
-                        NihonixNavHost(modifier = Modifier.weight(1f))
+                        Box(modifier = Modifier.weight(1f)) {
+                            StartupGate(startupViewModel) { NihonixNavHost(navController = navController) }
+                        }
                     }
                 }
             }

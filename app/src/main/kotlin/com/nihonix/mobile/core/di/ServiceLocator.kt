@@ -75,6 +75,18 @@ object ServiceLocator {
         )
     }
 
+    val startupRepository by lazy {
+        com.nihonix.mobile.feature.system.StartupRepository(
+            networkModule.createService(com.nihonix.mobile.feature.system.SystemApi::class.java),
+            com.nihonix.mobile.feature.system.PreferencesConfigCache(
+                applicationContext.getSharedPreferences(
+                    "app_config_" + com.nihonix.mobile.core.network.ApiConstants.DEFAULT_BASE_URL.hashCode(),
+                    Context.MODE_PRIVATE
+                ), gson
+            )
+        )
+    }
+
     fun initialize(context: Context) {
         applicationContext = context.applicationContext
     }
