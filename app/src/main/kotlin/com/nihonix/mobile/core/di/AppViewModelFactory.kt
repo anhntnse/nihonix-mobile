@@ -6,11 +6,14 @@ import com.nihonix.mobile.feature.auth.presentation.forgot_password.ForgotPasswo
 import com.nihonix.mobile.feature.auth.presentation.login.LoginViewModel
 import com.nihonix.mobile.feature.auth.presentation.profile.UserProfileViewModel
 import com.nihonix.mobile.feature.auth.presentation.register.RegisterViewModel
+import com.nihonix.mobile.feature.topics.presentation.topic_detail.TopicDetailViewModel
+import com.nihonix.mobile.feature.topics.presentation.topics_list.TopicsViewModel
 
 @Suppress("UNCHECKED_CAST")
 class AppViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val authRepo = ServiceLocator.authRepository
+        val topicsLevelsRepo = ServiceLocator.topicsLevelsRepository
         return when {
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> {
                 LoginViewModel(authRepo) as T
@@ -23,6 +26,12 @@ class AppViewModelFactory : ViewModelProvider.Factory {
             }
             modelClass.isAssignableFrom(UserProfileViewModel::class.java) -> {
                 UserProfileViewModel(authRepo) as T
+            }
+            modelClass.isAssignableFrom(TopicsViewModel::class.java) -> {
+                TopicsViewModel(topicsLevelsRepo, authRepo) as T
+            }
+            modelClass.isAssignableFrom(TopicDetailViewModel::class.java) -> {
+                TopicDetailViewModel(topicsLevelsRepo) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }

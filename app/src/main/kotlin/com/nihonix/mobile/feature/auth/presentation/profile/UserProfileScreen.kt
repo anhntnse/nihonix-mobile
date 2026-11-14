@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
@@ -24,6 +25,8 @@ import com.nihonix.mobile.feature.auth.domain.model.User
 fun UserProfileScreen(
     viewModel: UserProfileViewModel,
     onLogout: () -> Unit,
+    onNavigateToTopics: (() -> Unit)? = null,
+    onNavigateBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -38,6 +41,16 @@ fun UserProfileScreen(
         topBar = {
             TopAppBar(
                 title = { Text("My Profile") },
+                navigationIcon = {
+                    if (onNavigateBack != null) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    }
+                },
                 actions = {
                     IconButton(onClick = { viewModel.loadUserProfile() }) {
                         Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh Profile")
@@ -122,6 +135,7 @@ fun UserProfileScreen(
                         user = user,
                         isLoading = uiState.isLoading,
                         errorMessage = uiState.errorMessage,
+                        onNavigateToTopics = onNavigateToTopics,
                         onLogout = { viewModel.logout() }
                     )
                 }
@@ -135,6 +149,7 @@ private fun UserProfileContent(
     user: User,
     isLoading: Boolean,
     errorMessage: String?,
+    onNavigateToTopics: (() -> Unit)?,
     onLogout: () -> Unit
 ) {
     Column(
@@ -211,6 +226,20 @@ private fun UserProfileContent(
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        if (onNavigateToTopics != null) {
+            OutlinedButton(
+                onClick = onNavigateToTopics,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(10.dp),
+                enabled = !isLoading
+            ) {
+                Text(text = "Explore Topics & Levels", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         Button(
             onClick = onLogout,

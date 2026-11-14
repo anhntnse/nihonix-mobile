@@ -12,6 +12,9 @@ import com.nihonix.mobile.core.storage.UserStorage
 import com.nihonix.mobile.feature.auth.data.api.AuthApiService
 import com.nihonix.mobile.feature.auth.data.repository.AuthRepositoryImpl
 import com.nihonix.mobile.feature.auth.domain.repository.AuthRepository
+import com.nihonix.mobile.feature.topics.data.api.TopicsLevelsApiService
+import com.nihonix.mobile.feature.topics.data.repository.TopicsLevelsRepositoryImpl
+import com.nihonix.mobile.feature.topics.domain.repository.TopicsLevelsRepository
 
 @SuppressLint("StaticFieldLeak")
 object ServiceLocator {
@@ -48,6 +51,19 @@ object ServiceLocator {
             apiService = authApiService,
             tokenStorage = tokenStorage,
             userStorage = userStorage,
+            gson = gson
+        )
+    }
+
+    val topicsLevelsApiService: TopicsLevelsApiService by lazy {
+        networkModule.createService(TopicsLevelsApiService::class.java)
+    }
+
+    val topicsLevelsRepository: TopicsLevelsRepository by lazy {
+        TopicsLevelsRepositoryImpl(
+            apiService = topicsLevelsApiService,
+            userStorage = userStorage,
+            tokenStorage = tokenStorage,
             gson = gson
         )
     }
