@@ -55,7 +55,7 @@ class ForgotPasswordViewModel(
                             it.copy(
                                 isLoading = false,
                                 step = ForgotPasswordStep.VERIFY_CODE,
-                                infoMessage = res.data
+                                infoMessage = res.message ?: res.data
                             )
                         }
                     }
@@ -114,7 +114,7 @@ class ForgotPasswordViewModel(
                             it.copy(
                                 isLoading = false,
                                 isSuccess = true,
-                                infoMessage = res.data
+                                infoMessage = res.message ?: res.data
                             )
                         }
                     }
@@ -130,8 +130,8 @@ class ForgotPasswordViewModel(
         viewModelScope.launch {
             authRepository.resendCode(email).collect { res ->
                 when (res) {
-                    is Resource.Loading -> _uiState.update { it.copy(isLoading = true) }
-                    is Resource.Success -> _uiState.update { it.copy(isLoading = false, infoMessage = res.data) }
+                    is Resource.Loading -> _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+                    is Resource.Success -> _uiState.update { it.copy(isLoading = false, infoMessage = res.message ?: res.data) }
                     is Resource.Error -> _uiState.update { it.copy(isLoading = false, errorMessage = res.message) }
                     is Resource.Empty -> _uiState.update { it.copy(isLoading = false) }
                 }

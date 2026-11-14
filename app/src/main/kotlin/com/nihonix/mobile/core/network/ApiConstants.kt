@@ -3,7 +3,7 @@ package com.nihonix.mobile.core.network
 object ApiConstants {
     /**
      * Default base URL for Android Emulator pointing to host loopback.
-     * Port 3010 is the verified NestJS backend port.
+     * Port 3010 matches the backend development configuration.
      */
     const val DEFAULT_BASE_URL = "http://10.0.2.2:3010/api/"
 

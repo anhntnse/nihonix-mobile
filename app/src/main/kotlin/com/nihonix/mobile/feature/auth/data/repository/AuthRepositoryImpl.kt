@@ -122,7 +122,11 @@ class AuthRepositoryImpl(
             apiCall = { apiService.verifyResetCode(VerifyResetCodeRequestDto(email.trim(), code.trim())) },
             transform = { it.toDomain() }
         )
-        emit(result)
+        if (result is Resource.Success) {
+            emit(Resource.Success(result.data.copy(message = result.message ?: result.data.message), result.message))
+        } else {
+            emit(result)
+        }
     }.flowOn(Dispatchers.IO)
 
     override fun resetPassword(token: String, password: String): Flow<Resource<String>> = flow {

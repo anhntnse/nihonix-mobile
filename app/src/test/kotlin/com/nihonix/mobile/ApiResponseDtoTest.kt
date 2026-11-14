@@ -88,4 +88,12 @@ class ApiResponseDtoTest {
         assertFalse(envelope.success)
         assertEquals("Invalid credentials", envelope.extractErrorMessage())
     }
+    @Test
+    fun testResetVerificationMessageComesFromEnvelope() {
+        val json = """{"success":true,"message":"Code verified successfully","data":{"valid":true,"token":"reset-token"}}"""
+        val type = object : TypeToken<ApiResponseDto<com.nihonix.mobile.feature.auth.data.dto.VerifyResetCodeResponseDto>>() {}.type
+        val response: ApiResponseDto<com.nihonix.mobile.feature.auth.data.dto.VerifyResetCodeResponseDto> = gson.fromJson(json, type)
+        assertEquals("Code verified successfully", response.data!!.toDomain().message)
+        assertEquals(response.message, response.data!!.toDomain(response.message).message)
+    }
 }

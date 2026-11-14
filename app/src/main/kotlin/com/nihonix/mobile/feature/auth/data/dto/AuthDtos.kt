@@ -105,11 +105,11 @@ data class MessageResponseDto(
 data class VerifyResetCodeResponseDto(
     @SerializedName("valid") val valid: Boolean,
     @SerializedName("token") val token: String,
-    @SerializedName("message") val message: String
+    @SerializedName("message") val message: String? = null
 ) {
-    fun toDomain(): ResetCodeVerification = ResetCodeVerification(
+    fun toDomain(envelopeMessage: String? = null): ResetCodeVerification = ResetCodeVerification(
         valid = valid,
         token = token,
-        message = message
+        message = envelopeMessage ?: message ?: "Code verified successfully"
     )
 }

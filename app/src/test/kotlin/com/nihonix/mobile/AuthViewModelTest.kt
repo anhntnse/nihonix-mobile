@@ -142,6 +142,20 @@ class AuthViewModelTest {
         assertTrue(viewModel.uiState.value.isSuccess)
     }
 
+    @Test
+    fun forgotPasswordViewModel_resendClearsPreviousCodeError() = runTest(testDispatcher) {
+        val viewModel = ForgotPasswordViewModel(fakeRepository)
+        viewModel.onEmailChanged("test@example.com")
+        viewModel.verifyCode()
+        assertNotNull(viewModel.uiState.value.errorMessage)
+
+        viewModel.resendCode()
+        testScheduler.advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.errorMessage)
+        assertEquals("Code resent", viewModel.uiState.value.infoMessage)
+    }
+
     // --- Fake Repository for Unit Testing ---
     class FakeAuthRepository : AuthRepository {
         var shouldFail: Boolean = false
