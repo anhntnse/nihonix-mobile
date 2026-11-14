@@ -23,6 +23,17 @@ class TopicsLevelsRepositoryImpl(
     private val gson: Gson
 ) : TopicsLevelsRepository {
 
+    override fun getTopicBundle(identifier: String): Flow<Resource<com.nihonix.mobile.feature.topics.domain.model.TopicBundle>> = flow {
+        emit(Resource.Loading)
+        emit(safeApiCall(gson = gson, apiCall = { apiService.getTopicBundle(identifier) }, transform = {
+            require(it.schemaVersion == 1 && it.version.isNotBlank()) { "Unsupported topic bundle" }
+            listOf(it.vocabularyItems, it.grammarPatterns, it.vocabularySets, it.grammarSubTopics).forEach { entries ->
+                require(entries.all { entry -> entry.slug.isNotBlank() } && entries.map { entry -> entry.slug }.distinct().size == entries.size) { "Invalid topic content" }
+            }
+            it
+        }))
+    }.flowOn(Dispatchers.IO)
+
     override fun getLevels(): Flow<Resource<List<JlptLevel>>> = flow {
         emit(Resource.Loading)
         val result = safeApiCall(

@@ -229,6 +229,10 @@ private fun UserLevelSummaryCard(
 
                 if (selectedDetail != null) {
                     Text(
+                        "Topics: ${selectedDetail.topicCount ?: "—"} · Vocabulary: ${selectedDetail.vocabularyCount ?: "—"} · Grammar: ${selectedDetail.grammarCount ?: "—"}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text(
                         text = buildString {
                             append("${selectedDetail.code}: ")
                             val parts = listOf(

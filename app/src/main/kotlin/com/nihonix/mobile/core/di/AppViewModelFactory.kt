@@ -1,6 +1,8 @@
 package com.nihonix.mobile.core.di
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.nihonix.mobile.feature.auth.presentation.verification.EmailVerificationViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.nihonix.mobile.feature.auth.presentation.forgot_password.ForgotPasswordViewModel
@@ -12,6 +14,13 @@ import com.nihonix.mobile.feature.topics.presentation.topics_list.TopicsViewMode
 
 @Suppress("UNCHECKED_CAST")
 class AppViewModelFactory : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+        if (modelClass.isAssignableFrom(TopicsViewModel::class.java)) {
+            return TopicsViewModel(ServiceLocator.topicsLevelsRepository, ServiceLocator.authRepository, extras.createSavedStateHandle()) as T
+        }
+        return create(modelClass)
+    }
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val authRepo = ServiceLocator.authRepository
         val topicsLevelsRepo = ServiceLocator.topicsLevelsRepository

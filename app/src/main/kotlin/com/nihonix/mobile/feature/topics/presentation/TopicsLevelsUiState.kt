@@ -33,6 +33,9 @@ data class TopicsUiState(
 }
 
 data class TopicDetailUiState(
+    val bundle: com.nihonix.mobile.feature.topics.domain.model.TopicBundle? = null,
+    val isBundleLoading: Boolean = false,
+    val bundleError: String? = null,
     val isLoading: Boolean = false,
     val topic: Topic? = null,
     val levelDetail: JlptLevel? = null,

@@ -22,12 +22,18 @@ data class MultiLanguageTextDto(
 data class LevelDto(
     @SerializedName("code") val code: String,
     @SerializedName("name") val name: MultiLanguageTextDto? = null,
+    @SerializedName("topic_count") val topicCount: Int? = null,
+    @SerializedName("vocabulary_count") val vocabularyCount: Int? = null,
+    @SerializedName("grammar_count") val grammarCount: Int? = null,
     @SerializedName("updated_at") val updatedAt: String? = null
 ) {
     fun toDomain(): JlptLevel = JlptLevel(
         code = code,
         name = name?.toDomain() ?: LocalizedText(),
-        updatedAt = updatedAt
+        updatedAt = updatedAt,
+        topicCount = topicCount,
+        vocabularyCount = vocabularyCount,
+        grammarCount = grammarCount
     )
 }
 

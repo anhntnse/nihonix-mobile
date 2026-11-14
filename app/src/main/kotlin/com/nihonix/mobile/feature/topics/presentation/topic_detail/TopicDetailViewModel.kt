@@ -19,10 +19,31 @@ class TopicDetailViewModel(
     private val _uiState = MutableStateFlow(TopicDetailUiState())
     val uiState: StateFlow<TopicDetailUiState> = _uiState.asStateFlow()
 
+    private var bundleJob: Job? = null
+    private var identifier: String? = null
+    fun loadBundle() {
+        val key = identifier ?: return
+        bundleJob?.cancel()
+        bundleJob = viewModelScope.launch {
+            repository.getTopicBundle(key).collect { result ->
+                when (result) {
+                    is Resource.Loading -> _uiState.update { it.copy(isBundleLoading = true, bundleError = null) }
+                    is Resource.Success -> _uiState.update { it.copy(isBundleLoading = false, bundle = result.data, bundleError = null) }
+                    is Resource.Error -> _uiState.update { it.copy(isBundleLoading = false, bundleError = result.message) }
+                    is Resource.Empty -> _uiState.update { it.copy(isBundleLoading = false, bundleError = "No bundle was returned.") }
+                }
+            }
+        }
+    }
     private var loadJob: Job? = null
     private var levelJob: Job? = null
 
     fun loadTopicDetail(identifier: String) {
+        if (this.identifier != identifier) {
+            bundleJob?.cancel()
+            _uiState.value = TopicDetailUiState()
+        }
+        this.identifier = identifier
         loadJob?.cancel()
         levelJob?.cancel()
         loadJob = viewModelScope.launch {

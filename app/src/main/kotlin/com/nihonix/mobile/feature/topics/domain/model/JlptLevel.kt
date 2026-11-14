@@ -3,5 +3,8 @@ package com.nihonix.mobile.feature.topics.domain.model
 data class JlptLevel(
     val code: String,
     val name: LocalizedText,
-    val updatedAt: String? = null
+    val updatedAt: String? = null,
+    val topicCount: Int? = null,
+    val vocabularyCount: Int? = null,
+    val grammarCount: Int? = null
 )

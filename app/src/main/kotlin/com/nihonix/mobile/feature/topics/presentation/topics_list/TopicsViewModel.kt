@@ -1,5 +1,6 @@
 package com.nihonix.mobile.feature.topics.presentation.topics_list
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nihonix.mobile.core.result.Resource
@@ -15,17 +16,18 @@ import kotlinx.coroutines.launch
 
 class TopicsViewModel(
     private val repository: TopicsLevelsRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val savedState: SavedStateHandle = SavedStateHandle()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(TopicsUiState())
+    private val _uiState = MutableStateFlow(TopicsUiState(selectedLevelCode = savedState["selected_level"], searchQuery = savedState["search_query"] ?: ""))
     val uiState: StateFlow<TopicsUiState> = _uiState.asStateFlow()
 
     private var levelsJob: Job? = null
     private var topicsJob: Job? = null
     private var levelDetailJob: Job? = null
     private var userLevelJob: Job? = null
-    private var hasInitializedSelection = false
+    private var hasInitializedSelection = savedState.get<Boolean>("selection_initialized") == true
 
     init {
         loadInitialData()
@@ -33,6 +35,12 @@ class TopicsViewModel(
 
     fun loadInitialData() {
         loadLevels()
+        if (hasInitializedSelection) {
+            loadTopics(_uiState.value.selectedLevelCode)
+            _uiState.value.selectedLevelCode?.let(::loadLevelDetail)
+            if (authRepository.isLoggedIn()) refreshUserLevelOnly()
+            return
+        }
         if (authRepository.isLoggedIn()) {
             loadUserLevelAndInitialTopics()
         } else {
@@ -152,6 +160,8 @@ class TopicsViewModel(
 
     fun selectLevel(levelCode: String?) {
         hasInitializedSelection = true
+        savedState["selection_initialized"] = true
+        savedState["selected_level"] = levelCode?.trim()?.takeIf { it.isNotBlank() }?.uppercase()
         val normalized = levelCode?.trim()?.takeIf { it.isNotBlank() }?.uppercase()
         val cachedDetail = normalized?.let { code ->
             _uiState.value.levels.find { it.code.equals(code, ignoreCase = true) }
@@ -286,6 +296,7 @@ class TopicsViewModel(
     }
 
     fun onSearchQueryChanged(query: String) {
+        savedState["search_query"] = query
         _uiState.update { it.copy(searchQuery = query) }
     }
 

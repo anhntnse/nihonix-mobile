@@ -50,6 +50,25 @@ class TopicsLevelsViewModelTest {
     }
 
     @Test
+    fun restoredExplicitAllAndSearchOverrideAccountLevel() = runTest(testDispatcher) {
+        fakeAuthRepository.loggedIn = true
+        val saved = androidx.lifecycle.SavedStateHandle(mapOf(
+            "selection_initialized" to true, "search_query" to "greet"
+        ))
+        val viewModel = TopicsViewModel(fakeTopicsRepository, fakeAuthRepository, saved)
+        testScheduler.advanceUntilIdle()
+        assertNull(viewModel.uiState.value.selectedLevelCode)
+        assertEquals("greet", viewModel.uiState.value.searchQuery)
+        viewModel.selectLevel("N4")
+        viewModel.onSearchQueryChanged("entertainment")
+        testScheduler.advanceUntilIdle()
+        val recreated = TopicsViewModel(fakeTopicsRepository, fakeAuthRepository, saved)
+        testScheduler.advanceUntilIdle()
+        assertEquals("N4", recreated.uiState.value.selectedLevelCode)
+        assertEquals("entertainment", recreated.uiState.value.searchQuery)
+    }
+
+    @Test
     fun topicsViewModel_loggedInUserLevel_loadsLevelsAndFilteredTopics() = runTest(testDispatcher) {
         fakeAuthRepository.loggedIn = true
         fakeTopicsRepository.userLevel = UserLevel(

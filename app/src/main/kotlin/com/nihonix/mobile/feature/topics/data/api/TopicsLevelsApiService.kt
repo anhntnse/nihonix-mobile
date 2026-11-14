@@ -12,6 +12,11 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TopicsLevelsApiService {
+    @GET("topics/{identifier}/bundle")
+    @Headers("${ApiConstants.HEADER_NO_AUTH}: true")
+    suspend fun getTopicBundle(@Path("identifier") identifier: String):
+        Response<ApiResponseDto<com.nihonix.mobile.feature.topics.domain.model.TopicBundle>>
+
 
     @GET("levels")
     @Headers("${ApiConstants.HEADER_NO_AUTH}: true")

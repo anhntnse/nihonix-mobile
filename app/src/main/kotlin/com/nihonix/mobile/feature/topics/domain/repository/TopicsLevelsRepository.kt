@@ -7,6 +7,9 @@ import com.nihonix.mobile.feature.topics.domain.model.UserLevel
 import kotlinx.coroutines.flow.Flow
 
 interface TopicsLevelsRepository {
+    fun getTopicBundle(identifier: String): Flow<Resource<com.nihonix.mobile.feature.topics.domain.model.TopicBundle>> =
+        kotlinx.coroutines.flow.flowOf(Resource.Error("Topic bundle unavailable"))
+
     fun getLevels(): Flow<Resource<List<JlptLevel>>>
     fun getLevelByCode(code: String): Flow<Resource<JlptLevel>>
     fun getUserLevel(): Flow<Resource<UserLevel>>

@@ -8,6 +8,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,6 +33,13 @@ fun TopicDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showBundle by rememberSaveable(identifier) { mutableStateOf(false) }
+    LaunchedEffect(identifier, showBundle, uiState.topic?.id) {
+        if (showBundle && uiState.topic != null) viewModel.loadBundle()
+    }
+    if (showBundle) {
+        TopicBundleDialog(uiState, onClose = { showBundle = false }, onRetry = viewModel::loadBundle)
+    }
 
     LaunchedEffect(identifier) {
         viewModel.loadTopicDetail(identifier)
@@ -140,7 +149,8 @@ fun TopicDetailScreen(
                         topic = uiState.topic!!,
                         levelDetail = uiState.levelDetail ?: uiState.topic!!.level,
                         isLoading = uiState.isLoading,
-                        errorMessage = uiState.errorMessage
+                        errorMessage = uiState.errorMessage,
+                        onOpenBundle = { showBundle = true }
                     )
                 }
             }
@@ -153,7 +163,8 @@ private fun TopicDetailContent(
     topic: Topic,
     levelDetail: JlptLevel?,
     isLoading: Boolean,
-    errorMessage: String?
+    errorMessage: String?,
+    onOpenBundle: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -162,6 +173,7 @@ private fun TopicDetailContent(
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Button(onClick = onOpenBundle, modifier = Modifier.fillMaxWidth()) { Text("Explore topic content") }
         if (isLoading) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
