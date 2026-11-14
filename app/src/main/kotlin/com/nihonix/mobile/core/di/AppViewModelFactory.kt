@@ -26,7 +26,7 @@ class AppViewModelFactory : ViewModelProvider.Factory {
                 ForgotPasswordViewModel(authRepo) as T
             }
             modelClass.isAssignableFrom(UserProfileViewModel::class.java) -> {
-                UserProfileViewModel(authRepo) as T
+                UserProfileViewModel(authRepo, ServiceLocator.accountRepository) as T
             }
             modelClass.isAssignableFrom(EmailVerificationViewModel::class.java) -> {
                 EmailVerificationViewModel(ServiceLocator.accountRepository) as T

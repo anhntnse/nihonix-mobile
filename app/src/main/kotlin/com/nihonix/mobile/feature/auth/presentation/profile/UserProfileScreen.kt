@@ -1,24 +1,37 @@
 package com.nihonix.mobile.feature.auth.presentation.profile
 
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.nihonix.mobile.feature.auth.domain.model.User
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import coil.compose.AsyncImage
+import java.io.ByteArrayOutputStream
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,248 +42,161 @@ fun UserProfileScreen(
     onNavigateBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(uiState.isLoggedOut) {
-        if (uiState.isLoggedOut) {
-            onLogout()
+    val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val scroll = rememberScrollState()
+    LaunchedEffect(state.errorMessage, state.message) {
+        if (state.errorMessage != null || state.message != null) scroll.animateScrollTo(0)
+    }
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    var isReadingImage by remember { mutableStateOf(false) }
+    val busy = state.isSaving || isReadingImage
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) scope.launch {
+            isReadingImage = true
+            try {
+                val (bytes, type) = withContext(Dispatchers.IO) { readAvatar(context, uri) }
+                viewModel.uploadAvatar(bytes, type)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                viewModel.showError("Unable to read this image. Choose a JPEG, PNG or WebP image up to 10 MB.")
+            } finally { isReadingImage = false }
         }
     }
+    LaunchedEffect(state.isLoggedOut) { if (state.isLoggedOut) onLogout() }
 
     Scaffold(
+        modifier = modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(
-                title = { Text("My Profile") },
-                navigationIcon = {
-                    if (onNavigateBack != null) {
-                        IconButton(onClick = onNavigateBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
-                            )
+            TopAppBar(title = { Text("My Profile") }, navigationIcon = {
+                if (onNavigateBack != null) IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            }, actions = {
+                IconButton(onClick = viewModel::loadUserProfile, enabled = !busy) {
+                    Icon(Icons.Default.Refresh, contentDescription = "Refresh profile")
+                }
+            })
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding()
+                .verticalScroll(scroll).padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (state.isLoading || busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            state.errorMessage?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+                if (state.user == null) Button(onClick = viewModel::loadUserProfile) { Text("Retry") }
+            }
+            state.message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+            val user = state.user
+            if (user == null && !state.isLoading && state.errorMessage == null) {
+                Text("No profile is available.")
+                Button(onClick = viewModel::loadUserProfile) { Text("Reload profile") }
+            }
+            if (user != null) {
+                Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Surface(modifier = Modifier.size(96.dp).clip(CircleShape), color = MaterialTheme.colorScheme.primaryContainer) {
+                        if (!user.avatarUrl.isNullOrBlank()) {
+                            AsyncImage(model = user.avatarUrl, contentDescription = "Your avatar",
+                                contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                        } else Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Person, contentDescription = "Your avatar", modifier = Modifier.size(48.dp))
                         }
                     }
-                },
-                actions = {
-                    IconButton(onClick = { viewModel.loadUserProfile() }) {
-                        Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh Profile")
+                    TextButton(onClick = {
+                        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    }, enabled = !busy) { Text("Change avatar") }
+                    Text(user.fullName?.takeIf { it.isNotBlank() } ?: user.username, style = MaterialTheme.typography.headlineSmall)
+                    Text("@${user.username}", style = MaterialTheme.typography.bodyMedium)
+                    Text(user.email, style = MaterialTheme.typography.bodyMedium)
+                    Text("JLPT ${user.levelCode ?: "not set"}", style = MaterialTheme.typography.labelLarge)
+                }
+
+                if (state.isEditing) {
+                    OutlinedTextField(value = state.username, onValueChange = viewModel::onUsernameChanged,
+                        label = { Text("Username") }, singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = state.fullName, onValueChange = viewModel::onFullNameChanged,
+                        label = { Text("Full name") }, singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(onClick = viewModel::saveProfile, enabled = !busy) { Text("Save profile") }
+                        TextButton(onClick = viewModel::cancelEdit, enabled = !busy) { Text("Cancel") }
                     }
-                    IconButton(onClick = { viewModel.logout() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Sign Out")
+                } else OutlinedButton(onClick = viewModel::beginEdit, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                    Text("Edit profile")
+                }
+
+                HorizontalDivider()
+                Text("Learning preferences", style = MaterialTheme.typography.titleLarge)
+                if (state.isSettingsLoading) CircularProgressIndicator()
+                state.settingsError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error)
+                    TextButton(onClick = viewModel::loadSettings, enabled = !busy) { Text("Retry preferences") }
+                }
+                val settings = state.settings
+                if (settings != null) {
+                    SettingSwitch("Push notifications", settings.pushEnabled, !busy, viewModel::onPushChanged)
+                    SettingSwitch("Daily reminder", settings.reminderEnabled, !busy, viewModel::onReminderChanged)
+                    OutlinedTextField(value = state.dailyGoal, onValueChange = viewModel::onDailyGoalChanged,
+                        label = { Text("Daily goal (minutes)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = state.reminderTime, onValueChange = viewModel::onReminderTimeChanged,
+                        label = { Text("Reminder time (HH:mm)") }, singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = state.timezone, onValueChange = viewModel::onTimezoneChanged,
+                        label = { Text("Timezone") }, supportingText = { Text("For example: Asia/Ho_Chi_Minh") },
+                        singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
+                    Button(onClick = viewModel::saveSettings, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                        Text("Save preferences")
                     }
                 }
-            )
+
+                HorizontalDivider()
+                if (onNavigateToTopics != null) OutlinedButton(onClick = onNavigateToTopics,
+                    enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Explore Topics & Levels") }
+                OutlinedButton(onClick = viewModel::logout, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Sign out") }
+                TextButton(onClick = { confirmDelete = true }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                    Text("Delete account", color = MaterialTheme.colorScheme.error)
+                }
+            }
+        }
+    }
+    if (confirmDelete) AlertDialog(
+        onDismissRequest = { if (!busy) confirmDelete = false },
+        title = { Text("Delete your account?") },
+        text = { Text("Your account and personal learning data will be permanently deleted. This cannot be undone.") },
+        confirmButton = {
+            TextButton(onClick = { confirmDelete = false; viewModel.deleteAccount() }, enabled = !busy) {
+                Text("Delete account", color = MaterialTheme.colorScheme.error)
+            }
         },
-        modifier = modifier.fillMaxSize()
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
-        ) {
-            when {
-                // Loading State
-                uiState.isLoading && uiState.user == null -> {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator()
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(text = "Loading profile...", style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-
-                // Error State
-                uiState.errorMessage != null && uiState.user == null -> {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Error Loading Profile",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = uiState.errorMessage ?: "Unknown error",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.loadUserProfile() }) {
-                            Text("Retry")
-                        }
-                    }
-                }
-
-                // Empty State
-                uiState.isEmpty -> {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "No Profile Found",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "We could not find your user profile data.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.loadUserProfile() }) {
-                            Text("Reload")
-                        }
-                    }
-                }
-
-                // Success State
-                uiState.user != null -> {
-                    val user = uiState.user!!
-                    UserProfileContent(
-                        user = user,
-                        isLoading = uiState.isLoading,
-                        errorMessage = uiState.errorMessage,
-                        onNavigateToTopics = onNavigateToTopics,
-                        onLogout = { viewModel.logout() }
-                    )
-                }
-            }
-        }
-    }
+        dismissButton = { TextButton(onClick = { confirmDelete = false }, enabled = !busy) { Text("Cancel") } }
+    )
 }
 
 @Composable
-private fun UserProfileContent(
-    user: User,
-    isLoading: Boolean,
-    errorMessage: String?,
-    onNavigateToTopics: (() -> Unit)?,
-    onLogout: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (errorMessage != null) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(12.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Avatar placeholder
-        Surface(
-            modifier = Modifier
-                .size(96.dp)
-                .clip(CircleShape),
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Avatar",
-                    modifier = Modifier.size(56.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = user.fullName ?: user.username,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "@${user.username}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Profile Details Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                ProfileInfoRow(label = "Email", value = user.email)
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                ProfileInfoRow(label = "Role", value = user.role.uppercase())
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                ProfileInfoRow(label = "JLPT Level", value = user.levelCode ?: "Not set (Beginner)")
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                ProfileInfoRow(label = "Status", value = user.status.replaceFirstChar { it.uppercase() })
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                ProfileInfoRow(label = "Language", value = user.language.uppercase())
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        if (onNavigateToTopics != null) {
-            OutlinedButton(
-                onClick = onNavigateToTopics,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(10.dp),
-                enabled = !isLoading
-            ) {
-                Text(text = "Explore Topics & Levels", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-
-        Button(
-            onClick = onLogout,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-            shape = RoundedCornerShape(10.dp),
-            enabled = !isLoading
-        ) {
-            Text(text = "Sign Out", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-        }
+private fun SettingSwitch(label: String, checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, modifier = Modifier.weight(1f))
+        Switch(checked = checked, onCheckedChange = onChange, enabled = enabled,
+            modifier = Modifier.semantics { contentDescription = label })
     }
 }
 
-@Composable
-private fun ProfileInfoRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
+private fun readAvatar(context: Context, uri: Uri): Pair<ByteArray, String> {
+    val maxBytes = 10 * 1024 * 1024
+    val bytes = context.contentResolver.openInputStream(uri)?.use { input ->
+        val output = ByteArrayOutputStream()
+        val buffer = ByteArray(8192)
+        while (true) {
+            val count = input.read(buffer)
+            if (count < 0) break
+            require(output.size() + count <= maxBytes)
+            output.write(buffer, 0, count)
+        }
+        output.toByteArray()
+    } ?: error("Image unavailable")
+    return bytes to (context.contentResolver.getType(uri) ?: "image/jpeg")
 }

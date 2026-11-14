@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.gson)
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     // Security & Coroutines
     implementation(libs.security.crypto)
