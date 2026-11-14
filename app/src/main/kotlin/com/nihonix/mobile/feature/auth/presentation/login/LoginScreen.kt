@@ -29,6 +29,7 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
     onLoginSuccess: () -> Unit,
+    onNavigateToVerifyEmail: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -184,6 +185,8 @@ fun LoginScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            TextButton(onClick = onNavigateToVerifyEmail, enabled = !uiState.isLoading) { Text("Verify your email") }
 
             // Sign Up link
             Row(

@@ -9,6 +9,9 @@ import com.nihonix.mobile.core.storage.SecureTokenStorage
 import com.nihonix.mobile.core.storage.SharedPreferencesUserStorage
 import com.nihonix.mobile.core.storage.TokenStorage
 import com.nihonix.mobile.core.storage.UserStorage
+import com.nihonix.mobile.feature.auth.data.api.AccountApiService
+import com.nihonix.mobile.feature.auth.data.repository.AccountRepositoryImpl
+import com.nihonix.mobile.feature.auth.domain.repository.AccountRepository
 import com.nihonix.mobile.feature.auth.data.api.AuthApiService
 import com.nihonix.mobile.feature.auth.data.repository.AuthRepositoryImpl
 import com.nihonix.mobile.feature.auth.domain.repository.AuthRepository
@@ -53,6 +56,10 @@ object ServiceLocator {
             userStorage = userStorage,
             gson = gson
         )
+    }
+
+    val accountRepository: AccountRepository by lazy {
+        AccountRepositoryImpl(networkModule.createService(AccountApiService::class.java), tokenStorage, userStorage, gson)
     }
 
     val topicsLevelsApiService: TopicsLevelsApiService by lazy {

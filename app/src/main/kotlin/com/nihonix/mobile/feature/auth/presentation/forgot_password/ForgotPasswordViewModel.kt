@@ -39,6 +39,11 @@ class ForgotPasswordViewModel(
         _uiState.update { it.copy(errorMessage = null) }
     }
 
+    fun restartRecovery() {
+        if (_uiState.value.isLoading) return
+        _uiState.update { it.copy(step = ForgotPasswordStep.REQUEST_CODE, code = "", tempToken = "", newPassword = "", infoMessage = null, errorMessage = null, isSuccess = false) }
+    }
+
     fun requestCode() {
         val email = _uiState.value.email.trim()
         if (!com.nihonix.mobile.core.util.ValidationUtils.isValidEmail(email)) {
@@ -70,7 +75,7 @@ class ForgotPasswordViewModel(
         val email = _uiState.value.email.trim()
         val code = _uiState.value.code.trim()
 
-        if (code.isBlank() || code.length != 6) {
+        if (!Regex("^[0-9]{6}$").matches(code)) {
             _uiState.update { it.copy(errorMessage = "Please enter the 6-digit verification code") }
             return
         }
@@ -100,8 +105,8 @@ class ForgotPasswordViewModel(
         val token = _uiState.value.tempToken
         val newPassword = _uiState.value.newPassword
 
-        if (newPassword.length < 8) {
-            _uiState.update { it.copy(errorMessage = "New password must be at least 8 characters") }
+        if (newPassword.length < 8 || newPassword.toByteArray(Charsets.UTF_8).size > 72) {
+            _uiState.update { it.copy(errorMessage = "New password must be at least 8 characters and at most 72 UTF-8 bytes") }
             return
         }
 

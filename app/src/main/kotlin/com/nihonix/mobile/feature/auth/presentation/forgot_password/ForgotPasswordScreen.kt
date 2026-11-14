@@ -273,6 +273,11 @@ fun ForgotPasswordScreen(
                         }
                     }
                 }
+                if (uiState.step != ForgotPasswordStep.REQUEST_CODE) {
+                    TextButton(onClick = viewModel::restartRecovery, enabled = !uiState.isLoading) {
+                        Text("Request a new code or change email")
+                    }
+                }
             }
         }
     }

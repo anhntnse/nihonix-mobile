@@ -57,8 +57,8 @@ class RegisterViewModel(
             _uiState.update { it.copy(errorMessage = "Please enter a valid email address") }
             return
         }
-        if (password.length < 6) {
-            _uiState.update { it.copy(errorMessage = "Password must be at least 6 characters") }
+        if (password.length < 8 || password.toByteArray(Charsets.UTF_8).size > 72) {
+            _uiState.update { it.copy(errorMessage = "Password must be at least 8 characters and at most 72 UTF-8 bytes") }
             return
         }
 

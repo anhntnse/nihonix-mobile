@@ -97,7 +97,7 @@ class AuthViewModelTest {
         viewModel.onPasswordChanged("12345") // min is 6
 
         viewModel.register()
-        assertEquals("Password must be at least 6 characters", viewModel.uiState.value.errorMessage)
+        assertEquals("Password must be at least 8 characters and at most 72 UTF-8 bytes", viewModel.uiState.value.errorMessage)
     }
 
     @Test

@@ -2,14 +2,21 @@ package com.nihonix.mobile.feature.auth.presentation.navigation
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.nihonix.mobile.feature.auth.presentation.verification.EmailVerificationScreen
+import com.nihonix.mobile.feature.auth.presentation.verification.EmailVerificationViewModel
 import com.nihonix.mobile.core.di.AppViewModelFactory
 import com.nihonix.mobile.core.di.ServiceLocator
 import com.nihonix.mobile.feature.auth.presentation.forgot_password.ForgotPasswordScreen
@@ -30,6 +37,8 @@ object AuthDestinations {
     const val REGISTER = "auth_register"
     const val FORGOT_PASSWORD = "auth_forgot_password"
     const val PROFILE = "user_profile"
+    const val VERIFY_EMAIL = "auth_verify_email?email={email}"
+    fun verificationRoute(email: String = "") = "auth_verify_email?email=${Uri.encode(email)}"
 }
 
 object TopicsDestinations {
@@ -47,8 +56,25 @@ fun NihonixNavHost(
     navController: NavHostController = rememberNavController(),
     viewModelFactory: AppViewModelFactory = AppViewModelFactory()
 ) {
-    val isLoggedIn = ServiceLocator.authRepository.isLoggedIn()
-    val startDestination = if (isLoggedIn) TopicsDestinations.TOPICS else AuthDestinations.LOGIN
+    val hasSession by ServiceLocator.tokenStorage.isAuthenticated.collectAsState()
+    val currentEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentEntry?.destination?.route
+    val startDestination = remember {
+        if (hasSession) TopicsDestinations.TOPICS else AuthDestinations.LOGIN
+    }
+
+    // A refresh failure or logout removes protected destinations from the back stack.
+    LaunchedEffect(hasSession, currentRoute) {
+        val protectedRoute = currentRoute == TopicsDestinations.TOPICS ||
+            currentRoute == TopicsDestinations.TOPIC_DETAIL ||
+            currentRoute == AuthDestinations.PROFILE
+        if (!hasSession && protectedRoute) {
+            navController.navigate(AuthDestinations.LOGIN) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -65,6 +91,7 @@ fun NihonixNavHost(
                 onNavigateToForgotPassword = {
                     navController.navigate(AuthDestinations.FORGOT_PASSWORD)
                 },
+                onNavigateToVerifyEmail = { navController.navigate(AuthDestinations.verificationRoute()) },
                 onLoginSuccess = {
                     navController.navigate(TopicsDestinations.TOPICS) {
                         popUpTo(AuthDestinations.LOGIN) { inclusive = true }
@@ -81,7 +108,27 @@ fun NihonixNavHost(
                     navController.popBackStack()
                 },
                 onRegisterSuccess = {
-                    navController.popBackStack(AuthDestinations.LOGIN, inclusive = false)
+                    navController.navigate(AuthDestinations.verificationRoute(registerViewModel.uiState.value.email.trim())) {
+                        popUpTo(AuthDestinations.REGISTER) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            AuthDestinations.VERIFY_EMAIL,
+            arguments = listOf(navArgument("email") { type = NavType.StringType; defaultValue = "" })
+        ) { entry ->
+            val verification: EmailVerificationViewModel = viewModel(factory = viewModelFactory)
+            EmailVerificationScreen(
+                viewModel = verification,
+                initialEmail = entry.arguments?.getString("email").orEmpty(),
+                onBack = { navController.popBackStack() },
+                onVerified = {
+                    navController.navigate(AuthDestinations.LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             )
         }

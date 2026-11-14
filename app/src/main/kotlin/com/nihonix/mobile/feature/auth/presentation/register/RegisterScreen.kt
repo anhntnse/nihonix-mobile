@@ -49,13 +49,13 @@ fun RegisterScreen(
                 onRegisterSuccess()
             },
             title = { Text("Account Created") },
-            text = { Text("Your account has been created successfully! Please sign in with your credentials.") },
+            text = { Text("Your account has been created. Verify your email before signing in.") },
             confirmButton = {
                 Button(onClick = {
                     showSuccessDialog = false
                     onRegisterSuccess()
                 }) {
-                    Text("Go to Sign In")
+                    Text("Verify email")
                 }
             }
         )
@@ -186,7 +186,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = { viewModel.onPasswordChanged(it) },
-                label = { Text("Password (min 6 chars)") },
+                label = { Text("Password (min 8 chars)") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isLoading,

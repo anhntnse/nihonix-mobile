@@ -1,6 +1,7 @@
 package com.nihonix.mobile.core.di
 
 import androidx.lifecycle.ViewModel
+import com.nihonix.mobile.feature.auth.presentation.verification.EmailVerificationViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.nihonix.mobile.feature.auth.presentation.forgot_password.ForgotPasswordViewModel
 import com.nihonix.mobile.feature.auth.presentation.login.LoginViewModel
@@ -26,6 +27,9 @@ class AppViewModelFactory : ViewModelProvider.Factory {
             }
             modelClass.isAssignableFrom(UserProfileViewModel::class.java) -> {
                 UserProfileViewModel(authRepo) as T
+            }
+            modelClass.isAssignableFrom(EmailVerificationViewModel::class.java) -> {
+                EmailVerificationViewModel(ServiceLocator.accountRepository) as T
             }
             modelClass.isAssignableFrom(TopicsViewModel::class.java) -> {
                 TopicsViewModel(topicsLevelsRepo, authRepo) as T
