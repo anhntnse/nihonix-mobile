@@ -70,7 +70,7 @@ fun NihonixNavHost(
         val protectedRoute = currentRoute == TopicsDestinations.TOPICS ||
             currentRoute == TopicsDestinations.TOPIC_DETAIL ||
             currentRoute == AuthDestinations.PROFILE ||
-            currentRoute == LearningDestinations.LIST || currentRoute == LearningDestinations.DETAIL || currentRoute == "progress"
+            currentRoute == LearningDestinations.LIST || currentRoute == LearningDestinations.DETAIL || currentRoute == "progress" || currentRoute?.startsWith("flashcards") == true
         if (!hasSession && protectedRoute) {
             navController.navigate(AuthDestinations.LOGIN) {
                 popUpTo(0) { inclusive = true }
@@ -151,6 +151,7 @@ fun NihonixNavHost(
             TopicsScreen(
                 viewModel = topicsViewModel,
                 onProgress = { navController.navigate("progress") },
+                onFlashcards = { navController.navigate("flashcards") },
                 onTopicClick = { identifier ->
                     navController.navigate(TopicsDestinations.topicDetailRoute(identifier))
                 },
@@ -201,6 +202,24 @@ fun NihonixNavHost(
                 navController.navigate(LearningDestinations.list(child,LearningFilter(
                     topicId=entry.topicId,levelCode=entry.levelCode,parentId=entry.key)))
             })
+        }
+
+        listOf("flashcards","flashcards/folder/{folderId}","flashcards/folder/{folderId}/set/{setId}").forEach { route ->
+            composable(route,arguments=buildList {
+                if(route.contains("{folderId}")) add(navArgument("folderId"){type=NavType.StringType})
+                if(route.contains("{setId}")) add(navArgument("setId"){type=NavType.StringType})
+            }) {
+                val flashcards:com.nihonix.mobile.feature.flashcards.presentation.FlashcardsViewModel=viewModel(factory=viewModelFactory)
+                com.nihonix.mobile.feature.flashcards.presentation.FlashcardsScreen(flashcards,
+                    onBack={navController.popBackStack()},
+                    onReview={id->navController.navigate("flashcards/review/"+android.net.Uri.encode(id))},
+                    onFolder={id->navController.navigate("flashcards/folder/"+android.net.Uri.encode(id))},
+                    onSet={id->navController.navigate("flashcards/folder/"+android.net.Uri.encode(flashcards.uiState.value.folderId.orEmpty())+"/set/"+android.net.Uri.encode(id))})
+            }
+        }
+        composable("flashcards/review/{setId}",arguments=listOf(navArgument("setId"){type=NavType.StringType})) {
+            val review:com.nihonix.mobile.feature.flashcards.presentation.FlashcardReviewViewModel=viewModel(factory=viewModelFactory)
+            com.nihonix.mobile.feature.flashcards.presentation.FlashcardReviewScreen(review){navController.popBackStack()}
         }
 
         composable("progress") {
