@@ -1,6 +1,8 @@
 package com.nihonix.mobile.core.offline
 
 import androidx.room.*
+import com.nihonix.mobile.feature.activity.ActivityCache
+import com.nihonix.mobile.feature.activity.ActivityDao
 import com.nihonix.mobile.feature.practice.data.PracticeCache
 import com.nihonix.mobile.feature.practice.data.PracticeDao
 import com.nihonix.mobile.feature.flashcards.data.*
@@ -60,9 +62,14 @@ interface ProgressDao {
     @Query("DELETE FROM sync_checkpoints WHERE account=:account") suspend fun purgeCheckpoint(account:String)
 }
 @Database(entities=[CatalogCache::class,LocalProgress::class,OutboxMessage::class,SyncCheckpoint::class,
-    LocalFolder::class,LocalSet::class,LocalCard::class,ServerCopy::class,FlashcardCheckpoint::class,EditorDraft::class,FlashcardPayloadChunk::class,PracticeCache::class],version=5,exportSchema=true)
+    LocalFolder::class,LocalSet::class,LocalCard::class,ServerCopy::class,FlashcardCheckpoint::class,EditorDraft::class,FlashcardPayloadChunk::class,PracticeCache::class,ActivityCache::class],version=6,exportSchema=true)
 abstract class OfflineDatabase:RoomDatabase() {
     companion object {
+        val MIGRATION_5_6 = object: androidx.room.migration.Migration(5,6) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS activity_cache (account TEXT NOT NULL,`key` TEXT NOT NULL,payload TEXT NOT NULL,savedAt INTEGER NOT NULL,PRIMARY KEY(account,`key`))")
+            }
+        }
         val MIGRATION_4_5 = object: androidx.room.migration.Migration(4,5) {
             override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS practice_cache (account TEXT NOT NULL,`key` TEXT NOT NULL,kind TEXT NOT NULL,payload TEXT NOT NULL,savedAt INTEGER NOT NULL,PRIMARY KEY(account,`key`))")
@@ -91,6 +98,7 @@ abstract class OfflineDatabase:RoomDatabase() {
             }
         }
     }
+    abstract fun activity():ActivityDao
     abstract fun practice():PracticeDao
     abstract fun flashcards():FlashcardDao
     abstract fun catalog():CatalogDao
