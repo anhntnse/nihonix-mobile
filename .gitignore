@@ -13,3 +13,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Server credentials must never enter the Android source tree
+*firebase-adminsdk*.json
+service-account*.json
+.secrets/
+
+# Firebase client configuration is machine-local; see docs/troubleshooting/firebase-fcm.md
+app/google-services.json

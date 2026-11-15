@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp") version "2.3.14"
+    id("com.google.gms.google-services")
 }
 
 val debugApiBaseUrl = providers.gradleProperty("NIHONIX_DEBUG_API_BASE_URL")
@@ -89,6 +90,8 @@ tasks.matching { it.name == "mergeDebugAndroidTestAssets" }.configureEach {
 }
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:35.2.0"))
+    implementation("com.google.firebase:firebase-messaging")
     // Align app/test serialization: Room migration bundles require the 1.8 JVM default ABI.
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     implementation("androidx.room:room-runtime:2.8.5")
