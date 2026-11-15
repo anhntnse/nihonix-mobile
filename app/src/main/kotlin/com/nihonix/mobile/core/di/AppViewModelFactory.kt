@@ -17,6 +17,9 @@ import com.nihonix.mobile.feature.topics.presentation.topics_list.TopicsViewMode
 @Suppress("UNCHECKED_CAST")
 class AppViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+        if (modelClass.isAssignableFrom(com.nihonix.mobile.feature.activity.ActivityViewModel::class.java)) {
+            return com.nihonix.mobile.feature.activity.ActivityViewModel(ServiceLocator.activityRepository) as T
+        }
         if (modelClass.isAssignableFrom(com.nihonix.mobile.feature.practice.presentation.PracticeViewModel::class.java)) {
             return com.nihonix.mobile.feature.practice.presentation.PracticeViewModel(
                 ServiceLocator.practiceRepository, extras.createSavedStateHandle(), loadTopics = {

@@ -26,6 +26,7 @@ class AccountRepositoryImpl(
     private val tokens: TokenStorage,
     private val users: UserStorage,
     private val gson: Gson,
+    private val onSettingsChanged: (String, LearningSettings) -> Unit = { _, _ -> },
     private val purgeOffline: suspend (String) -> Unit = {}
 ) : AccountRepository {
     private fun <T, R> request(call: suspend () -> Response<ApiResponseDto<T>>, map: (T) -> R): Flow<Resource<R>> = flow {
@@ -47,10 +48,16 @@ class AccountRepositoryImpl(
         { cacheUser(it.toDomain()) }
     )
 
-    override fun getSettings() = request({ api.getSettings() }, { it.toDomain() })
-    override fun updateSettings(settings: LearningSettings) = request(
-        { api.updateSettings(LearningSettingsDto.fromDomain(settings)) }, { it.toDomain() }
-    )
+    private fun settingsRequest(call: suspend () -> Response<ApiResponseDto<LearningSettingsDto>>) = flow {
+        emit(Resource.Loading)
+        val owner = users.getUser()?.id
+        emit(safeApiCall(gson, call) { dto ->
+            check(owner != null && users.getUser()?.id == owner && tokens.hasAccessToken()) { "Account changed." }
+            dto.toDomain().also { onSettingsChanged(owner, it) }
+        })
+    }.flowOn(Dispatchers.IO)
+    override fun getSettings() = settingsRequest { api.getSettings() }
+    override fun updateSettings(settings: LearningSettings) = settingsRequest { api.updateSettings(LearningSettingsDto.fromDomain(settings)) }
 
     override fun uploadAvatar(bytes: ByteArray, mimeType: String): Flow<Resource<User>> {
         if (bytes.isEmpty() || bytes.size > 10 * 1024 * 1024 ||

@@ -40,7 +40,8 @@ fun UserProfileScreen(
     onLogout: () -> Unit,
     onNavigateToTopics: (() -> Unit)? = null,
     onNavigateBack: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    notificationControls: @Composable () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -153,6 +154,7 @@ fun UserProfileScreen(
                     }
                 }
 
+                notificationControls()
                 HorizontalDivider()
                 if (onNavigateToTopics != null) OutlinedButton(onClick = onNavigateToTopics,
                     enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Explore Topics & Levels") }

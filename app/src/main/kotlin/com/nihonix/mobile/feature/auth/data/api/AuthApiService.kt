@@ -30,7 +30,8 @@ interface AuthApiService {
 
     @POST("auth/logout")
     suspend fun logout(
-        @Body body: LogoutRequestDto
+        @Body body: LogoutRequestDto,
+        @retrofit2.http.Tag session: com.nihonix.mobile.core.network.interceptor.SessionRequest? = null
     ): Response<ApiResponseDto<MessageResponseDto>>
 
     @POST("auth/me")

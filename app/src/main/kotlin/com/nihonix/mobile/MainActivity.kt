@@ -41,8 +41,23 @@ class MainActivity : ComponentActivity() {
                 StartupViewModel(ServiceLocator.startupRepository, BuildConfig.VERSION_CODE.toLong()) as T
         }
     }
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        ServiceLocator.studyTracker.interact()
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        ServiceLocator.notifications.handleIntent(intent)
+    }
+    override fun onResume() {
+        super.onResume()
+        if (!ServiceLocator.notifications.permissionGranted()) ServiceLocator.notifications.disableLocal()
+        ServiceLocator.notifications.requestReconcile()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ServiceLocator.notifications.handleIntent(intent)
         enableEdgeToEdge()
         setContent {
             NihonixTheme {

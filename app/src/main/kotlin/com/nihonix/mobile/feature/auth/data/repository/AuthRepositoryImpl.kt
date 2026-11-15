@@ -20,7 +20,8 @@ class AuthRepositoryImpl(
     private val apiService: AuthApiService,
     private val tokenStorage: TokenStorage,
     private val userStorage: UserStorage,
-    private val gson: Gson
+    private val gson: Gson,
+    private val beforeLogout: suspend () -> Unit = {}
 ) : AuthRepository {
 
     override val currentUserFlow: StateFlow<User?> = userStorage.currentUserFlow
@@ -34,13 +35,15 @@ class AuthRepositoryImpl(
             apiCall = { apiService.login(LoginRequestDto(username.trim(), password)) },
             transform = { loginData ->
                 val user = loginData.user.toDomain()
-                try {
-                    tokenStorage.saveTokens(loginData.accessToken, loginData.refreshToken)
-                    userStorage.saveUser(user)
-                } catch (error: Exception) {
-                    tokenStorage.clearTokens()
-                    userStorage.clearUser()
-                    throw error
+                synchronized(userStorage) {
+                    try {
+                        tokenStorage.saveTokens(loginData.accessToken, loginData.refreshToken)
+                        userStorage.saveUser(user)
+                    } catch (error: Exception) {
+                        tokenStorage.clearTokens()
+                        userStorage.clearUser()
+                        throw error
+                    }
                 }
                 user
             }
@@ -74,18 +77,26 @@ class AuthRepositoryImpl(
 
     override fun logout(): Flow<Resource<Unit>> = flow {
         emit(Resource.Loading)
-        val refreshToken = tokenStorage.getRefreshToken() ?: ""
+        val owner=userStorage.getUser()?.id
+        val session=com.nihonix.mobile.core.network.interceptor.accessSessionId(tokenStorage.getAccessToken())
+        fun unchanged()=userStorage.getUser()?.id==owner && (session==null || session==com.nihonix.mobile.core.network.interceptor.accessSessionId(tokenStorage.getAccessToken()))
+        var replaced=false
         try {
-            if (refreshToken.isNotBlank()) {
-                apiService.logout(LogoutRequestDto(refreshToken))
+            beforeLogout()
+            if(!unchanged())replaced=true
+            else {
+                val refreshToken=tokenStorage.getRefreshToken().orEmpty()
+                if(refreshToken.isNotBlank())apiService.logout(LogoutRequestDto(refreshToken),com.nihonix.mobile.core.network.interceptor.SessionRequest(owner,session))
             }
         } catch (_: Exception) {
-            // Ignore network errors during logout to ensure local cleanup
+            // Offline logout still hides local credentials and notification binding.
         } finally {
-            tokenStorage.clearTokens()
-            userStorage.clearUser()
+            synchronized(userStorage) {
+                if(unchanged()){tokenStorage.clearTokens();userStorage.clearUser()}else replaced=true
+            }
         }
-        emit(Resource.Success(Unit, "Logged out successfully"))
+        if(replaced)emit(Resource.Error("Session changed. Your current sign-in was kept."))
+        else emit(Resource.Success(Unit, "Logged out successfully"))
     }.flowOn(Dispatchers.IO)
 
     override fun getCurrentUser(): Flow<Resource<User>> = flow {

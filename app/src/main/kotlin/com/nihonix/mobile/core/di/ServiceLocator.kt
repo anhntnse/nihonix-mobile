@@ -57,7 +57,8 @@ object ServiceLocator {
             com.nihonix.mobile.core.offline.OfflineDatabase::class.java, "offline_$environmentKey.db").addMigrations(com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_1_2,
                 com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_2_3,
                 com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_3_4,
-                com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_4_5).build()
+                com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_4_5,
+                com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_5_6).build()
     }
     val syncScheduler by lazy { com.nihonix.mobile.core.offline.SyncScheduler(applicationContext, environmentKey) }
     val progressRepository by lazy {
@@ -69,6 +70,17 @@ object ServiceLocator {
         com.nihonix.mobile.feature.flashcards.data.FlashcardsRepository(offlineDatabase,
             networkModule.createService(com.nihonix.mobile.feature.flashcards.data.FlashcardsApi::class.java),
             userStorage, tokenStorage, gson, syncScheduler::schedule)
+    }
+    val applicationScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob()+kotlinx.coroutines.Dispatchers.IO)
+    val studyTracker by lazy { com.nihonix.mobile.feature.activity.StudyTracker(activityRepository,applicationScope) }
+    val notifications by lazy {
+        com.nihonix.mobile.feature.notifications.NotificationsManager(applicationContext,environmentKey,
+            networkModule.createService(com.nihonix.mobile.feature.notifications.NotificationsApi::class.java),userStorage,tokenStorage,activityRepository)
+    }
+    val activityRepository by lazy {
+        com.nihonix.mobile.feature.activity.ActivityRepository(offlineDatabase,
+            networkModule.createService(com.nihonix.mobile.feature.activity.ActivityApi::class.java),
+            userStorage,tokenStorage,gson,syncScheduler::schedule)
     }
     val practiceRepository by lazy {
         com.nihonix.mobile.feature.practice.data.PracticeRepository(offlineDatabase,
@@ -87,18 +99,29 @@ object ServiceLocator {
             apiService = authApiService,
             tokenStorage = tokenStorage,
             userStorage = userStorage,
-            gson = gson
+            gson = gson,
+            beforeLogout = { notifications.beforeLogout() }
         )
     }
 
     val accountRepository: AccountRepository by lazy {
-        AccountRepositoryImpl(networkModule.createService(AccountApiService::class.java), tokenStorage, userStorage, gson) { owner ->
+        AccountRepositoryImpl(networkModule.createService(AccountApiService::class.java), tokenStorage, userStorage, gson, purgeOffline = { owner ->
             offlineDatabase.withTransaction {
                 progressRepository.purge(owner)
                 flashcardsRepository.purge(owner)
                 practiceRepository.purge(owner)
+                activityRepository.purge(owner)
+                notifications.disableLocal()
             }
-        }
+        }, onSettingsChanged = { owner, settings ->
+            notifications.preferencesChanged(owner,com.nihonix.mobile.feature.activity.ActivityPreferences(
+                settings.pushEnabled,settings.reminderEnabled,settings.reminderTime,settings.timezone,settings.dailyGoalMinutes))
+            applicationScope.launch {
+                activityRepository.cachePreferences(owner, com.nihonix.mobile.feature.activity.ActivityPreferences(
+                    settings.pushEnabled,settings.reminderEnabled,settings.reminderTime,settings.timezone,settings.dailyGoalMinutes))
+                runCatching { notifications.reconcile() }
+            }
+        })
     }
 
     val topicsLevelsApiService: TopicsLevelsApiService by lazy {
@@ -141,7 +164,11 @@ object ServiceLocator {
                 user?.id?.takeIf { signedIn }
             }.collect { account ->
                 if (previous != account) previous?.let(syncScheduler::cancel)
-                if (account != null) { syncScheduler.schedule(account); syncScheduler.periodic(account) }
+                if (previous != account) notifications.accountObserved()
+                if (account != null) {
+                    syncScheduler.schedule(account); syncScheduler.periodic(account)
+                    applicationScope.launch { runCatching { activityRepository.refreshPreferences(); notifications.reconcile() } }
+                }
                 previous = account
             }
         }

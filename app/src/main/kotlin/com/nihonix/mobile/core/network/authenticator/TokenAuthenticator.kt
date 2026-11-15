@@ -36,6 +36,7 @@ class TokenAuthenticator(
             val requestUser = response.request.tag(SessionRequest::class.java)
             if (requestUser != null && requestUser.userId != userStorage.getUser()?.id) return null
             val current = tokenStorage.getAccessToken() ?: return null
+            if(requestUser?.sessionId!=null&&requestUser.sessionId!=com.nihonix.mobile.core.network.interceptor.accessSessionId(current))return null
             val refresh = tokenStorage.getRefreshToken()
             if (refresh.isNullOrBlank()) { clearSession(); return null }
             if (responseCount(response) >= 2) { clearSession(); return null }
@@ -44,12 +45,15 @@ class TokenAuthenticator(
 
             return when (val outcome = performRefresh(refresh)) {
                 is RefreshOutcome.Success -> {
-                    // Never restore a session that was logged out/switched while the call was in flight.
-                    if (tokenStorage.getRefreshToken() != refresh) return null
-                    try {
-                        tokenStorage.saveTokens(outcome.tokens.accessToken, outcome.tokens.refreshToken)
-                        retry(response.request, outcome.tokens.accessToken)
-                    } catch (_: Exception) { clearSession(); null }
+                    // Credential replacement and logout cleanup share the same local storage monitor.
+                    synchronized(userStorage) {
+                        if (tokenStorage.getRefreshToken() != refresh) return null
+                        if(requestUser?.sessionId!=null&&requestUser.sessionId!=com.nihonix.mobile.core.network.interceptor.accessSessionId(outcome.tokens.accessToken))return null
+                        try {
+                            tokenStorage.saveTokens(outcome.tokens.accessToken, outcome.tokens.refreshToken)
+                            retry(response.request, outcome.tokens.accessToken)
+                        } catch (_: Exception) { clearSession(); null }
+                    }
                 }
                 RefreshOutcome.Expired -> {
                     if (tokenStorage.getRefreshToken() == refresh) clearSession()
