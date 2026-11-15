@@ -14,6 +14,7 @@ The outbox commits local progress and a UUID operation atomically. WorkManager r
 - [x] Retry, logout/account boundaries and explicit error handling.
 - [x] Local network/cache, concurrent-response and Room persistence tests.
 - [ ] Shared backend migration and end-to-end deployment acceptance.
-- [ ] Flashcard/activity producers: future F8/F10 work.
+- [x] Flashcard producer: private CAS/dependency queue, canonical copies, conflict recovery and Room2→3→4 migrations delivered in [Sprint06](../sprints/sprint-06-report.md).
+- [ ] Activity producer remains F10 work.
 
 [Exact contract](../contracts/sprint-05-api.md) · [Verification and limits](../sprints/sprint-05-report.md) · [Architecture](../architecture/offline-sync.md).

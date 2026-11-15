@@ -1,56 +1,34 @@
 # F8 — Personal Flashcards
 
-Status: Planned delivery; source baseline reviewed 2026-11-14.
-Requirements: FR-059–FR-070.
-Primary sprint: [Sprint 06](../sprints/sprint-06.md).
-Frontend owner: TBD. Backend owner: TBD. QA/reviewer: TBD.
+Status: Sprint06 manual CRUD/bulk/review/sync implemented and locally verified. FR-069 AI remains Sprint07.
+Requirements: FR-059–FR-070. [Sprint06](../sprints/sprint-06.md) · [Contract](../contracts/sprint-06-api.md) · [Evidence](../sprints/sprint-06-report.md).
 
-## Baseline and outcome
+## Delivered behavior
 
-Planned; folders, sets, cards, bulk edits and sync absent.
+Topics & Levels → Flashcards opens account-private folders, sets and cards. Users create/edit folders, bulk-edit up to200 text cards per set, select/delete cards with confirmation, and delete sets/folders. Review supports flip, previous/next and restart. Drafts persist in Room rather than large saved-state bundles; review saves stable card IDs, position and side.
 
-Deliver the behavior specified in [SRS](../SRS.md), Section 4.8. “Frontend” means the Android client in this repository. Backend tasks are proposed work until the backend repository and existing implementation have been audited.
+Edits and immutable UUID outbox mutations commit together. WorkManager synchronizes with independent progress/flashcard producers. Server versions, receipts and deleted IDs reconcile offline edits and cascades. The user selected preserving local content on conflict: choose server copy or save a new private copy.
 
-## Dependencies
+## Frontend
 
-- [F1 — Authentication & Account Management](f01-authentication.md)
-- [F6 — Offline Content & Synchronization](f06-offline-sync.md)
-- Agreed API/error/ownership contract in [API decisions](../architecture/api-decisions.md).
-- Existing source presence does not mean release or backend acceptance has passed.
+- [x] Folder/set/card CRUD, bulk actions, confirmation and review screens.
+- [x] Account-scoped Room v4 migrations and bounded JSON chunks, drafts, immutable queue and producer-specific synchronization.
+- [x] Preserve local conflict edits with server/copy resolution and account-pinned actions.
+- [x] Generated-card preview and explicit-save boundary.
+- [ ] Connect AI/quota generation in Sprint07 (FR-069).
 
-## Frontend work
+## Backend
 
-- [ ] Build folder and set/card CRUD, bulk actions and review screens.
-- [ ] Persist account-scoped edits/tombstones and synchronize through F6.
-- [ ] Handle edit/delete conflicts without losing user changes.
-- [ ] Prepare AI-generation preview/confirm-save entry; wire it with F9/F12 in Sprint 07.
+- [x] Reuse audited folder/set/bulk routes through owner-aware adapters.
+- [x] Atomic complete-set validation and transactional cascade semantics.
+- [x] Durable UUID receipts, CAS versions, dependency ordering, scoped deltas and deleted IDs.
+- [x] Cross-user parent/card protection, including concurrent fresh UUID collisions.
+- [x] Preserve and hide legacy unowned rows; no guessed ownership migration.
+- [ ] Shared migration/deployment and real multi-device acceptance.
+- [ ] AI generation/quota acceptance with F9/F12.
 
-## Backend work
+## Verification boundary
 
-- [ ] Audit folder/set/card CRUD and bulk routes; enforce user ownership at every level.
-- [ ] Define transactional bulk validation, partial-failure policy and set deletion semantics.
-- [ ] Provide delta/deleted-ID sync and a documented multi-device conflict policy.
-- [ ] Agree AI card generation and save contract with F9/F12.
+Local automated evidence covers private CRUD, invalid bulk rollback, replay/concurrent edits, conflict recovery, migration, account changes, editor/review restoration and process restart. See the execution report for final commands/results. AC-009 has local evidence; shared-environment acceptance remains pending. AI portions of AC-005/AC-010 remain future work. No SM-2 or inferred activity tracking is introduced.
 
-## API and data contract
-
-Proposed /flashcard-folders and /flashcards groups; verify set routes, bulk body shape, deletion and sync endpoints.
-
-Data/persistence: user_id, folders, sets, cards, stable local/server IDs, versions, tombstones and pending operations. No SM-2 spaced repetition in this release.
-
-Before implementation, record exact methods, fields, nullability, errors, authentication, ownership, pagination/versioning and representative fixtures in the API decision log. Preserve existing client contracts or document an explicit migration.
-
-## Verification and acceptance
-
-- [ ] Create/edit/delete folders, sets and cards; bulk edits remain consistent.
-- [ ] Reject cross-user parent/child references and data access.
-- [ ] Offline edits, deletion and multi-device conflicts reconcile; AI saving tested in Sprint 07.
-
-Acceptance mapping: AC-009; flashcard portions of AC-005/AC-010 after AI integration. These are targets, not passing test results. Apply the shared [delivery gates](../planning/delivery.md).
-
-## Delivery handoff
-
-- [ ] Backend contract audited and agreed; existing endpoints reused where suitable.
-- [ ] Frontend and backend changes reviewed with migration/configuration notes.
-- [ ] Integration verified against a shared environment; failures and remaining work recorded.
-- [ ] SRS source-review status, API decisions and sprint review updated with evidence.
+Dependencies: [F1](f01-authentication.md), [F6](f06-offline-sync.md), [API decisions](../architecture/api-decisions.md), and the shared [delivery gates](../planning/delivery.md).

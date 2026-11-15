@@ -4,7 +4,7 @@ D06/D07/D08: implemented locally in Sprint 05, 2026-11-15. The user confirmed ma
 
 ## Android
 
-Room v2 stores public catalog JSON projections by exact URL/query, ETag and validation time. The database filename scopes the backend URL with SHA-256. Private progress uses composite account/item keys; outbox and checkpoints are account-scoped. Tokens/passwords never enter this database. Backup/device-transfer exclusions cover databases.
+Room v4 (Sprint06) retains the v2 public catalog JSON projections by exact URL/query, ETag and validation time. The database filename scopes the backend URL with SHA-256. Private progress uses composite account/item keys; outbox and checkpoints are account-scoped. Tokens/passwords never enter this database. Backup/device-transfer exclusions cover databases.
 
 Version 1→2 adds an outbox account/state index without losing queued edits; both schema exports are retained. There is no destructive migration fallback.
 
@@ -24,7 +24,7 @@ WorkManager jobs require connected network, use exponential backoff and are uniq
 
 Logout clears authentication/profile, cancels protected jobs and hides progress. Account-specific pending data stays for relogin. Existing session validation and an expected-account header reject requests racing an account switch. Permanent errors are retained for explicit retry/discard. Discard removes queued optimistic rows and restarts server replay; acknowledged local rows remain. Successful server account deletion purges that account's records, queue and checkpoint.
 
-Flashcard/activity producer fields are reserved extension points, without claiming those features are implemented. Receipt retention currently lasts for account lifetime; any future compaction requires an explicit full-resync contract.
+Sprint06 implements the flashcard producer with CAS versions, immutable dependent mutations and local-preserving server/copy conflict resolution. Progress retains timestamp/UUID LWW and coalescing; these policies are producer-specific. Room2→3 adds private folder/set/card/canonical/draft tables;3→4 adds bounded JSON chunks for large aggregates. Retry metadata uses UPDATE so rowid/dependency order stays stable. Activity remains a future producer. See [Sprint06 contract](../contracts/sprint-06-api.md). Receipt retention currently lasts for account lifetime; any future compaction requires an explicit full-resync contract.
 
 ## Verification and rollout
 

@@ -1,6 +1,6 @@
 # API and architecture decisions
 
-Status: Partially resolved through Sprint 05. Updated: 2026-11-15.
+Status: Partially resolved through Sprint 06. D09 accepted: authenticated owner chains, atomic complete-set writes, durable UUID receipts, CAS/dependency versions and deletion heads. User confirmed preserve-local/manual conflict resolution. Room v4 chunks large JSON rows and isolates producers; [contract](../contracts/sprint-06-api.md), [evidence](../sprints/sprint-06-report.md). D10 has only preview/explicit-save preparation; AI/quota remains Sprint07. Updated: 2026-11-15.
 
 This register tracks decisions required to execute the [feature plans](../features/README.md). Routes in the SRS outside the existing auth/topics services are proposals until verified. Do not invent a backend language/framework or assume endpoints are production-ready.
 

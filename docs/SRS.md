@@ -2,6 +2,8 @@
 
 Updated: 2026-11-15. Source: `nihonix.docx`, Android source and the supplied backend audit.
 
+**Sprint 06 update:** Personal folders/sets/cards, atomic bulk edits/deletion, offline review and account-private synchronization are implemented. User-selected conflict handling preserves local edits and offers server copy or save-copy. Room chunk storage avoids large-row limits; AI FR-069 remains Sprint07. [Contract](contracts/sprint-06-api.md) · [Verification and rollout](sprints/sprint-06-report.md).
+
 **Sprint 05 update:** Persistent public catalog/ETag caching, authoritative deletion inventory, Room/WorkManager outbox and manual learned/unlearned progress with topic/level summaries are implemented and locally tested. [Contract](contracts/sprint-05-api.md) · [Verification/rollout limits](sprints/sprint-05-report.md). Offline covers previously fetched content; flashcard/activity producers and shared rollout remain separate.
 
 **Sprint 04 update:** Vocabulary sets/items and grammar sub-topics/patterns now have online list/detail flows, multilingual search, filters, pagination and rich Japanese examples. See [test evidence](sprints/sprint-04-report.md) and [API contract](contracts/sprint-04-api.md). Offline FR-036/FR-044 and learning progress remain Sprint 05; shared-environment acceptance is pending.
@@ -16,7 +18,7 @@ This document retains the original product requirements, feature numbering, FR-0
 
 **Status convention:** “Implemented in client” means the inspected source contains client logic and wiring; it does not mean the backend or end-to-end behavior passed testing. “Partial” means some required behavior exists. “Planned” means no implementation was found in the inspected app. “Unverified” means external/backend evidence is needed.
 
-**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study and vocabulary/grammar progress synchronization are delivered locally in Sprint 05. Flashcards, AI/quota, streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
+**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study and vocabulary/grammar progress synchronization are delivered locally in Sprint 05. Manual flashcards/review/synchronization are delivered locally in Sprint06. AI/quota, streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
 
 ## 1. Introduction
 
@@ -530,7 +532,7 @@ Progress summary should reflect the latest accepted data.
 
 ### 4.8. F8 – Personal Flashcards
 
-> **Source review:** Planned: no flashcard feature or AI generation integration exists.
+> **Source review (Sprint06):** Manual folder/set/card CRUD, bulk actions, review, Room persistence and owner-scoped CAS/receipt/delta synchronization are implemented. AI generation is not connected in Android; FR-069 remains Sprint07. Legacy unowned backend rows are preserved and hidden.
 
 Description: Allow users to create and manage personal flashcard folders, sets and cards.
 
@@ -544,18 +546,18 @@ Flashwise - Smarter Studying
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-059 | Users can create flashcard folders. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-060 | Users can view their folders. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-061 | Users can view folder details. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-062 | Users can update folders. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-063 | Users can delete folders. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-064 | Users can create flashcard sets and multiple cards. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-065 | Users can bulk create, update and delete cards. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-066 | Users can view flashcard sets by folder. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-067 | Users can view cards belonging to a set. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-068 | Users can delete a flashcard set. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-069 | Users can generate flashcards using AI. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-070 | Users can synchronize flashcard changes. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-059 | Users can create flashcard folders. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-060 | Users can view their folders. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-061 | Users can view folder details. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-062 | Users can update folders. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-063 | Users can delete folders. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-064 | Users can create flashcard sets and multiple cards. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-065 | Users can bulk create, update and delete cards. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-066 | Users can view flashcard sets by folder. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-067 | Users can view cards belonging to a set. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-068 | Users can delete a flashcard set. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
+| FR-069 | Users can generate flashcards using AI. | Medium | Planned | Preview/explicit-save boundary exists; AI/provider/quota integration remains Sprint07. |
+| FR-070 | Users can synchronize flashcard changes. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
 
 Content hierarchy:
 
@@ -1322,7 +1324,7 @@ Offline mode.
 | AC-006 | Application can synchronize content using ETag. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
 | AC-007 | Learning progress is preserved across application restarts. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
 | AC-008 | Progress synchronization does not create duplicated records. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
-| AC-009 | User can create and manage personal flashcard folders and sets. | Planned: implementation and acceptance testing required |
+| AC-009 | User can create and manage personal flashcard folders and sets. | Local automated CRUD/offline/conflict/restart evidence in [Sprint06](sprints/sprint-06-report.md); shared multi-device acceptance pending. |
 | AC-010 | AI can generate supported flashcards and exercises within quota. | Planned: implementation and acceptance testing required |
 | AC-011 | User can complete exercises and view results. | Planned: implementation and acceptance testing required |
 | AC-012 | Learning activities are recorded and synchronized correctly. | Planned: implementation and acceptance testing required |
@@ -1516,6 +1518,8 @@ Không có lỗi nghiêm trọng ảnh hưởng đến feature.
 Tài liệu kỹ thuật được cập nhật.
 
 ## Appendix A. Implemented client API contracts
+
+The table below preserves the initial conversion baseline. Later account/catalog/progress contracts are in Sprint02–05 documents; [Sprint06](contracts/sprint-06-api.md) adds authenticated POST flashcards/sync/batch and GET flashcards/sync/changes. Statements below about missing service methods describe the initial review only and are superseded by the dated sprint reports.
 
 Paths are relative to `/api/`. “Public” records the client's No-Authentication annotation; backend accessibility is unverified.
 
