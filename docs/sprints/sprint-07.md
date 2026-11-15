@@ -1,48 +1,32 @@
 # Sprint 07 — AI quota, practice and generated flashcards
 
-Status: Proposed, not started.
-Duration assumption: Two weeks.
-Start/end dates: TBD. Capacity/estimate: TBD.
-Sprint owner: TBD. Frontend owner: TBD. Backend owner: TBD. QA: TBD.
+Status: Implemented and locally verified; shared rollout pending. Date2026-11-15.
+Scope: F12, F9 and FR-069 AI portion of F8. Prerequisites: Sprint05/06 contracts.
 
-## Goal and scope
+## Delivered frontend
 
-F12 first, then F9 and AI portion of F8
+- [x] Server allowance/reset, unavailable/stale/429 states.
+- [x] Both exercise types, topic/type/status history filters, detail and backend results.
+- [x] Room v5 answer drafts, immutable submission producer and saved generation recovery.
+- [x] Generated-card preview → explicit save with stable IDs and duplicate prevention.
+- [x] Legacy completed practices remain read-only without creating new completion events.
 
-Prerequisites: Sprint 05 progress and Sprint 06 flashcard contracts; provider/quota decisions resolved.
+## Delivered backend
 
-This sprint is a planning increment, not a delivery commitment. Split scope or adjust duration after team estimation. Existing source is a starting point, not proof of completed acceptance.
+- [x] Atomic quota reservations, success consumption, replay, refund, leases and cancellation.
+- [x] Existing Gemini adapter with bounded calls and strict complete-output validation.
+- [x] Owner-scoped practice, transactional grading/receipts and unique completion events.
+- [x] Separate active-worker cap prevents cancellation abuse; failed cancelled workers release slots.
 
-## Frontend backlog
+User-approved quota: flashcards2/day; fill_blank+multiple_choice share3/day; max15; reset00:00 Asia/Ho_Chi_Minh. Charge validated success only.
 
-- [ ] Build quota display/reset/429 states before wiring generation.
-- [ ] Deliver both exercise types, practice history/detail, submission and results.
-- [ ] Connect generated-flashcard preview/save and emit idempotent completion events.
+## Acceptance and handoff
 
-## Backend backlog
+- [x] Local deterministic AC-010/011 generation/quota/grading and preview-save evidence.
+- [x] Fresh read-only review; important findings reproduced and fixed.
+- [x] Final full regression, process restart and build/lint evidence consolidated in [report](sprint-07-report.md).
+- [ ] Shared migration/deployment, configured-provider and physical/multi-device acceptance.
+- [ ] Sprint08 activity/streak/calendar aggregation from the durable completion event.
 
-- [ ] Implement atomic quota reservation/consumption, reset and retry/refund policy.
-- [ ] Integrate AI provider with validated output and owner-scoped persistence.
-- [ ] Deliver grading/submission/idempotency and structured failures; keep provider keys server-side.
-
-## Integration and acceptance
-
-- [ ] AC-010/AC-011 pass including concurrent quota exhaustion, malformed output and timeouts.
-- [ ] Generated cards are saved according to the agreed confirmation policy.
-- [ ] Progress events are deduplicated; activity/streak acceptance completes in Sprint 08.
-
-Apply the [shared delivery gates](../planning/delivery.md). Use the [feature index](../features/README.md) to find exact FR ranges and feature-specific checks.
-
-## Execution and review
-
-| Item | Value |
-| --- | --- |
-| Committed task IDs / estimates | TBD during sprint planning |
-| API/schema decisions | Link accepted entries in [API decisions](../architecture/api-decisions.md) |
-| Dependencies / blockers | None assessed yet; record owner and next action when identified |
-| Demo / test evidence | Pending |
-| Completed acceptance | None recorded |
-| Carryover / defects | Pending review |
-| Retrospective / next actions | Pending review |
-
-Update this record during delivery; only mark completed after integrated acceptance evidence is linked.
+[API contract](../contracts/sprint-07-api.md) · [Implementation ledger](sprint-07-implementation.md).
+User subsequently authorized Sprint07 commits and push for Android/backend. Deployment remains separate.

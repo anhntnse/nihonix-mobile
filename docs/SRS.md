@@ -2,6 +2,8 @@
 
 Updated: 2026-11-15. Source: `nihonix.docx`, Android source and the supplied backend audit.
 
+**Sprint 07 update:** AI quota, private fill-in/choice practice, durable submissions/results and explicit generated-card preview/save are implemented. User-approved policy: flashcards2/day, shared practice3/day, max15, reset00:00 Vietnam. Local fixtures cover concurrency/replay/refunds/rollback; local verification passed. FR-078 completion records are delivered; activity/streak aggregation remains Sprint08. [Contract](contracts/sprint-07-api.md) · [Ledger](sprints/sprint-07-implementation.md).
+
 **Sprint 06 update:** Personal folders/sets/cards, atomic bulk edits/deletion, offline review and account-private synchronization are implemented. User-selected conflict handling preserves local edits and offers server copy or save-copy. Room chunk storage avoids large-row limits; AI FR-069 remains Sprint07. [Contract](contracts/sprint-06-api.md) · [Verification and rollout](sprints/sprint-06-report.md).
 
 **Sprint 05 update:** Persistent public catalog/ETag caching, authoritative deletion inventory, Room/WorkManager outbox and manual learned/unlearned progress with topic/level summaries are implemented and locally tested. [Contract](contracts/sprint-05-api.md) · [Verification/rollout limits](sprints/sprint-05-report.md). Offline covers previously fetched content; flashcard/activity producers and shared rollout remain separate.
@@ -18,7 +20,7 @@ This document retains the original product requirements, feature numbering, FR-0
 
 **Status convention:** “Implemented in client” means the inspected source contains client logic and wiring; it does not mean the backend or end-to-end behavior passed testing. “Partial” means some required behavior exists. “Planned” means no implementation was found in the inspected app. “Unverified” means external/backend evidence is needed.
 
-**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study and vocabulary/grammar progress synchronization are delivered locally in Sprint 05. Manual flashcards/review/synchronization are delivered locally in Sprint06. AI/quota, streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
+**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study and vocabulary/grammar progress synchronization are delivered locally in Sprint 05. Manual flashcards/review/synchronization are delivered locally in Sprint06. AI/quota and practice are implemented in Sprint07; streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
 
 ## 1. Introduction
 
@@ -532,7 +534,7 @@ Progress summary should reflect the latest accepted data.
 
 ### 4.8. F8 – Personal Flashcards
 
-> **Source review (Sprint06):** Manual folder/set/card CRUD, bulk actions, review, Room persistence and owner-scoped CAS/receipt/delta synchronization are implemented. AI generation is not connected in Android; FR-069 remains Sprint07. Legacy unowned backend rows are preserved and hidden.
+> **Source review (Sprint06):** Manual folder/set/card CRUD, bulk actions, review, Room persistence and owner-scoped CAS/receipt/delta synchronization are implemented. AI generation/quota and stable preview/explicit-save are connected in Sprint07; actual-provider/shared rollout remains open. Legacy unowned backend rows are preserved and hidden.
 
 Description: Allow users to create and manage personal flashcard folders, sets and cards.
 
@@ -556,7 +558,7 @@ Flashwise - Smarter Studying
 | FR-066 | Users can view flashcard sets by folder. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
 | FR-067 | Users can view cards belonging to a set. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
 | FR-068 | Users can delete a flashcard set. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
-| FR-069 | Users can generate flashcards using AI. | Medium | Planned | Preview/explicit-save boundary exists; AI/provider/quota integration remains Sprint07. |
+| FR-069 | Users can generate flashcards using AI. | Medium | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
 | FR-070 | Users can synchronize flashcard changes. | High | Implemented and locally tested | Private CRUD/bulk/review and durable offline sync; see [Sprint06 report](sprints/sprint-06-report.md). Shared rollout remains pending. |
 
 Content hierarchy:
@@ -615,7 +617,7 @@ Flashcard synchronization must handle deleted records through deleted_ids.
 
 ### 4.9. F9 – AI Practice
 
-> **Source review:** Planned: no practice generation, answer submission, results or AI backend integration exists.
+> **Sprint07 source review:** Both exercise types, private history, durable drafts/submissions and backend results are implemented and locally tested. Completion events are recorded once; activity/streak aggregation remains Sprint08.
 
 Description: Generate and complete AI-powered Japanese exercises.
 
@@ -629,15 +631,15 @@ Learn real Japanese — Kotrin
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-071 | Users can generate fill-in-the-blank exercises. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-072 | Users can generate multiple-choice exercises. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-073 | Users can browse generated practice sets. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-074 | Users can filter practice sets by topic, type and status. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-075 | Users can view practice set details. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-076 | Users can submit their answers. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-077 | Application displays the practice results returned by backend. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-078 | Application records learning activity after completing a practice set. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-079 | Application synchronizes practice data when necessary. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-071 | Users can generate fill-in-the-blank exercises. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-072 | Users can generate multiple-choice exercises. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-073 | Users can browse generated practice sets. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-074 | Users can filter practice sets by topic, type and status. | Medium | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-075 | Users can view practice set details. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-076 | Users can submit their answers. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-077 | Application displays the practice results returned by backend. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-078 | Application records learning activity after completing a practice set. | High | Partial | Unique transactional completion event; activity/streak/calendar aggregation remains Sprint08. |
+| FR-079 | Application synchronizes practice data when necessary. | Medium | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
 
 Supported exercise types:
 
@@ -749,17 +751,17 @@ Application should route the user to the corresponding screen when a supported n
 
 ### 4.12. F12 – AI Usage & Quota Management
 
-> **Source review:** Planned: no AI quota endpoint or display exists. Numerical limits below are inherited proposals, not verified backend limits.
+> **Sprint07 source review:** Server quota ledger and native allowance/reset/429 states are implemented. User approved2 flashcard requests/day and3 shared practice requests/day, max15, reset00:00 Vietnam; actual-provider/shared rollout remains open.
 
 Description: Provide transparency about AI feature usage and enforce usage limits.
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-096 | Users can view AI usage information. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-097 | Application displays flashcard generation quota. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-098 | Application displays practice generation quota. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-099 | Application handles quota exceeded responses. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-100 | Application displays the quota reset time. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-096 | Users can view AI usage information. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-097 | Application displays flashcard generation quota. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-098 | Application displays practice generation quota. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-099 | Application handles quota exceeded responses. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
+| FR-100 | Application displays the quota reset time. | Medium | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
 
 Quota information:
 
@@ -1325,8 +1327,8 @@ Offline mode.
 | AC-007 | Learning progress is preserved across application restarts. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
 | AC-008 | Progress synchronization does not create duplicated records. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
 | AC-009 | User can create and manage personal flashcard folders and sets. | Local automated CRUD/offline/conflict/restart evidence in [Sprint06](sprints/sprint-06-report.md); shared multi-device acceptance pending. |
-| AC-010 | AI can generate supported flashcards and exercises within quota. | Planned: implementation and acceptance testing required |
-| AC-011 | User can complete exercises and view results. | Planned: implementation and acceptance testing required |
+| AC-010 | AI can generate supported flashcards and exercises within quota. | Local deterministic Sprint07 evidence in [report](sprints/sprint-07-report.md); configured-provider/shared acceptance pending. |
+| AC-011 | User can complete exercises and view results. | Local transactional grading, replay and native UI evidence in [Sprint07](sprints/sprint-07-report.md); shared acceptance pending. |
 | AC-012 | Learning activities are recorded and synchronized correctly. | Planned: implementation and acceptance testing required |
 | AC-013 | Streak and calendar reflect the user's learning activities and timezone. | Planned: implementation and acceptance testing required |
 | AC-014 | User can configure daily learning goals and reminder preferences. | Planned: implementation and acceptance testing required |
@@ -1576,3 +1578,6 @@ Documentation validation checks that every original FR, BR, NFR and AC ID is ret
 | OQ-024 | Confirm backend DTOs, authorization and original quota limits using backend source or OpenAPI; none was supplied. | Section 10, OQ-001–OQ-014 |
 
 Evidence for startup behavior: [MainActivity](../app/src/main/kotlin/com/nihonix/mobile/MainActivity.kt), [AuthNavGraph](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/presentation/navigation/AuthNavGraph.kt). The observations above document the inspected implementation; they do not change application code or assert backend defects.
+
+
+[System Notification] Background shell session 'shell-167' (`npm run build; if ($LASTEXITCODE -eq 0) { npm test -- --runInBand }`) finished with exit status 0. Full output was saved to `C:\Users\Ngoc Anh\.android\studio\agent\conversations\Nihonix-862d30a798452eabf70fc92c85f47f\2679c0f5-d461-47ba-bcba-f89d3ac348c3\session\agent\shell-logs\shell-167.log`. Call `interact_shell` with `sessionId="shell-167"` and `action="status"` if you need to inspect its final output.

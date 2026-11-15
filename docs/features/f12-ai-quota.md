@@ -1,55 +1,27 @@
 # F12 — AI Usage & Quota Management
 
-Status: Planned delivery; source baseline reviewed 2026-11-14.
-Requirements: FR-096–FR-100.
-Primary sprint: [Sprint 07](../sprints/sprint-07.md).
-Frontend owner: TBD. Backend owner: TBD. QA/reviewer: TBD.
+Status: Implemented and locally verified; release packaging passed.
+Requirements: FR-096–FR-100. [Sprint07](../sprints/sprint-07.md) · [Contract](../contracts/sprint-07-api.md).
 
-## Baseline and outcome
+## Accepted policy
 
-Planned; all numerical limits remain unverified proposals.
+User confirmed2026-11-15: flashcards2/day; fill_blank and multiple_choice share3/day; maximum15 items/request; reset00:00 Asia/Ho_Chi_Minh. Only validated successful results consume usage. Same request UUID/payload replays without another charge. Server configuration may override daily defaults; native displays server metadata.
 
-Deliver the behavior specified in [SRS](../SRS.md), Section 4.12. “Frontend” means the Android client in this repository. Backend tasks are proposed work until the backend repository and existing implementation have been audited.
+## Delivered frontend
 
-## Dependencies
+- [x] Remaining allowance, reserved usage and server reset time.
+- [x] Distinct unavailable/stale/zero states; refresh after generation.
+- [x] Structured429 handling retains form and request context.
+- [x] Server enforcement remains authoritative.
 
-- [F1 — Authentication & Account Management](f01-authentication.md)
-- Agreed API/error/ownership contract in [API decisions](../architecture/api-decisions.md).
-- Existing source presence does not mean release or backend acceptance has passed.
+## Delivered backend
 
-## Frontend work
+- [x] Authenticated quota/request-status/cancel endpoints.
+- [x] User-row serialization, canonical payload hashes and durable result receipts.
+- [x] Reservation leases, cancellation/refund and original-day accounting across midnight.
+- [x] Maximum2 unfinished provider attempts/account, including cancelled work until its worker exits or lease expires.
+- [x] Safe request/state/code logs without credentials, prompts or provider output.
 
-- [ ] Display remaining flashcard/practice allowance and server-provided reset time.
-- [ ] Refresh quota after generation and handle 429 without losing draft/request context.
-- [ ] Distinguish unavailable/stale quota from zero allowance; avoid claiming frontend enforcement.
-- [ ] Use agreed limit metadata rather than duplicating authoritative constants.
+Local tests exercise concurrent last-slot reservations, duplicate retries, invalid output, rollback, cancellation, expiry and cross-midnight completion. Actual-provider/shared rollout remains open; configured metadata is key presence rather than a billable health probe. Review identified cancelled failed-worker slot release; its regression now passes.
 
-## Backend work
-
-- [ ] Provide quota read contract and atomically reserve/consume allowance per generation request.
-- [ ] Decide shared/separate exercise quotas, reset timezone and maximum output counts.
-- [ ] Define retry idempotency, timeout/cancellation charging and reservation/refund policy.
-- [ ] Return structured 429/error/reset metadata and instrument usage.
-
-## API and data contract
-
-Proposed /ai health/quota operations. Confirm exact routes and response shape; original 2 requests/15 flashcards and 3 requests/15 fill-in questions are proposals.
-
-Data/persistence: User, feature quota bucket, reset boundary, limit/used/reserved counts and generation request ledger.
-
-Before implementation, record exact methods, fields, nullability, errors, authentication, ownership, pagination/versioning and representative fixtures in the API decision log. Preserve existing client contracts or document an explicit migration.
-
-## Verification and acceptance
-
-- [ ] Concurrent requests cannot exceed quota; retries charge once.
-- [ ] UI/server agree on reset times and 429 responses.
-- [ ] Generation failures and cancellations follow the documented charging policy.
-
-Acceptance mapping: Quota portion of AC-010. These are targets, not passing test results. Apply the shared [delivery gates](../planning/delivery.md).
-
-## Delivery handoff
-
-- [ ] Backend contract audited and agreed; existing endpoints reused where suitable.
-- [ ] Frontend and backend changes reviewed with migration/configuration notes.
-- [ ] Integration verified against a shared environment; failures and remaining work recorded.
-- [ ] SRS source-review status, API decisions and sprint review updated with evidence.
+Receipt retention lasts for account lifetime. Compaction and scale acceptance require a later contract. Activity/reminder timezone policy is separate from this fixed Vietnam quota boundary.

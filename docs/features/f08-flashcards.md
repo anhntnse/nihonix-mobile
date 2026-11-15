@@ -1,6 +1,6 @@
 # F8 — Personal Flashcards
 
-Status: Sprint06 manual CRUD/bulk/review/sync implemented and locally verified. FR-069 AI remains Sprint07.
+Status: Sprint06 manual CRUD/bulk/review/sync implemented and locally verified. FR-069 AI generation is implemented in Sprint07 and locally verified.
 Requirements: FR-059–FR-070. [Sprint06](../sprints/sprint-06.md) · [Contract](../contracts/sprint-06-api.md) · [Evidence](../sprints/sprint-06-report.md).
 
 ## Delivered behavior
@@ -15,7 +15,7 @@ Edits and immutable UUID outbox mutations commit together. WorkManager synchroni
 - [x] Account-scoped Room v4 migrations and bounded JSON chunks, drafts, immutable queue and producer-specific synchronization.
 - [x] Preserve local conflict edits with server/copy resolution and account-pinned actions.
 - [x] Generated-card preview and explicit-save boundary.
-- [ ] Connect AI/quota generation in Sprint07 (FR-069).
+- [x] Connect AI/quota generation in Sprint07 (FR-069): persisted request recovery, preview and explicit save with stable IDs.
 
 ## Backend
 
@@ -25,10 +25,10 @@ Edits and immutable UUID outbox mutations commit together. WorkManager synchroni
 - [x] Cross-user parent/card protection, including concurrent fresh UUID collisions.
 - [x] Preserve and hide legacy unowned rows; no guessed ownership migration.
 - [ ] Shared migration/deployment and real multi-device acceptance.
-- [ ] AI generation/quota acceptance with F9/F12.
+- [x] AI generation/quota implementation with F9/F12; deterministic local acceptance, actual-provider rollout remains separate.
 
 ## Verification boundary
 
-Local automated evidence covers private CRUD, invalid bulk rollback, replay/concurrent edits, conflict recovery, migration, account changes, editor/review restoration and process restart. See the execution report for final commands/results. AC-009 has local evidence; shared-environment acceptance remains pending. AI portions of AC-005/AC-010 remain future work. No SM-2 or inferred activity tracking is introduced.
+Local automated evidence covers private CRUD, invalid bulk rollback, replay/concurrent edits, conflict recovery, migration, account changes, editor/review restoration and process restart. See the execution report for final commands/results. AC-009 has local evidence; shared-environment acceptance remains pending. AI generation/preview portions have deterministic local evidence in [Sprint07](../sprints/sprint-07-report.md); configured-provider/shared rollout remains open. No SM-2 or inferred activity tracking is introduced.
 
 Dependencies: [F1](f01-authentication.md), [F6](f06-offline-sync.md), [API decisions](../architecture/api-decisions.md), and the shared [delivery gates](../planning/delivery.md).

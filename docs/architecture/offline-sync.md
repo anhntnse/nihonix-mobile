@@ -4,7 +4,7 @@ D06/D07/D08: implemented locally in Sprint 05, 2026-11-15. The user confirmed ma
 
 ## Android
 
-Room v4 (Sprint06) retains the v2 public catalog JSON projections by exact URL/query, ETag and validation time. The database filename scopes the backend URL with SHA-256. Private progress uses composite account/item keys; outbox and checkpoints are account-scoped. Tokens/passwords never enter this database. Backup/device-transfer exclusions cover databases.
+Room v5 (Sprint07) retains the v2 public catalog JSON projections by exact URL/query, ETag and validation time. The database filename scopes the backend URL with SHA-256. Private progress uses composite account/item keys; outbox and checkpoints are account-scoped. Tokens/passwords never enter this database. Backup/device-transfer exclusions cover databases.
 
 Version 1→2 adds an outbox account/state index without losing queued edits; both schema exports are retained. There is no destructive migration fallback.
 
@@ -25,6 +25,12 @@ WorkManager jobs require connected network, use exponential backoff and are uniq
 Logout clears authentication/profile, cancels protected jobs and hides progress. Account-specific pending data stays for relogin. Existing session validation and an expected-account header reject requests racing an account switch. Permanent errors are retained for explicit retry/discard. Discard removes queued optimistic rows and restarts server replay; acknowledged local rows remain. Successful server account deletion purges that account's records, queue and checkpoint.
 
 Sprint06 implements the flashcard producer with CAS versions, immutable dependent mutations and local-preserving server/copy conflict resolution. Progress retains timestamp/UUID LWW and coalescing; these policies are producer-specific. Room2→3 adds private folder/set/card/canonical/draft tables;3→4 adds bounded JSON chunks for large aggregates. Retry metadata uses UPDATE so rowid/dependency order stays stable. Activity remains a future producer. See [Sprint06 contract](../contracts/sprint-06-api.md). Receipt retention currently lasts for account lifetime; any future compaction requires an explicit full-resync contract.
+
+## Sprint07 practice producer
+
+Room4→5 adds account-keyed practice snapshots, answer drafts and stable generation requests. Answers and immutable submission UUID/payload commit atomically; practice is an independent WorkManager producer. Lost replies replay the same submission. New generation is explicit online work and never automatically retried as a paid background action. Check/retry/cancel preserves its request context. Completed results do not automatically mark catalog items learned.
+
+Native AI previews preserve stable generated set/card IDs and require explicit save. Account changes reject stale actions/late merges; deletion purges practice cache and producer alongside existing data. Legacy completed practice is read-only, using stored exercise answers/explanations when no new receipt exists. [Contract](../contracts/sprint-07-api.md).
 
 ## Verification and rollout
 

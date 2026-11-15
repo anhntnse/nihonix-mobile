@@ -1,58 +1,27 @@
 # F9 — AI Practice & Generation
 
-Status: Planned delivery; source baseline reviewed 2026-11-14.
-Requirements: FR-071–FR-079.
-Primary sprint: [Sprint 07](../sprints/sprint-07.md).
-Frontend owner: TBD. Backend owner: TBD. QA/reviewer: TBD.
+Status: Implemented and locally verified; release packaging passed.
+Requirements: FR-071–FR-079. [Sprint07](../sprints/sprint-07.md) · [Contract](../contracts/sprint-07-api.md).
 
-## Baseline and outcome
+## Delivered frontend
 
-Planned; AI services and exercise screens absent.
+- [x] Fill-in-the-blank and multiple-choice generation with topic/count selection.
+- [x] Private history, topic/type/status filters, bounded server pages, detail and backend results.
+- [x] Persist answers offline; immutable submission UUID/payload and locked drafts survive restart.
+- [x] Explicit check/retry/cancel of saved generation requests; quota unknown/stale/429 states.
+- [x] Generated cards require preview and explicit editor save; stable IDs prevent duplicate saves.
 
-Deliver the behavior specified in [SRS](../SRS.md), Section 4.9. “Frontend” means the Android client in this repository. Backend tasks are proposed work until the backend repository and existing implementation have been audited.
+## Delivered backend
 
-## Dependencies
+- [x] Existing Gemini integration with one bounded attempt, strict complete-output validation and safe error metadata.
+- [x] Owner-scoped transactional generation; answers/explanations hidden before completion.
+- [x] Exact-answer grading, submission receipts and one completion event per session in the same transaction.
+- [x] Atomic quota reservation/consumption with F12; failed/cancelled/expired results do not consume successful allowance.
 
-- [F3 — Learning Roadmap: Levels & Topics](f03-learning-roadmap.md)
-- [F7 — Learning Progress](f07-learning-progress.md)
-- [F8 — Personal Flashcards](f08-flashcards.md)
-- [F12 — AI Usage & Quota Management](f12-ai-quota.md)
-- Agreed API/error/ownership contract in [API decisions](../architecture/api-decisions.md).
-- Existing source presence does not mean release or backend acceptance has passed.
+Practice completion does not mark vocabulary/grammar learned. Native submits zero duration rather than inventing study time. FR-078 has durable completion records; activity/streak/calendar aggregation remains Sprint08. Cached questions/drafts resume offline; generation requires network.
 
-## Frontend work
+## Acceptance and handoff
 
-- [ ] Build fill-in-the-blank and multiple-choice generation, practice list/detail, answer submission and results.
-- [ ] Show cancellable/loading/error/quota states; preserve in-progress answers as agreed.
-- [ ] Display backend grading and create completion/activity events only after the agreed success condition.
-- [ ] Integrate AI flashcard preview/save from F8 without silently persisting generated drafts.
+AC-010/011 local deterministic coverage includes malformed output, concurrency, cancellation, quota exhaustion, grading/replay and rollback. Fresh review found legacy completed-session display and cancelled failed-worker lease issues; both were reproduced RED and fixed GREEN. Shared migration, actual configured provider acceptance and physical-device/cross-device rollout remain open. See the implementation ledger for current evidence. Existing architecture, provider credentials/model and SMTP configuration are retained.
 
-## Backend work
-
-- [ ] Define provider integration behind authenticated backend operations; keep provider credentials server-side.
-- [ ] Validate generated question/card structure and persist owner-scoped practice sets.
-- [ ] Specify answer grading, repeat submission/idempotency and result retention.
-- [ ] Reserve/enforce quotas atomically with F12 and document failure/refund behavior.
-
-## API and data contract
-
-Proposed /practice generation/list/detail/submit contracts plus AI flashcard generation contract; exact schemas, sync scope and draft-save policy require agreement.
-
-Data/persistence: Practice set/type/topic/status, question/options, answer/result, generation request ID and quota reservation. Define what can resume offline; generation requires network.
-
-Before implementation, record exact methods, fields, nullability, errors, authentication, ownership, pagination/versioning and representative fixtures in the API decision log. Preserve existing client contracts or document an explicit migration.
-
-## Verification and acceptance
-
-- [ ] Generate both exercise types; submit and show backend results.
-- [ ] Handle malformed provider output, timeout, cancellation and repeated submission.
-- [ ] Quota cannot be bypassed by concurrent requests; successful completion emits progress once.
-
-Acceptance mapping: AC-010, AC-011; activity portion of AC-012 completes with F10. These are targets, not passing test results. Apply the shared [delivery gates](../planning/delivery.md).
-
-## Delivery handoff
-
-- [ ] Backend contract audited and agreed; existing endpoints reused where suitable.
-- [ ] Frontend and backend changes reviewed with migration/configuration notes.
-- [ ] Integration verified against a shared environment; failures and remaining work recorded.
-- [ ] SRS source-review status, API decisions and sprint review updated with evidence.
+Dependencies: [F3](f03-learning-roadmap.md), [F6](f06-offline-sync.md), [F8](f08-flashcards.md), [F12](f12-ai-quota.md).

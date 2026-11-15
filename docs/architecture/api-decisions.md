@@ -1,12 +1,12 @@
 # API and architecture decisions
 
-Status: Partially resolved through Sprint 06. D09 accepted: authenticated owner chains, atomic complete-set writes, durable UUID receipts, CAS/dependency versions and deletion heads. User confirmed preserve-local/manual conflict resolution. Room v4 chunks large JSON rows and isolates producers; [contract](../contracts/sprint-06-api.md), [evidence](../sprints/sprint-06-report.md). D10 has only preview/explicit-save preparation; AI/quota remains Sprint07. Updated: 2026-11-15.
+Status: Partially resolved through Sprint 06. D09 accepted: authenticated owner chains, atomic complete-set writes, durable UUID receipts, CAS/dependency versions and deletion heads. User confirmed preserve-local/manual conflict resolution. Room v4 chunks large JSON rows and isolates producers; [contract](../contracts/sprint-06-api.md), [evidence](../sprints/sprint-06-report.md). D10/D11 are accepted and implemented in Sprint07: strict generation, explicit preview/save, transactional grading/events and user-approved quota ledger. See the Sprint07 entry below. Updated: 2026-11-15.
 
 This register tracks decisions required to execute the [feature plans](../features/README.md). Routes in the SRS outside the existing auth/topics services are proposals until verified. Do not invent a backend language/framework or assume endpoints are production-ready.
 
 ## Current frontend baseline
 
-Kotlin, Compose/Material 3, Navigation Compose, MVVM feature packages, repository interfaces, Retrofit/OkHttp/Gson and coroutines/Flow. Dependencies use ServiceLocator and AppViewModelFactory. Sprint 01 tokens use encrypted preferences without an ordinary-preferences fallback; user JSON uses private SharedPreferences. Sprint 05 adds Room public-content caching, protected account-scoped outbox and WorkManager background synchronization. FCM and AI integration remain future work.
+Kotlin, Compose/Material 3, Navigation Compose, MVVM feature packages, repository interfaces, Retrofit/OkHttp/Gson and coroutines/Flow. Dependencies use ServiceLocator and AppViewModelFactory. Sprint 01 tokens use encrypted preferences without an ordinary-preferences fallback; user JSON uses private SharedPreferences. Sprint 05 adds Room public-content caching, protected account-scoped outbox and WorkManager background synchronization. AI/practice integration is implemented in Sprint07; FCM remains future work.
 
 Existing API methods are documented in [SRS Appendix A](../SRS.md#appendix-a-implemented-client-api-contracts). The default URL is emulator HTTP, profile retrieval is POST auth/me and login submits username/password.
 
@@ -33,7 +33,7 @@ D01 and D03 now have source-audit evidence; D06/D07/D08 now have Sprint 05 imple
 | D15 | HTTPS release environment, logging redaction, secure-storage failure and local-network permission startup behavior | F1/F13 | 01 |
 | D16 | Measurable NFR targets: startup/list latency, expected list/load sizes, sync recovery, accessibility and release support | All | 01 draft; 09 verification |
 
-Original AI numerical limits remain proposals until D11 is accepted. Backend ownership, authorization, idempotency and quota enforcement cannot be delegated to the client.
+D11 is accepted below using the user's explicit quota choice. Backend ownership, authorization, idempotency and quota enforcement cannot be delegated to the client.
 
 ## Recording an accepted decision
 
@@ -48,6 +48,12 @@ Add a dated entry using the following fields:
 - Links to implementation, contract fixtures and verification evidence.
 
 Then update affected feature/sprint files and the SRS. Do not silently convert an unresolved proposal into an implementation fact.
+
+## Sprint 07 decisions — 2026-11-15
+
+D10/D11 accepted by the user's execution request and explicit quota selection. Keep existing Gemini adapter/Nest architecture; validate exact generated schemas; flashcards require explicit preview/save. Grade practice on the backend with atomic receipts and one durable completion event. Native persists account-private drafts/request IDs and immutable submission payloads in Room v5; generation remains explicit online work.
+
+Policy: flashcards2/day, fill_blank+multiple_choice shared3/day, max15 items, reset00:00 Asia/Ho_Chi_Minh. Successful validated results consume allowance once; failed/cancelled/expired requests refund reservations. Account locks serialize reservations; two-minute leases and a separate2-active-worker cap bound unfinished attempts. D08 gains completion records without inferred duration; D12 aggregation remains Sprint08. [Contract](../contracts/sprint-07-api.md) · [Ledger](../sprints/sprint-07-implementation.md). Shared rollout/actual provider acceptance remains open.
 
 ## Sprint 05 outcomes — 2026-11-15
 
