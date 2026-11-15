@@ -49,6 +49,10 @@ Add a dated entry using the following fields:
 
 Then update affected feature/sprint files and the SRS. Do not silently convert an unresolved proposal into an implementation fact.
 
+## Sprint 04 outcomes — 2026-11-15
+
+D05 online vocabulary/grammar contracts are now implemented: compatible /catalog page/detail projections, deterministic ordering, literal multilingual substring search, topic/level/parent filters, rich Japanese content and per-response versions. Existing catalog arrays remain unchanged. Admin mutation regression and parent-level authoring checks pass locally. [Contract](../contracts/sprint-04-api.md) · [Evidence](../sprints/sprint-04-report.md). D07 persistent sync/304/tombstones and F6/F7 cache/progress remain Sprint 05; D02 public-read policy is unchanged.
+
 ## Sprint 03 outcomes — 2026-11-14
 
 D05 has count/bundle schemas and stable versions implemented for F3; F4/F5 learning behavior remains Sprint 04. D14 implements public app/config, numeric versionCode comparison, HTTPS update destinations, validated cache TTLs, explicit unavailable-config continuation and retained cached restrictions. Health is diagnostic; responses carry X-Request-Id. See [canonical contract](../contracts/sprint-03-api.md) and [test evidence](../sprints/sprint-03-report.md). D02 preserves existing public catalog reads pending product policy; mutations now require Admin. Shared deployment and D15 production HTTPS remain open.

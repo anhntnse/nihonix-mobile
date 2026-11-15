@@ -6,6 +6,7 @@ Updated: 2026-11-14.
 
 - [Email verification fix](troubleshooting/email-verification.md): missing-account errors, SMTP tracing and regression evidence (2026-11-15).
 
+- [Sprint 04 execution report](sprints/sprint-04-report.md): vocabulary/grammar delivery, contracts and tests.
 - [Sprint 03 execution report](sprints/sprint-03-report.md): roadmap/configuration delivery and rollout evidence.
 - [Sprint 02 execution report](sprints/sprint-02-report.md): account/profile delivery, test evidence and rollout work.
 - [Sprint 01 execution report](sprints/sprint-01-report.md): delivered foundation, checks and remaining work.

@@ -1,55 +1,24 @@
 # F4 — Vocabulary Learning
 
-Status: Planned delivery; source baseline reviewed 2026-11-14.
-Requirements: FR-028–FR-036.
-Primary sprint: [Sprint 04](../sprints/sprint-04.md).
-Frontend owner: TBD. Backend owner: TBD. QA/reviewer: TBD.
+Updated: 2026-11-15. Status: Sprint 04 implementation locally tested; shared-environment acceptance pending.
+Requirements: FR-028–FR-036. Owners/reviewer: TBD.
 
-## Baseline and outcome
+## Frontend plan
 
-Planned; no current feature implementation.
+- [x] Set and word lists/details with topic/JLPT filters and debounced keyword search.
+- [x] Bounded page loading, empty/error/retry states and stable list keys.
+- [x] Japanese readings, localized meanings/examples and set-to-child navigation.
+- [x] Saved filter/search/language state and stale-response protection.
+- [ ] Persistent cached reads and learning completion events with F6/F7 in Sprint 05.
 
-Deliver the behavior specified in [SRS](../SRS.md), Section 4.4. “Frontend” means the Android client in this repository. Backend tasks are proposed work until the backend repository and existing implementation have been audited.
+## Backend plan
 
-## Dependencies
+- [x] Audit/reuse existing entities and retain legacy endpoints.
+- [x] Provide bounded catalog page/detail contracts with deterministic ordering and version metadata.
+- [x] Verify parent filters/references and Admin authoring; reject conflicting parent/word levels.
+- [x] Test representative Japanese data in isolated PostgreSQL without changing shared seed data.
+- [ ] Shared-environment acceptance and performance verification.
 
-- [F3 — Learning Roadmap: Levels & Topics](f03-learning-roadmap.md)
-- Agreed API/error/ownership contract in [API decisions](../architecture/api-decisions.md).
-- Existing source presence does not mean release or backend acceptance has passed.
+[Canonical API](../contracts/sprint-04-api.md) · [Sprint 04 evidence](../sprints/sprint-04-report.md).
 
-## Frontend work
-
-- [ ] Implement vocabulary list, detail and set list/detail using existing Compose/MVVM patterns.
-- [ ] Add topic filter, keyword search, pagination and loading/empty/retry states.
-- [ ] Map agreed Japanese reading, meaning and example fields without inventing required DTO fields.
-- [ ] Connect cached reads in F6 and learning completion events in F7.
-
-## Backend work
-
-- [ ] Audit vocabulary-items and vocabulary-sets endpoints; define detail and topic-filter semantics.
-- [ ] Provide stable pagination and search behavior with deterministic ordering.
-- [ ] Validate catalog references and Admin-only mutations; supply representative seed content.
-- [ ] Expose version/ETag metadata compatible with F6.
-
-## API and data contract
-
-Proposed groups: /vocabulary-items and /vocabulary-sets. Confirm methods, query names, page shape and content fields before coding.
-
-Data/persistence: Vocabulary item/set identifiers, topic/level relations, agreed reading/meaning/example fields and version metadata.
-
-Before implementation, record exact methods, fields, nullability, errors, authentication, ownership, pagination/versioning and representative fixtures in the API decision log. Preserve existing client contracts or document an explicit migration.
-
-## Verification and acceptance
-
-- [ ] List/search/filter and page without gaps or duplicates; open set/item details.
-- [ ] Handle missing content and network failures.
-- [ ] Cached vocabulary survives process restart once F6 is integrated.
-
-Acceptance mapping: Vocabulary part of AC-004; AC-005/AC-006 after F6. These are targets, not passing test results. Apply the shared [delivery gates](../planning/delivery.md).
-
-## Delivery handoff
-
-- [ ] Backend contract audited and agreed; existing endpoints reused where suitable.
-- [ ] Frontend and backend changes reviewed with migration/configuration notes.
-- [ ] Integration verified against a shared environment; failures and remaining work recorded.
-- [ ] SRS source-review status, API decisions and sprint review updated with evidence.
+Local evidence covers vocabulary AC-004 and FR-028–FR-035. FR-036 and AC-005/AC-006 offline behavior remain Sprint 05. Dependencies: F3 topics, F6 cache and F7 progress. Apply [delivery gates](../planning/delivery.md).

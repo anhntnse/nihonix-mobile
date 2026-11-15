@@ -2,6 +2,8 @@
 
 Updated: 2026-11-14. Source: `nihonix.docx`, Android source and the supplied backend audit.
 
+**Sprint 04 update:** Vocabulary sets/items and grammar sub-topics/patterns now have online list/detail flows, multilingual search, filters, pagination and rich Japanese examples. See [test evidence](sprints/sprint-04-report.md) and [API contract](contracts/sprint-04-api.md). Offline FR-036/FR-044 and learning progress remain Sprint 05; shared-environment acceptance is pending.
+
 **Sprint 03 update:** Level counts, complete topic bundles and startup configuration/health/maintenance/version behavior are implemented and locally tested. [Sprint 03 evidence](sprints/sprint-03-report.md) and [canonical contracts](contracts/sprint-03-api.md) supersede older roadmap/configuration observations. Public catalog reads remain compatible pending D02 policy; catalog mutations require Admin. FR-027 remains Sprint 05. Shared deployment and production HTTPS acceptance remain open.
 
 **Sprint 02 update:** Android/backend account and profile changes are implemented and locally tested. Verification, recovery, refresh rotation/revocation, profile editing, avatars, preferences and deletion now have evidence in the [Sprint 02 report](sprints/sprint-02-report.md) and [API contract](contracts/sprint-02-api.md). These supersede older source-review notes for FR-001–FR-020. FR-008 device registration/cleanup and reminder delivery remain Sprint 08. Shared backend migration and actual SMTP/Cloudinary acceptance remain pending; whole-product acceptance is not claimed.
@@ -12,7 +14,7 @@ This document retains the original product requirements, feature numbering, FR-0
 
 **Status convention:** “Implemented in client” means the inspected source contains client logic and wiring; it does not mean the backend or end-to-end behavior passed testing. “Partial” means some required behavior exists. “Planned” means no implementation was found in the inspected app. “Unverified” means external/backend evidence is needed.
 
-**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Full vocabulary/grammar learning, flashcards, AI/quota, progress, offline synchronization, streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
+**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study, flashcards, AI/quota, progress, offline synchronization, streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
 
 ## 1. Introduction
 
@@ -359,15 +361,15 @@ QUARTET Vocab & Kanji - Education App | MWM
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-028 | Users can view vocabulary items. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-029 | Users can filter vocabulary by topic. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-030 | Users can search vocabulary by keyword. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-031 | Users can view vocabulary details. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-032 | Users can browse vocabulary sets. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-033 | Users can view vocabulary sets by topic. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-034 | Users can view vocabulary set details. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-035 | Application supports pagination for vocabulary lists. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-036 | Application caches vocabulary content for offline learning. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-028 | Users can view vocabulary items. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-029 | Users can filter vocabulary by topic. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-030 | Users can search vocabulary by keyword. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-031 | Users can view vocabulary details. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-032 | Users can browse vocabulary sets. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-033 | Users can view vocabulary sets by topic. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-034 | Users can view vocabulary set details. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-035 | Application supports pagination for vocabulary lists. | Medium | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-036 | Application caches vocabulary content for offline learning. | High | Planned — Sprint 05 | Persistent offline content and learning events remain F6/F7; current reads are online. |
 
 Vocabulary information should support the fields provided by backend data, such as:
 
@@ -401,14 +403,14 @@ Bunpo! - Une application pour apprendre la grammaire japonaise !
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-037 | Users can browse grammar sub-topics. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-038 | Users can filter grammar sub-topics by JLPT level. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-039 | Users can view grammar sub-topic details. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-040 | Users can browse grammar patterns. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-041 | Users can search and filter grammar patterns. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-042 | Users can view grammar pattern details. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-043 | Users can view grammar patterns belonging to a sub-topic. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-044 | Application supports offline grammar content. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-037 | Users can browse grammar sub-topics. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-038 | Users can filter grammar sub-topics by JLPT level. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-039 | Users can view grammar sub-topic details. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-040 | Users can browse grammar patterns. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-041 | Users can search and filter grammar patterns. | Medium | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-042 | Users can view grammar pattern details. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-043 | Users can view grammar patterns belonging to a sub-topic. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
+| FR-044 | Application supports offline grammar content. | High | Planned — Sprint 05 | Persistent offline content and learning events remain F6/F7; current reads are online. |
 
 Grammar content should support:
 

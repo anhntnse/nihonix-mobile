@@ -1,48 +1,29 @@
 # Sprint 04 — Vocabulary and grammar
 
-Status: Proposed, not started.
-Duration assumption: Two weeks.
-Start/end dates: TBD. Capacity/estimate: TBD.
-Sprint owner: TBD. Frontend owner: TBD. Backend owner: TBD. QA: TBD.
+Updated: 2026-11-15.
+Status: Android/backend implementation and local verification delivered; broader shared-environment acceptance and review remain pending.
+Owners, estimates and calendar capacity remain unassigned.
 
-## Goal and scope
+Scope: F4 and F5. Persistent offline study and completion events follow in Sprint 05.
 
-F4 and F5; offline acceptance follows in Sprint 05
+## Frontend
 
-Prerequisites: Sprint 03 topic/level contracts, stable content IDs and seed content.
+- [x] Vocabulary item/set lists and details.
+- [x] Grammar sub-topic/pattern lists and details.
+- [x] Topic/JLPT filters, debounced multilingual keyword search and explicit page loading.
+- [x] Japanese readings, localized meanings/explanations/examples and conjugation rendering.
+- [x] Learning navigation from topics and topic details; group-to-child navigation.
+- [x] Saved filter/search/language state, cancellation of stale requests and loading/empty/error/retry states.
+- [ ] Persistent offline reads and progress/completion events (Sprint 05).
 
-This sprint is a planning increment, not a delivery commitment. Split scope or adjust duration after team estimation. Existing source is a starting point, not proof of completed acceptance.
+## Backend
 
-## Frontend backlog
+- [x] Audit existing routes; retain backward compatibility.
+- [x] Add validated bounded /catalog collection/detail projections and stable response versions.
+- [x] Test deterministic pagination, literal keyword search and parent filters with real PostgreSQL.
+- [x] Keep Admin-only mutations and reject authoring level/reference conflicts before AI calls.
+- [ ] Shared-environment device/demo acceptance and production rollout.
 
-- [ ] Implement vocabulary item/set list/detail with keyword search, filters and pagination.
-- [ ] Implement grammar sub-topic/pattern list/detail and level filtering/search.
-- [ ] Add shared learning navigation and visible loading/empty/error/retry states.
+Acceptance: local evidence addresses vocabulary/grammar AC-004. AC-005/AC-006 offline acceptance remains pending F6. No shared seed/migration or provider invocation is required by this increment.
 
-## Backend backlog
-
-- [ ] Deliver audited vocabulary/grammar detail/search/filter/page contracts.
-- [ ] Provide versioned Japanese content, meanings/explanations/examples and valid topic relations.
-- [ ] Test stable pagination and Admin-only mutations.
-
-## Integration and acceptance
-
-- [ ] Vocabulary and grammar portions of AC-004 pass against seeded backend data.
-- [ ] Search/filter/paging and detail errors have reproducible checks.
-- [ ] No offline-completion claim until Sprint 05.
-
-Apply the [shared delivery gates](../planning/delivery.md). Use the [feature index](../features/README.md) to find exact FR ranges and feature-specific checks.
-
-## Execution and review
-
-| Item | Value |
-| --- | --- |
-| Committed task IDs / estimates | TBD during sprint planning |
-| API/schema decisions | Link accepted entries in [API decisions](../architecture/api-decisions.md) |
-| Dependencies / blockers | None assessed yet; record owner and next action when identified |
-| Demo / test evidence | Pending |
-| Completed acceptance | None recorded |
-| Carryover / defects | Pending review |
-| Retrospective / next actions | Pending review |
-
-Update this record during delivery; only mark completed after integrated acceptance evidence is linked.
+[Execution report](sprint-04-report.md) · [API contract](../contracts/sprint-04-api.md) · [Delivery gates](../planning/delivery.md)

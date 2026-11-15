@@ -7,8 +7,8 @@ Each plan contains frontend and backend work, contract/data decisions, dependenc
 | [F1 — Authentication & Account Management](f01-authentication.md) | FR-001–FR-011 | Account flows implemented and locally tested; provider rollout and FCM cleanup pending. | [02](../sprints/sprint-02.md) |
 | [F2 — User Profile & Settings](f02-profile-settings.md) | FR-012–FR-020 | Profile/settings/avatar/deletion implemented and locally tested; real-provider rollout pending. | [02](../sprints/sprint-02.md) |
 | [F3 — Learning Roadmap: Levels & Topics](f03-learning-roadmap.md) | FR-021–FR-027 | Browsing/counts/bundles and saved filters implemented; persistent cache remains Sprint 05. | [03](../sprints/sprint-03.md) |
-| [F4 — Vocabulary Learning](f04-vocabulary.md) | FR-028–FR-036 | Planned; no current feature implementation. | [04](../sprints/sprint-04.md) |
-| [F5 — Grammar Learning](f05-grammar.md) | FR-037–FR-044 | Planned; no current feature implementation. | [04](../sprints/sprint-04.md) |
+| [F4 — Vocabulary Learning](f04-vocabulary.md) | FR-028–FR-036 | Online lists/details/search/filters/pages locally verified in Sprint 04; offline remains Sprint 05. | [04](../sprints/sprint-04.md) |
+| [F5 — Grammar Learning](f05-grammar.md) | FR-037–FR-044 | Online lists/details/search/filters/pages locally verified in Sprint 04; offline remains Sprint 05. | [04](../sprints/sprint-04.md) |
 | [F6 — Offline Content & Synchronization](f06-offline-sync.md) | FR-045–FR-051 | Planned; etag field/display is not cache validation. | [05](../sprints/sprint-05.md) |
 | [F7 — Learning Progress](f07-learning-progress.md) | FR-052–FR-058 | Planned; no progress implementation. | [05](../sprints/sprint-05.md) |
 | [F8 — Personal Flashcards](f08-flashcards.md) | FR-059–FR-070 | Planned; folders, sets, cards, bulk edits and sync absent. | [06](../sprints/sprint-06.md) |
