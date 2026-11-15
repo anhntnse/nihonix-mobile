@@ -75,6 +75,11 @@ object ServiceLocator {
         )
     }
 
+    val learningRepository: com.nihonix.mobile.feature.learning.domain.LearningRepository by lazy {
+        com.nihonix.mobile.feature.learning.data.LearningRepositoryImpl(
+            networkModule.createService(com.nihonix.mobile.feature.learning.data.LearningApi::class.java), gson)
+    }
+
     val startupRepository by lazy {
         com.nihonix.mobile.feature.system.StartupRepository(
             networkModule.createService(com.nihonix.mobile.feature.system.SystemApi::class.java),

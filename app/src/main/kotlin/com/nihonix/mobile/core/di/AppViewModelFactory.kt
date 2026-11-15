@@ -1,5 +1,7 @@
 package com.nihonix.mobile.core.di
 
+import com.nihonix.mobile.feature.learning.presentation.LearningViewModel
+import com.nihonix.mobile.feature.learning.presentation.LearningDetailViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -17,6 +19,12 @@ class AppViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         if (modelClass.isAssignableFrom(TopicsViewModel::class.java)) {
             return TopicsViewModel(ServiceLocator.topicsLevelsRepository, ServiceLocator.authRepository, extras.createSavedStateHandle()) as T
+        }
+        if (modelClass.isAssignableFrom(LearningViewModel::class.java)) {
+            return LearningViewModel(ServiceLocator.learningRepository, extras.createSavedStateHandle()) as T
+        }
+        if (modelClass.isAssignableFrom(LearningDetailViewModel::class.java)) {
+            return LearningDetailViewModel(ServiceLocator.learningRepository, extras.createSavedStateHandle()) as T
         }
         return create(modelClass)
     }

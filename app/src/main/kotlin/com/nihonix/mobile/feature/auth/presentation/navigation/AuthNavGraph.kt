@@ -1,5 +1,7 @@
 package com.nihonix.mobile.feature.auth.presentation.navigation
 
+import com.nihonix.mobile.feature.learning.presentation.*
+import com.nihonix.mobile.feature.learning.domain.*
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,7 +69,8 @@ fun NihonixNavHost(
     LaunchedEffect(hasSession, currentRoute) {
         val protectedRoute = currentRoute == TopicsDestinations.TOPICS ||
             currentRoute == TopicsDestinations.TOPIC_DETAIL ||
-            currentRoute == AuthDestinations.PROFILE
+            currentRoute == AuthDestinations.PROFILE ||
+            currentRoute == LearningDestinations.LIST || currentRoute == LearningDestinations.DETAIL
         if (!hasSession && protectedRoute) {
             navController.navigate(AuthDestinations.LOGIN) {
                 popUpTo(0) { inclusive = true }
@@ -152,6 +155,10 @@ fun NihonixNavHost(
                 },
                 onNavigateToProfile = {
                     navController.navigate(AuthDestinations.PROFILE)
+                },
+                onLearning = { vocabulary, level ->
+                    navController.navigate(LearningDestinations.list(if(vocabulary) ContentKind.SETS else ContentKind.GRAMMAR_TOPICS,
+                        LearningFilter(levelCode=level)))
                 }
             )
         }
@@ -165,10 +172,34 @@ fun NihonixNavHost(
             TopicDetailScreen(
                 identifier = identifier,
                 viewModel = detailViewModel,
+                onLearning = { vocabulary, topic, level ->
+                    navController.navigate(LearningDestinations.list(if(vocabulary) ContentKind.SETS else ContentKind.GRAMMAR_TOPICS,
+                        LearningFilter(topicId=topic,levelCode=level)))
+                },
                 onNavigateBack = {
                     navController.popBackStack()
                 }
             )
+        }
+
+        composable(
+            LearningDestinations.LIST,
+            arguments = listOf(navArgument("kind") { type = NavType.StringType }) +
+                listOf("topicId","levelCode","parentId").map { key -> navArgument(key) { type=NavType.StringType; defaultValue="" } }
+        ) {
+            val learning: LearningViewModel = viewModel(factory=viewModelFactory)
+            LearningListScreen(learning,onBack={navController.popBackStack()},
+                onEntry={entry -> navController.navigate(LearningDestinations.detail(learning.uiState.value.kind,entry.key))},
+                onCollection={kind,filter -> navController.navigate(LearningDestinations.list(kind,filter)) })
+        }
+        composable(LearningDestinations.DETAIL,
+            arguments=listOf(navArgument("kind") { type=NavType.StringType },navArgument("identifier") { type=NavType.StringType })) {
+            val learning: LearningDetailViewModel = viewModel(factory=viewModelFactory)
+            LearningDetailScreen(learning,onBack={navController.popBackStack()},onOpenItems={entry ->
+                val child = if(learning.kind==ContentKind.SETS) ContentKind.WORDS else ContentKind.PATTERNS
+                navController.navigate(LearningDestinations.list(child,LearningFilter(
+                    topicId=entry.topicId,levelCode=entry.levelCode,parentId=entry.key)))
+            })
         }
 
         composable(AuthDestinations.PROFILE) {

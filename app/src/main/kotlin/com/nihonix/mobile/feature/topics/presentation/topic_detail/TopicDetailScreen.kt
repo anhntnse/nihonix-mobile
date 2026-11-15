@@ -30,7 +30,8 @@ fun TopicDetailScreen(
     identifier: String,
     viewModel: TopicDetailViewModel,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLearning: (Boolean, String, String) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showBundle by rememberSaveable(identifier) { mutableStateOf(false) }
@@ -150,7 +151,8 @@ fun TopicDetailScreen(
                         levelDetail = uiState.levelDetail ?: uiState.topic!!.level,
                         isLoading = uiState.isLoading,
                         errorMessage = uiState.errorMessage,
-                        onOpenBundle = { showBundle = true }
+                        onOpenBundle = { showBundle = true },
+                        onLearning = { vocabulary -> onLearning(vocabulary, uiState.topic!!.id, uiState.topic!!.levelCode) }
                     )
                 }
             }
@@ -164,7 +166,8 @@ private fun TopicDetailContent(
     levelDetail: JlptLevel?,
     isLoading: Boolean,
     errorMessage: String?,
-    onOpenBundle: () -> Unit
+    onOpenBundle: () -> Unit,
+    onLearning: (Boolean) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -173,7 +176,9 @@ private fun TopicDetailContent(
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Button(onClick = onOpenBundle, modifier = Modifier.fillMaxWidth()) { Text("Explore topic content") }
+        Button(onClick = { onLearning(true) }, modifier = Modifier.fillMaxWidth()) { Text("Study vocabulary") }
+        Button(onClick = { onLearning(false) }, modifier = Modifier.fillMaxWidth()) { Text("Study grammar") }
+        OutlinedButton(onClick = onOpenBundle, modifier = Modifier.fillMaxWidth()) { Text("Explore topic content") }
         if (isLoading) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }

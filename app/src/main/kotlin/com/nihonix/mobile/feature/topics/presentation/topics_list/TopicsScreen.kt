@@ -34,7 +34,8 @@ fun TopicsScreen(
     viewModel: TopicsViewModel,
     onTopicClick: (String) -> Unit,
     onNavigateToProfile: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLearning: (Boolean, String?) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showLevelDialog by remember { mutableStateOf(false) }
@@ -92,6 +93,10 @@ fun TopicsScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = { onLearning(true, uiState.selectedLevelCode) }) { Text("Vocabulary") }
+                TextButton(onClick = { onLearning(false, uiState.selectedLevelCode) }) { Text("Grammar") }
+            }
             UserLevelSummaryCard(
                 uiState = uiState,
                 onOpenLevelDialog = { showLevelDialog = true },
