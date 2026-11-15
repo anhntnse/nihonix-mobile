@@ -1,48 +1,33 @@
-# Sprint 08 — Streak, calendar and notifications
+# Sprint08 — Streak, calendar and notifications
 
-Status: Proposed, not started.
-Duration assumption: Two weeks.
-Start/end dates: TBD. Capacity/estimate: TBD.
-Sprint owner: TBD. Frontend owner: TBD. Backend owner: TBD. QA: TBD.
+Status: Implemented; review fixes applied; final verification mostly complete, 2 Sprint06 flashcard UI test failures and release/device/rollout acceptance open. Date2026-11-15.
+Scope F10/F11, F1 device logout, F2 reminder settings and F9 activity integration.
 
-## Goal and scope
+User approved60 engaged seconds/day for streak. Daily goal separately uses daily_goal_minutes; captured timezone preserves original event dates.
 
-F10 and F11; complete F2 reminders, F1 device cleanup and F9 activity integration
+## Frontend
 
-Prerequisites: Sprint 02 settings, Sprint 05 durable sync and Sprint 07 practice completion events.
+- [x] Foreground/idle study timer, immutable offline activity producer and Room5→6 migration.
+- [x] Server totals/streak and full monthly calendar with cache/pending/retry/discard.
+- [x] Firebase Messaging permission/token/session binding and safe notification destination.
+- [x] Cold-start binding, reminder opt-out and session-safe logout regression fixes.
 
-This sprint is a planning increment, not a delivery commitment. Split scope or adjust duration after team estimation. Existing source is a starting point, not proof of completed acceptance.
+## Backend
 
-## Frontend backlog
+- [x] Idempotent activity batches, captured timezone dates, late-event summaries/calendar.
+- [x] Practice completion count/date integration without duplicate duration.
+- [x] Session-bound device rotation/removal/cascade.
+- [x] Deduplicated, timezone-aware goal/opt-out/session reminder checks and bounded FCM provider.
 
-- [ ] Wire study/practice activity duration recording and offline queue.
-- [ ] Build daily totals/streak/monthly calendar and reminder settings integration.
-- [ ] Integrate FCM permission/token lifecycle and notification destinations.
+## Verification and rollout
 
-## Backend backlog
+- [x] Policy and core integration/native target tests witnessed RED→GREEN.
+- [x] Fresh read-only review,5 Important findings enter one regression fix pass.
+- [x] Backend final regression (2026-11-15): build, Jest 16 suites/95 tests, Sprint05–08 isolated fixtures PASS.
+- [x] Android unit tests, lintDebug and assembleDebug PASS; same-APK force-stop restart (seed→force-stop→verify) PASS for Activity, Flashcard, Offline and Practice.
+- [x] Android instrumented suite: 72 tests, 66 pass, 2 fail, 4 are restart tests run manually (PASS). The 2 failures are Sprint06 `FlashcardScreensTest`; the same 2 fail 3/3 on Sprint07 baseline ed4aed2, so they are pre-existing, not a Sprint08 regression. Fixed in Sprint09 (test used `performScrollTo` on lazy items); full suite then 72 tests, 0 failures.
+- [ ] Release build: `assembleRelease` blocked by guard until `NIHONIX_RELEASE_API_BASE_URL` is a deployed HTTPS URL; not run.
+- [ ] Actual recipient and physical/multi-device/Doze/shared HTTPS acceptance.
+- [ ] Shared migration/deployment and explicit live scheduler enablement.
 
-- [ ] Deliver idempotent activity ingestion and timezone-aware summaries.
-- [ ] Implement device registration/removal/rotation and invalid-token cleanup.
-- [ ] Schedule deduplicated reminders respecting timezone, opt-out and daily-goal completion.
-
-## Integration and acceptance
-
-- [ ] AC-012–AC-015 pass, including timezone/day-boundary and late offline events.
-- [ ] Permission denial does not block study; logout/account switch prevents wrong-user delivery.
-- [ ] Notification launch respects authentication and valid destinations.
-
-Apply the [shared delivery gates](../planning/delivery.md). Use the [feature index](../features/README.md) to find exact FR ranges and feature-specific checks.
-
-## Execution and review
-
-| Item | Value |
-| --- | --- |
-| Committed task IDs / estimates | TBD during sprint planning |
-| API/schema decisions | Link accepted entries in [API decisions](../architecture/api-decisions.md) |
-| Dependencies / blockers | None assessed yet; record owner and next action when identified |
-| Demo / test evidence | Pending |
-| Completed acceptance | None recorded |
-| Carryover / defects | Pending review |
-| Retrospective / next actions | Pending review |
-
-Update this record during delivery; only mark completed after integrated acceptance evidence is linked.
+No automatic commit/push/deployment. [Report](sprint-08-report.md) · [Contract](../contracts/sprint-08-api.md) · [Ledger](sprint-08-implementation.md) · [Tasks](sprint-08-tasks.md).

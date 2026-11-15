@@ -1,57 +1,28 @@
 # F11 — Device Registration & Push Notifications
 
-Status: Planned delivery; source baseline reviewed 2026-11-14.
-Requirements: FR-088–FR-095.
-Primary sprint: [Sprint 08](../sprints/sprint-08.md).
-Frontend owner: TBD. Backend owner: TBD. QA/reviewer: TBD.
+Status: Implemented and locally verified with a fake provider (Sprint 08; device registration with a real FCM token confirmed in the Sprint 09 emulator run). No real notification has been delivered; physical-device and shared-environment acceptance pending. Requirements FR-088–095. Updated 2026-11-16.
+[Sprint08](../sprints/sprint-08.md) · [Contract](../contracts/sprint-08-api.md) · [Firebase setup](../troubleshooting/firebase-fcm.md).
 
-## Baseline and outcome
+## Delivered frontend
 
-Planned; no FCM dependency/service/device API.
+- [x] Firebase Messaging, explicit profile permission/device controls; denial never blocks study.
+- [x] Token refresh, account/session binding, periodic reconciliation and local logout suppression.
+- [x] Data-only payload and notification tap allowlist; current owner/session/binding required.
+- [x] Preference changes disable queued reminder display, and cold startup preserves valid durable binding.
+- [x] Private binding backup exclusion and account-deletion cleanup.
 
-Deliver the behavior specified in [SRS](../SRS.md), Section 4.11. “Frontend” means the Android client in this repository. Backend tasks are proposed work until the backend repository and existing implementation have been audited.
+## Delivered backend
 
-## Dependencies
+- [x] Authenticated idempotent device registration/rebinding/rotation; owner/session-scoped removal and cascade.
+- [x] User timezone/time/preferences and daily-goal suppression.
+- [x] Durable owner/local-date reminder claim, bounded provider attempt and unregistered-token cleanup.
+- [x] Explicit scheduler opt-in; default remains off during automated/local verification.
+- [x] Logout revokes validated JWT session even if refresh token rotates during device cleanup.
 
-- [F1 — Authentication & Account Management](f01-authentication.md)
-- [F2 — User Profile & Settings](f02-profile-settings.md)
-- [F10 — Learning Streak & Calendar](f10-streak-calendar.md)
-- Agreed API/error/ownership contract in [API decisions](../architecture/api-decisions.md).
-- Existing source presence does not mean release or backend acceptance has passed.
+FCM project supplied by user: the-discipline-476506-q7; Android package com.nihonix.mobile. CLI config and debug build passed, ADC and validation-only API probe passed with no real delivery. Private key stays outside source control. No Firebase Authentication migration.
 
-## Frontend work
+## Acceptance and limits
 
-- [ ] Integrate FCM and request notification permission at an appropriate user action.
-- [ ] Register/rotate device tokens and reconcile account switching/logout.
-- [ ] Handle foreground/background payloads and authenticated navigation safely.
-- [ ] Expose reminder/push preferences linked to F2 and unregister devices during logout.
+Local fixtures exercise binding ownership/session/rotation/logout, opt-out/goals/dedup/invalid token and payload filtering (`test:sprint08` PASS, re-run 2026-11-15). In the Sprint 09 emulator run the app obtained a real FCM token, registered it ("Notifications registered for this account") and the fake provider sent 0 messages. Actual recipient delivery and physical-device cold/warm/Doze acceptance remain rollout gates; AC-015 is not claimed as deployed acceptance. Scheduler requires FCM_REMINDERS_ENABLED=true after rollout approval.
 
-## Backend work
-
-- [ ] Provide authenticated idempotent device registration/removal with token rotation and invalid-token cleanup.
-- [ ] Implement reminder scheduler using user timezone/preferences and daily goal status.
-- [ ] Deduplicate reminders and disable delivery after opt-out, logout or deletion.
-- [ ] Define payload version, destination identifiers, delivery policy and operational monitoring.
-
-## API and data contract
-
-Proposed /devices register/update/delete contract; payload and deep-link destination allowlist must be agreed.
-
-Data/persistence: User/device registration, FCM token, platform, last seen, notification preferences, reminder schedule and deduplication key.
-
-Before implementation, record exact methods, fields, nullability, errors, authentication, ownership, pagination/versioning and representative fixtures in the API decision log. Preserve existing client contracts or document an explicit migration.
-
-## Verification and acceptance
-
-- [ ] Permission denied/revoked does not block learning; token refresh reconciles registration.
-- [ ] Test logout/offline logout cleanup policy, account switch, invalid token and opted-out reminders.
-- [ ] Reminder skips completed daily goals; cold/warm notification navigation respects session state.
-
-Acceptance mapping: AC-015; completes device portion of FR-008/AC-014. These are targets, not passing test results. Apply the shared [delivery gates](../planning/delivery.md).
-
-## Delivery handoff
-
-- [ ] Backend contract audited and agreed; existing endpoints reused where suitable.
-- [ ] Frontend and backend changes reviewed with migration/configuration notes.
-- [ ] Integration verified against a shared environment; failures and remaining work recorded.
-- [ ] SRS source-review status, API decisions and sprint review updated with evidence.
+External delivery cannot promise exactly once: claims are not retried after ambiguous provider acceptance, and crash can lose a reminder. Offline logout immediately hides/ignores old-account payloads locally; server session revocation needs connectivity or expiry. See report for deferred minor follow-ups.

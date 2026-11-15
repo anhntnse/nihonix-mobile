@@ -1,6 +1,8 @@
 # F1 — Authentication & Account Management
 
-Status: Implemented and locally tested in Sprint 02; shared-environment/provider acceptance pending. Updated 2026-11-14.
+Status: Implemented and locally tested (Sprint 02, device cleanup Sprint 08, re-verified Sprint 09); shared-environment/provider acceptance pending. Updated 2026-11-16.
+
+Legend: [x] done with local evidence; [~] done locally, part still needs a shared environment or real provider; [ ] not done.
 
 Current delivery evidence: [Sprint 02 report](../sprints/sprint-02-report.md) and [account API](../contracts/sprint-02-api.md). The baseline/checklists below preserve the original plan; implemented Android/backend account work is recorded in that report. Real SMTP/Cloudinary acceptance, migration rollout and notification device/delivery work remain open.
 Requirements: FR-001–FR-011.
@@ -21,17 +23,17 @@ Deliver the behavior specified in [SRS](../SRS.md), Section 4.1. “Frontend” 
 
 ## Frontend work
 
-- [ ] Retain login, registration and recovery ViewModels; reconcile username login with the agreed contract.
-- [ ] Add registration email verification, resend/cooldown and expired-code recovery screens.
-- [ ] Harden token storage and session-expiration navigation; clear all user-owned local state on logout.
-- [ ] Support backend validation errors and align registration/reset password rules.
+- [x] Retain login, registration and recovery ViewModels; reconcile username login with the agreed contract. (Username login kept; [Sprint 02](../sprints/sprint-02-report.md).)
+- [x] Add registration email verification, resend/cooldown and expired-code recovery screens. (Verified on emulator in Sprint 09.)
+- [x] Harden token storage and session-expiration navigation; clear all user-owned local state on logout. (Sprint 01 storage; Sprint 09 emulator run: revoked session returned the app to sign-in; Sprint 08 account-scoped cleanup.)
+- [x] Support backend validation errors and align registration/reset password rules. (8-character/72-byte policy for both.)
 
 ## Backend work
 
-- [ ] Audit existing register/login/recovery/refresh/logout handlers and publish request/response examples.
-- [ ] Implement or verify email verification and rejection of unverified accounts; rate-limit code and credential attempts.
-- [ ] Verify refresh-token rotation, replay rejection, expiry and logout revocation.
-- [ ] Define deletion/session invalidation behavior and a device-unregistration contract with F11.
+- [x] Audit existing register/login/recovery/refresh/logout handlers and publish request/response examples. ([Backend audit](../contracts/backend-audit.md), [account API](../contracts/sprint-02-api.md).)
+- [x] Implement or verify email verification and rejection of unverified accounts; rate-limit code and credential attempts. (`test:sprint02`.)
+- [x] Verify refresh-token rotation, replay rejection, expiry and logout revocation. (`test:sprint02`, `test:sprint09`.)
+- [x] Define deletion/session invalidation behavior and a device-unregistration contract with F11. ([Sprint 08 contract](../contracts/sprint-08-api.md): logout revokes the session and cascades the device binding.)
 
 ## API and data contract
 
@@ -43,15 +45,15 @@ Before implementation, record exact methods, fields, nullability, errors, authen
 
 ## Verification and acceptance
 
-- [ ] Register → verify → login against the real backend; reject unverified login.
-- [ ] Test invalid/expired/reused codes, throttling, token expiry, concurrent refresh, replay and offline logout.
-- [ ] Verify credentials and tokens are absent from release logs and insecure storage.
+- [~] Register → verify → login against the real backend; reject unverified login. (Done against a local backend in the Sprint 09 emulator journey; shared environment pending.)
+- [~] Test invalid/expired/reused codes, throttling, token expiry, concurrent refresh, replay and offline logout. (Fixtures cover all but real expiry timing on a shared server; offline logout cannot revoke the server session until connectivity or expiry, a documented limit.)
+- [~] Verify credentials and tokens are absent from release logs and insecure storage. (Static review in Sprint 09: no logging, encrypted token storage, backup exclusions. A release build has not been run.)
 
 Acceptance mapping: AC-001, AC-002, AC-016; FCM cleanup in AC-015 is finalized with F11. These are targets, not passing test results. Apply the shared [delivery gates](../planning/delivery.md).
 
 ## Delivery handoff
 
-- [ ] Backend contract audited and agreed; existing endpoints reused where suitable.
-- [ ] Frontend and backend changes reviewed with migration/configuration notes.
-- [ ] Integration verified against a shared environment; failures and remaining work recorded.
-- [ ] SRS source-review status, API decisions and sprint review updated with evidence.
+- [x] Backend contract audited and agreed; existing endpoints reused where suitable.
+- [x] Frontend and backend changes reviewed with migration/configuration notes. (Migration `1794614400000-SprintTwoAccounts`; [Sprint 02 report](../sprints/sprint-02-report.md).)
+- [ ] Integration verified against a shared environment; failures and remaining work recorded. (No shared environment yet; local results recorded in [Sprint 09 acceptance](../sprints/sprint-09-acceptance.md).)
+- [x] SRS source-review status, API decisions and sprint review updated with evidence. (2026-11-16.)

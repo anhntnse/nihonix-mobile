@@ -1,8 +1,12 @@
 # Nihonix — Software Requirements Specification
 
-Updated: 2026-11-15. Source: `nihonix.docx`, Android source and the supplied backend audit.
+Updated: 2026-11-16. Source: `nihonix.docx`, Android source and the supplied backend audit.
 
-**Sprint 07 update:** AI quota, private fill-in/choice practice, durable submissions/results and explicit generated-card preview/save are implemented. User-approved policy: flashcards2/day, shared practice3/day, max15, reset00:00 Vietnam. Local fixtures cover concurrency/replay/refunds/rollback; local verification passed. FR-078 completion records are delivered; activity/streak aggregation remains Sprint08. [Contract](contracts/sprint-07-api.md) · [Ledger](sprints/sprint-07-implementation.md).
+**Sprint 09 update (draft, 2026-11-16):** Acceptance evidence for AC-001–AC-017 is indexed in [Sprint 09 acceptance](sprints/sprint-09-acceptance.md): 15 criteria have local evidence and 2 are partial (AC-003, AC-015). No criterion is accepted on a shared environment; shared deployment/HTTPS, real SMTP/Cloudinary/FCM/Gemini providers, physical devices and measured NFR targets remain open. FR/AC dispositions below were reconciled with the Sprint 02–09 reports on this date.
+
+**Sprint 08 update:** Engaged-time activity, timezone-aware streak/calendar, FCM device registration and reminder scheduling are implemented and locally verified (60 engaged seconds qualify a streak day; the daily goal uses daily_goal_minutes). The reminder scheduler is off by default and no real notification has been delivered. [Contract](contracts/sprint-08-api.md) · [Report](sprints/sprint-08-report.md) · [Firebase setup](troubleshooting/firebase-fcm.md).
+
+**Sprint 07 update:** AI quota, private fill-in/choice practice, durable submissions/results and explicit generated-card preview/save are implemented. User-approved policy: flashcards2/day, shared practice3/day, max15, reset00:00 Vietnam. Local fixtures cover concurrency/replay/refunds/rollback; local verification passed. FR-078 completion records were delivered here; Sprint08 added the activity/streak aggregation. [Contract](contracts/sprint-07-api.md) · [Ledger](sprints/sprint-07-implementation.md).
 
 **Sprint 06 update:** Personal folders/sets/cards, atomic bulk edits/deletion, offline review and account-private synchronization are implemented. User-selected conflict handling preserves local edits and offers server copy or save-copy. Room chunk storage avoids large-row limits; AI FR-069 remains Sprint07. [Contract](contracts/sprint-06-api.md) · [Verification and rollout](sprints/sprint-06-report.md).
 
@@ -12,15 +16,15 @@ Updated: 2026-11-15. Source: `nihonix.docx`, Android source and the supplied bac
 
 **Sprint 03 update:** Level counts, complete topic bundles and startup configuration/health/maintenance/version behavior are implemented and locally tested. [Sprint 03 evidence](sprints/sprint-03-report.md) and [canonical contracts](contracts/sprint-03-api.md) supersede older roadmap/configuration observations. Public catalog reads remain compatible pending D02 policy; catalog mutations require Admin. FR-027 remains Sprint 05. Shared deployment and production HTTPS acceptance remain open.
 
-**Sprint 02 update:** Android/backend account and profile changes are implemented and locally tested. Verification, recovery, refresh rotation/revocation, profile editing, avatars, preferences and deletion now have evidence in the [Sprint 02 report](sprints/sprint-02-report.md) and [API contract](contracts/sprint-02-api.md). These supersede older source-review notes for FR-001–FR-020. FR-008 device registration/cleanup and reminder delivery remain Sprint 08. Shared backend migration and actual SMTP/Cloudinary acceptance remain pending; whole-product acceptance is not claimed.
+**Sprint 02 update:** Android/backend account and profile changes are implemented and locally tested. Verification, recovery, refresh rotation/revocation, profile editing, avatars, preferences and deletion now have evidence in the [Sprint 02 report](sprints/sprint-02-report.md) and [API contract](contracts/sprint-02-api.md). These supersede older source-review notes for FR-001–FR-020. FR-008 device cleanup and reminder delivery were completed locally in Sprint 08. Shared backend migration and actual SMTP/Cloudinary acceptance remain pending; whole-product acceptance is not claimed.
 
 **Sprint 01 update:** Security/environment changes, Android/backend build results and live read-only API checks are recorded in the [execution report](sprints/sprint-01-report.md). The [backend audit](contracts/backend-audit.md) and [offline design](architecture/offline-sync.md) supersede the initial review's missing-backend and proposed architecture assumptions. Unchanged initial source-review notes remain historical observations, not claims about the latest code.
 
 This document retains the original product requirements, feature numbering, FR-001–FR-105, BR-001–BR-019, NFR-001–NFR-026, and AC-001–AC-017. Requirements using “must”, “should”, or future journeys describe target behavior unless marked as implemented. Source-review notes describe current behavior and take precedence over inherited statements about the existing application. The unchanged text/table conversion is [nihonix-original.md](nihonix-original.md).
 
-**Status convention:** “Implemented in client” means the inspected source contains client logic and wiring; it does not mean the backend or end-to-end behavior passed testing. “Partial” means some required behavior exists. “Planned” means no implementation was found in the inspected app. “Unverified” means external/backend evidence is needed.
+**Status convention:** “Implemented in client” means the inspected source contains client logic and wiring; it does not mean the backend or end-to-end behavior passed testing. “Partial” means some required behavior exists. “Planned” means no implementation was found in the inspected app. “Unverified” means external/backend evidence is needed. “Implemented and locally tested” means source plus automated or emulator evidence on a developer machine (unit, instrumented, isolated PostgreSQL fixtures, local backend); it is not shared-environment acceptance.
 
-**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study and vocabulary/grammar progress synchronization are delivered locally in Sprint 05. Manual flashcards/review/synchronization are delivered locally in Sprint06. AI/quota and practice are implemented in Sprint07; streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
+**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study and vocabulary/grammar progress synchronization are delivered locally in Sprint 05. Manual flashcards/review/synchronization are delivered locally in Sprint06. AI/quota and practice are implemented in Sprint07; streak/calendar and FCM notifications are implemented locally in Sprint08; Sprint09 records acceptance evidence. Shared deployment/provider acceptance remains pending; see the execution reports above.
 
 ## 1. Introduction
 
@@ -34,7 +38,7 @@ Nihonix là ứng dụng mobile hỗ trợ người dùng học tiếng Nhật t
 
 ### 1.2. Project Scope
 
-> **Source review:** Current delivery is a single Android app module with auth and topics features. All other product capabilities in this scope table remain target scope.
+> **Source review (updated Sprint 09):** The Android app module and the sibling NestJS backend deliver F1–F13 locally; see each feature section and [Sprint 09 acceptance](sprints/sprint-09-acceptance.md) for what is and is not accepted. Capabilities not delivered remain target scope (for example SM-2 scheduling and a home dashboard).
 
 | Hạng mục | Mô tả |
 | --- | --- |
@@ -162,7 +166,7 @@ Daily learning reminders
 
 ### 3.2. Main Application Modules
 
-> **Source review:** Only authentication, read-only profile, and level/topic browsing currently have feature implementations. JLPT level mutation belongs to the topics feature. Other rows are planned modules.
+> **Source review (updated Sprint 09):** Authentication, profile/settings, roadmap, vocabulary/grammar, offline/progress, flashcards, practice/AI quota, activity/streak, notifications and application configuration all have feature implementations (Sprints 01–08). JLPT level mutation belongs to the topics feature. Shared-environment acceptance is open.
 
 | Module | Responsibilities |
 | --- | --- |
@@ -183,23 +187,23 @@ Daily learning reminders
 
 ### 4.1. F1 – Authentication & Account Management
 
-> **Source review:** Current flow: register with username (minimum 3 characters), email, password (minimum 6 characters), optional full name → return to login. Login submits username/password and saves tokens and user. Email verification and rejection of unverified accounts remain target requirements. Recovery uses request code → verify six-character code → reset with temporary token and password of at least 8 characters; reconcile the registration/reset password policy. No FCM cleanup exists on logout. The original verification flows below describe the target behavior.
+> **Source review (updated Sprint 09):** Current flow: register with username, email, password (8 characters, 72 bytes maximum, aligned with reset) and optional full name → email verification code (expiring, resend cooldown, attempt limits) → sign in. Login submits username/password and rejects unverified accounts. Recovery uses request code → verify code → reset with a purpose-scoped temporary token. Refresh tokens rotate; replay is rejected and logout revokes the session, which also removes the device's push binding. Evidence: [Sprint 02](sprints/sprint-02-report.md), [Sprint 08](sprints/sprint-08-report.md) and the Sprint 09 fixtures. Real SMTP delivery and shared-environment acceptance are pending. The original verification flows below describe the target behavior.
 
 Description: Allow users to register, authenticate, verify email and manage their account credentials.
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-001 | Users can register with username, email, password and optional full name. | High | Partial | Registration also requires username; optional full name. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
-| FR-002 | System sends an email verification code after registration. | High | Planned | Audited AuthService.register creates an active account without a registration-verification email flow; see [backend audit](contracts/backend-audit.md). |
-| FR-003 | Users can verify their email using a verification code. | High | Planned | No verify-email API method or verification screen. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
-| FR-004 | Users can log in with username and password; verified-email enforcement remains required. | High | Partial | Username/password login exists; verified-account policy is not demonstrated by mobile source. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
-| FR-005 | System must reject login attempts from unverified accounts. | High | Planned | Audited login has no email-verification gate; backend and Android verification flow are required in Sprint 02. |
-| FR-006 | System provides access token and refresh token. | High | Implemented in client | Token pair storage and 401 refresh/rotation exist; backend behavior unverified. [TokenStorage](../app/src/main/kotlin/com/nihonix/mobile/core/storage/TokenStorage.kt) |
-| FR-007 | System supports token refresh and rotation. | High | Implemented in client | Token pair storage and 401 refresh/rotation exist; backend behavior unverified. [TokenStorage](../app/src/main/kotlin/com/nihonix/mobile/core/storage/TokenStorage.kt) |
-| FR-008 | Users can log out and unregister their device token. | High | Partial | Logout attempts server revocation and always clears local session; FCM unregistration absent. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
-| FR-009 | Users can request a password reset code. | High | Implemented in client | Password recovery uses email, six-character code, temporary reset token, then new password. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
-| FR-010 | Users can verify the reset code and set a new password. | High | Implemented in client | Password recovery uses email, six-character code, temporary reset token, then new password. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
-| FR-011 | Users can resend verification or reset codes. | Medium | Partial | Resend API wired in password recovery; registration verification flow absent. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
+| FR-001 | Users can register with username, email, password and optional full name. | High | Implemented and locally tested | Registration requires username; full name optional; password policy aligned with the backend ([Sprint 02](sprints/sprint-02-report.md)). [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
+| FR-002 | System sends an email verification code after registration. | High | Implemented and locally tested | Registration issues an expiring email code with resend cooldown and attempt limits ([Sprint 02](sprints/sprint-02-report.md)); SMTP was a fake provider, real delivery pending. Original gap: [backend audit](contracts/backend-audit.md). |
+| FR-003 | Users can verify their email using a verification code. | High | Implemented and locally tested | Verify-email API and Android verification screen (Sprint 02; Sprint 09 emulator journey). [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
+| FR-004 | Users can log in with username and password; verified-email enforcement remains required. | High | Implemented and locally tested | Username/password login; the backend rejects unverified accounts (Sprint 02 `test:sprint02`). [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
+| FR-005 | System must reject login attempts from unverified accounts. | High | Implemented and locally tested | Backend rejects unverified login (Sprint 02 fixture); Android routes to verification. Existing accounts must verify after the migration. |
+| FR-006 | System provides access token and refresh token. | High | Implemented and locally tested | Encrypted token storage with 401 refresh and rotation; backend rotation, replay rejection and logout revocation verified by the Sprint 02 and Sprint 09 fixtures. [TokenStorage](../app/src/main/kotlin/com/nihonix/mobile/core/storage/TokenStorage.kt) |
+| FR-007 | System supports token refresh and rotation. | High | Implemented and locally tested | Encrypted token storage with 401 refresh and rotation; backend rotation, replay rejection and logout revocation verified by the Sprint 02 and Sprint 09 fixtures. [TokenStorage](../app/src/main/kotlin/com/nihonix/mobile/core/storage/TokenStorage.kt) |
+| FR-008 | Users can log out and unregister their device token. | High | Implemented and locally tested | Logout revokes the validated server session, which removes the device push binding, and always clears the local session and suppresses push locally ([Sprint 08](sprints/sprint-08-report.md)). Offline logout cannot revoke the server session until connectivity or expiry. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
+| FR-009 | Users can request a password reset code. | High | Implemented and locally tested | Password recovery uses email, code, purpose-scoped temporary reset token, then new password; code reuse is rejected (Sprint 02 fixture). [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
+| FR-010 | Users can verify the reset code and set a new password. | High | Implemented and locally tested | Password recovery uses email, code, purpose-scoped temporary reset token, then new password; code reuse is rejected (Sprint 02 fixture). [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
+| FR-011 | Users can resend verification or reset codes. | Medium | Implemented and locally tested | Resend with cooldown for registration verification and password recovery (Sprint 02). [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
 
 Main flow – Registration:
 
@@ -245,21 +249,21 @@ Authentication errors must be displayed with understandable messages.
 
 ### 4.2. F2 – User Profile & Settings
 
-> **Source review:** Only profile viewing and current JLPT level viewing/updating exist. Profile editing, avatar upload, account deletion and learning/reminder settings are planned.
+> **Source review (updated Sprint 09):** Profile viewing/editing, avatar upload, confirmed account deletion, learning settings (push, reminder, time, timezone, daily goal) and JLPT level are implemented and locally tested ([Sprint 02](sprints/sprint-02-report.md), [Sprint 08](sprints/sprint-08-report.md)). Real Cloudinary upload and the deletion retention/backup policy remain to be accepted.
 
 Description: Allow users to manage their personal information and learning preferences.
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-012 | Users can view their profile. | High | Implemented in client | Profile fetched using POST auth/me. [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
-| FR-013 | Users can update their personal information. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-014 | Users can upload or update their avatar. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-015 | Users can delete their account. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-016 | Users can view and update their current JLPT level. | High | Implemented in client | Authenticated GET/PATCH users/me/level; N5–N1 validation and cached-user update. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
-| FR-017 | Users can view learning settings. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-018 | Users can configure push notification preferences. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-019 | Users can configure daily learning goals. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-020 | Users can configure reminder time and timezone. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-012 | Users can view their profile. | High | Implemented and locally tested | Full profile fetched using POST auth/me (Sprint 02). [AuthApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/api/AuthApiService.kt), [AuthRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/data/repository/AuthRepositoryImpl.kt) |
+| FR-013 | Users can update their personal information. | High | Implemented and locally tested | Owner-scoped profile update with validation and an Android edit-profile screen ([Sprint 02](sprints/sprint-02-report.md)). |
+| FR-014 | Users can upload or update their avatar. | Medium | Implemented and locally tested | Photo-picker upload, content validation and old-avatar cleanup (Sprint 02). Real Cloudinary upload acceptance pending; a fake storage provider was used. |
+| FR-015 | Users can delete their account. | Medium | Implemented and locally tested | Confirmed deletion; the backend invalidates sessions and cascades owned data (Sprint 02 and Sprint 09 fixtures). Retention/backup policy review pending. |
+| FR-016 | Users can view and update their current JLPT level. | High | Implemented and locally tested | Authenticated GET/PATCH users/me/level; N5–N1 validation and cached-user update. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
+| FR-017 | Users can view learning settings. | High | Implemented and locally tested | GET users/me/settings, shown in the profile screen (Sprint 02; Sprint 09 emulator journey matched the server). |
+| FR-018 | Users can configure push notification preferences. | Medium | Implemented and locally tested | push_enabled and reminder_enabled saved and honored by the app and scheduler (Sprint 02, Sprint 08). |
+| FR-019 | Users can configure daily learning goals. | Medium | Implemented and locally tested | daily_goal_minutes validated and saved; drives goal completion and reminder suppression (Sprint 02, Sprint 08). |
+| FR-020 | Users can configure reminder time and timezone. | Medium | Implemented and locally tested | reminder_time and IANA timezone validated and saved (Sprint 02, Sprint 08). |
 
 User settings include:
 
@@ -297,11 +301,11 @@ PORO - Japanese Grammar - Education App | MWM
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-021 | Users can view all available JLPT levels. | High | Implemented in client | Level list/detail and topic list/detail wired to screens; live data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
+| FR-021 | Users can view all available JLPT levels. | High | Implemented and locally tested | Level list/detail and topic list/detail with persistent cache; verified against a local backend ([Sprint 03](sprints/sprint-03-report.md) fixture, [Sprint 05](sprints/sprint-05-report.md) cache, Sprint 09 emulator run). Shared data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
 | FR-022 | System displays the number of topics, vocabulary items and grammar content per level. | High | Implemented and locally tested | Count DTO/UI and consistent PostgreSQL aggregate queries; [Sprint 03 evidence](sprints/sprint-03-report.md). Shared rollout pending. |
-| FR-023 | Users can view detailed information about a selected level. | High | Implemented in client | Level list/detail and topic list/detail wired to screens; live data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
-| FR-024 | Users can browse topics belonging to a level. | High | Implemented in client | Level list/detail and topic list/detail wired to screens; live data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
-| FR-025 | Users can view topic details. | High | Implemented in client | Level list/detail and topic list/detail wired to screens; live data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
+| FR-023 | Users can view detailed information about a selected level. | High | Implemented and locally tested | Level list/detail and topic list/detail with persistent cache; verified against a local backend ([Sprint 03](sprints/sprint-03-report.md) fixture, [Sprint 05](sprints/sprint-05-report.md) cache, Sprint 09 emulator run). Shared data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
+| FR-024 | Users can browse topics belonging to a level. | High | Implemented and locally tested | Level list/detail and topic list/detail with persistent cache; verified against a local backend ([Sprint 03](sprints/sprint-03-report.md) fixture, [Sprint 05](sprints/sprint-05-report.md) cache, Sprint 09 emulator run). Shared data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
+| FR-025 | Users can view topic details. | High | Implemented and locally tested | Level list/detail and topic list/detail with persistent cache; verified against a local backend ([Sprint 03](sprints/sprint-03-report.md) fixture, [Sprint 05](sprints/sprint-05-report.md) cache, Sprint 09 emulator run). Shared data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
 | FR-026 | Users can retrieve a complete topic bundle. | High | Implemented and locally tested | Versioned bundle includes vocabulary sets/items and grammar groups/patterns; Android content tabs and retry/empty states. [Contract](contracts/sprint-03-api.md). Offline persistence deferred. |
 | FR-027 | Application supports caching topic content for offline access. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
 
@@ -638,7 +642,7 @@ Learn real Japanese — Kotrin
 | FR-075 | Users can view practice set details. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
 | FR-076 | Users can submit their answers. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
 | FR-077 | Application displays the practice results returned by backend. | High | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
-| FR-078 | Application records learning activity after completing a practice set. | High | Partial | Unique transactional completion event; activity/streak/calendar aggregation remains Sprint08. |
+| FR-078 | Application records learning activity after completing a practice set. | High | Implemented and locally tested | Unique transactional completion event; Sprint08 aggregates completion counts and the captured timezone date into the calendar and streak without duplicating timed seconds ([report](sprints/sprint-08-report.md)). |
 | FR-079 | Application synchronizes practice data when necessary. | Medium | Implemented; locally tested | Sprint07 implementation and deterministic local tests; see contract/ledger. Actual-provider/shared rollout pending. |
 
 Supported exercise types:
@@ -683,7 +687,7 @@ The application should prevent duplicate submission when the same completion req
 
 ### 4.10. F10 – Learning Streak & Calendar
 
-> **Source review:** Planned: no activity recording, streak calculation, or calendar integration exists.
+> **Source review (updated Sprint 09):** Implemented and locally verified in Sprint 08: foreground engaged-time recording, immutable offline activity events, server streak/minutes/goal and monthly calendar ([report](sprints/sprint-08-report.md), [contract](contracts/sprint-08-api.md)). A Sprint 09 emulator run matched app and server totals. Physical-device, multi-device and shared-environment acceptance remain open.
 
 Description: Encourage consistent learning through daily activity tracking and calendar visualization.
 
@@ -697,14 +701,14 @@ Keep the chain. — Lingora Mandarin Language Learning App
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-080 | Users can view their current learning streak. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-081 | Users can view their longest learning streak if supported by backend. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-082 | Users can view learning minutes for the current day. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-083 | Application can record learning activities. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-084 | Application supports offline activity recording. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-085 | Application can synchronize pending learning activities. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-086 | Users can view their learning calendar by month. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-087 | Application displays daily learning activity on the calendar. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-080 | Users can view their current learning streak. | High | Implemented and locally tested | Server streak by captured-timezone days; 60 engaged seconds qualify a day ([Sprint 08](sprints/sprint-08-report.md)). The Sprint 09 emulator journey matched the server. |
+| FR-081 | Users can view their longest learning streak if supported by backend. | Medium | Implemented and locally tested | Longest streak returned by the backend and shown in the activity screen ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-082 | Users can view learning minutes for the current day. | High | Implemented and locally tested | Today's minutes against daily_goal_minutes from accepted server activity; pending time appears after synchronization ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-083 | Application can record learning activities. | High | Implemented and locally tested | Foreground engaged-time producer on vocabulary/grammar detail, flashcard review and practice; immutable UUID events; practice completions counted without double timed credit ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-084 | Application supports offline activity recording. | High | Implemented and locally tested | Room v6 outbox keeps UUID, occurrence time and timezone; same-APK force-stop restart test passes ([Sprint 08](sprints/sprint-08-report.md)). Process death can lose the last unchecked 15-second interval. |
+| FR-085 | Application can synchronize pending learning activities. | High | Implemented and locally tested | WorkManager sync to idempotent server batches with replay, conflict and late-event handling ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-086 | Users can view their learning calendar by month. | High | Implemented and locally tested | Monthly calendar from the backend with cache and pending/error/retry/discard states ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-087 | Application displays daily learning activity on the calendar. | High | Implemented and locally tested | Per-day seconds/minutes, qualified and goal flags and practice completions; Sprint 09 emulator journey showed the studied day ([Sprint 08](sprints/sprint-08-report.md)). |
 
 Business rules:
 
@@ -722,20 +726,20 @@ Timezone changes must be handled consistently by backend streak calculation.
 
 ### 4.11. F11 – Device Registration & Push Notifications
 
-> **Source review:** Planned: no Firebase Messaging dependency, messaging service, device registration API or notification permission request exists. ACCESS_LOCAL_NETWORK permission is unrelated to notification permission.
+> **Source review (updated Sprint 09):** Implemented and locally verified in Sprint 08: Firebase Messaging, explicit permission/preference controls, owner/session-bound device registration, logout cleanup, data-only payload handling and a scheduler that is off by default. The reminder provider was a fake in all tests; no real notification has been delivered. ACCESS_LOCAL_NETWORK permission is unrelated to notification permission.
 
 Description: Register mobile devices and send learning reminders.
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-088 | Application requests notification permission when appropriate. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-089 | Application retrieves the FCM registration token. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-090 | Application registers or updates the device token. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-091 | Application removes the device token during logout. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-092 | Users can enable or disable push notifications. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-093 | Users can configure daily reminder time. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-094 | Backend sends reminders based on user timezone and settings. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-095 | Application handles notification payload and deeplink navigation. | Medium | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-088 | Application requests notification permission when appropriate. | Medium | Implemented and locally tested | Requested from profile controls; denial never blocks study ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-089 | Application retrieves the FCM registration token. | High | Implemented and locally tested | Firebase Messaging token retrieval; the emulator obtained a real token in the Sprint 09 journey ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-090 | Application registers or updates the device token. | High | Implemented and locally tested | Idempotent PUT devices/:installationId bound to owner and validated session; rebinding and rotation tested ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-091 | Application removes the device token during logout. | High | Implemented and locally tested | Logout revokes the session and cascades the device binding; local push is suppressed immediately. Offline logout cannot revoke the server session until connectivity or expiry ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-092 | Users can enable or disable push notifications. | Medium | Implemented and locally tested | Preference saved on the server and honored by the app and scheduler; Sprint 09 emulator journey matched ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-093 | Users can configure daily reminder time. | Medium | Implemented and locally tested | Reminder time and timezone saved; scheduler honors local time and DST ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-094 | Backend sends reminders based on user timezone and settings. | High | Implemented; locally tested with a fake provider | One claim per owner/local date, goal/opt-out/session checks, invalid-token cleanup, no retry after ambiguous provider acceptance. Scheduler is off by default (FCM_REMINDERS_ENABLED); no real notification has been delivered ([Sprint 08](sprints/sprint-08-report.md)). |
+| FR-095 | Application handles notification payload and deeplink navigation. | Medium | Implemented and locally tested | Data-only payload; taps open only allowlisted destinations for the current owner, session and binding ([Sprint 08](sprints/sprint-08-report.md)). Physical-device cold/warm launch not yet verified. |
 
 Reminder rules:
 
@@ -1010,7 +1014,7 @@ Synchronization should avoid unnecessary network requests and duplicate submissi
 
 ### 7.2. AI Usage Limits
 
-> **Source review:** Quota limits are retained from the source document as proposals. No client or backend evidence confirms enforcement, reset policy, or shared quotas.
+> **Source review (updated Sprint 09):** The user-approved quota (flashcards 2/day, shared fill-in/choice practice 3/day, maximum 15 items, reset 00:00 Asia/Ho_Chi_Minh) is enforced by the backend with reservations, refunds and replay receipts ([Sprint 07](sprints/sprint-07-report.md)). Verified with a fake provider only.
 
 | Feature | Daily Limit | Maximum per Request |
 | --- | --- | --- |
@@ -1022,7 +1026,7 @@ Quota must be enforced on the backend, not just in the Android application.
 
 ### 7.3. Learning Rules
 
-> **Source review:** Level/topic models exist, but progress, duration, streak/timezone and goal rules remain planned.
+> **Source review (updated Sprint 09):** Progress ([Sprint 05](sprints/sprint-05-report.md)) and duration, streak/timezone and goal rules ([Sprint 08](sprints/sprint-08-report.md)) are implemented and locally tested. Legacy count-only activity rows are preserved without invented durations.
 
 | Rule ID | Description |
 | --- | --- |
@@ -1035,7 +1039,7 @@ Quota must be enforced on the backend, not just in the Android application.
 
 ### 7.4. Offline Rules
 
-> **Source review:** Offline rules remain target requirements; there is no persistent content or pending-change storage.
+> **Source review (updated Sprint 09):** Persistent content and account-scoped pending-change storage exist (Room, WorkManager) and are locally tested ([Sprint 05](sprints/sprint-05-report.md)–[Sprint 08](sprints/sprint-08-report.md)). Physical-device, Doze and multi-device behavior are not yet verified.
 
 | Rule ID | Description |
 | --- | --- |
@@ -1047,7 +1051,7 @@ Quota must be enforced on the backend, not just in the Android application.
 
 ### 7.5. Notification Rules
 
-> **Source review:** Notification rules remain target requirements; no FCM integration or scheduler exists.
+> **Source review (updated Sprint 09):** FCM integration and a reminder scheduler exist ([Sprint 08](sprints/sprint-08-report.md)); the scheduler is disabled unless FCM_REMINDERS_ENABLED=true and was exercised with a fake provider only.
 
 | Rule ID | Description |
 | --- | --- |
@@ -1133,9 +1137,9 @@ The source-reviewed implementation baseline supersedes the proposed stack in the
 | Dependency wiring | ServiceLocator and AppViewModelFactory; no Hilt |
 | Session storage | EncryptedSharedPreferences / MasterKey; no plaintext fallback; storage failure rejects sign-in |
 | User storage | Gson JSON in private SharedPreferences |
-| Content database | Not implemented; Room/DataStore remain candidate future choices |
-| Background synchronization | Not implemented; WorkManager remains a future choice |
-| Push / images / AI | No FCM, Coil, or AI integration dependency declared |
+| Content database | Room 2.8.5 (public catalog cache, account-private outbox/flashcards/practice/activity data) |
+| Background synchronization | WorkManager 2.12.0 (network-constrained, backoff, periodic recovery, independent producers) |
+| Push / images / AI | Firebase Messaging (BOM 35.2.0); no Coil; AI generation runs on the backend only |
 
 Evidence: [app/build.gradle.kts](../app/build.gradle.kts), [version catalog](../gradle/libs.versions.toml), [ServiceLocator](../app/src/main/kotlin/com/nihonix/mobile/core/di/ServiceLocator.kt), [TokenStorage](../app/src/main/kotlin/com/nihonix/mobile/core/storage/TokenStorage.kt). Versions are recorded from this repository, not recommendations to upgrade.
 
@@ -1318,10 +1322,10 @@ Offline mode.
 
 | ID | Acceptance Criteria | Source-review disposition (not test result) |
 | --- | --- | --- |
-| AC-001 | User can register, verify email and log in successfully. | Partial: registration/login exist; email verification missing |
-| AC-002 | Unverified users cannot access authenticated features. | Unverified: backend enforcement required |
-| AC-003 | User can browse JLPT levels from N5 to N1. | Client browsing implemented; verify real N5–N1 dataset |
-| AC-004 | User can access topics, vocabulary and grammar content. | Partial: topics exist; vocabulary/grammar missing |
+| AC-001 | User can register, verify email and log in successfully. | Local evidence: [Sprint 02](sprints/sprint-02-report.md) fixture and Sprint 09 emulator journey; real SMTP and shared-environment demo pending. See [acceptance matrix](sprints/sprint-09-acceptance.md). |
+| AC-002 | Unverified users cannot access authenticated features. | Local evidence: backend rejects unverified login ([Sprint 02](sprints/sprint-02-report.md)); route-guard audit and anonymous-401 fixture in [Sprint 09](sprints/sprint-09-acceptance.md). Shared-environment demo pending. |
+| AC-003 | User can browse JLPT levels from N5 to N1. | Partial: browsing and N5–N1 counts tested locally ([Sprint 03](sprints/sprint-03-report.md)); real N5–N1 dataset on a shared environment unverified; D02 policy open. |
+| AC-004 | User can access topics, vocabulary and grammar content. | Local evidence: [Sprint 03](sprints/sprint-03-report.md), [Sprint 04](sprints/sprint-04-report.md) and Sprint 09 emulator run. Shared data and performance measurement pending. |
 | AC-005 | User can access previously synchronized content offline. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
 | AC-006 | Application can synchronize content using ETag. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
 | AC-007 | Learning progress is preserved across application restarts. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
@@ -1329,12 +1333,12 @@ Offline mode.
 | AC-009 | User can create and manage personal flashcard folders and sets. | Local automated CRUD/offline/conflict/restart evidence in [Sprint06](sprints/sprint-06-report.md); shared multi-device acceptance pending. |
 | AC-010 | AI can generate supported flashcards and exercises within quota. | Local deterministic Sprint07 evidence in [report](sprints/sprint-07-report.md); configured-provider/shared acceptance pending. |
 | AC-011 | User can complete exercises and view results. | Local transactional grading, replay and native UI evidence in [Sprint07](sprints/sprint-07-report.md); shared acceptance pending. |
-| AC-012 | Learning activities are recorded and synchronized correctly. | Planned: implementation and acceptance testing required |
-| AC-013 | Streak and calendar reflect the user's learning activities and timezone. | Planned: implementation and acceptance testing required |
-| AC-014 | User can configure daily learning goals and reminder preferences. | Planned: implementation and acceptance testing required |
-| AC-015 | Push notifications are handled correctly. | Planned: implementation and acceptance testing required |
-| AC-016 | Application handles expired authentication sessions and API errors. | Partial: refresh/error handling exists; integration testing required |
-| AC-017 | Users cannot access or modify another user's personal data. | Unverified: backend enforcement required |
+| AC-012 | Learning activities are recorded and synchronized correctly. | Local evidence: [Sprint 08](sprints/sprint-08-report.md) tests and Sprint 09 emulator run (app and server totals matched). Physical-device, multi-device and shared-environment acceptance pending. |
+| AC-013 | Streak and calendar reflect the user's learning activities and timezone. | Local evidence: Sprint 08 midnight/DST/late-event/timezone-change tests; Sprint 09 emulator run (UTC only). Real-timezone device check and shared acceptance pending. |
+| AC-014 | User can configure daily learning goals and reminder preferences. | Local evidence: Sprint 08 tests; Sprint 09 emulator run saved settings that matched the server. Shared acceptance pending. |
+| AC-015 | Push notifications are handled correctly. | Partial: payload/owner/session handling, registration (real FCM token) and reminder logic tested locally with a fake provider ([Sprint 08](sprints/sprint-08-report.md)). Real delivery, Doze and scheduler enablement not verified. |
+| AC-016 | Application handles expired authentication sessions and API errors. | Local evidence: Sprint 02 refresh tests and a Sprint 09 emulator run where a revoked session produced a real 401 and returned the app to sign-in ([acceptance matrix](sprints/sprint-09-acceptance.md)). Shared-environment and poor-network checks pending. |
+| AC-017 | Users cannot access or modify another user's personal data. | Local evidence: per-feature owner fixtures (Sprints 02, 05–08) and the Sprint 09 cross-feature ownership/role fixture (`npm run test:sprint09`). Shared-environment check pending. |
 
 ## 12. Development Scope & Implementation Phases
 
@@ -1558,7 +1562,7 @@ Existing unit test source includes:
 - [ApiResponseDtoTest](../app/src/test/kotlin/com/nihonix/mobile/ApiResponseDtoTest.kt): response-envelope parsing and reset-verification message extraction.
 - [TopicsLevelsDtoTest](../app/src/test/kotlin/com/nihonix/mobile/TopicsLevelsDtoTest.kt): level/topic/user-level payloads and localized text.
 
-The instrumented test is the generated application-context check; it does not validate learning/authentication journeys. Repository, authenticator concurrency/rotation, secure-storage failure, real API authorization and full UI/offline integration still need verification. The original testing requirements in Section 11 remain acceptance work.
+This paragraph describes the Sprint 01 baseline (generated application-context instrumented check only). Since then the suite has grown to unit tests plus 72 instrumented tests (Sprint 09 run: 0 failures, 4 phase-only restart tests run separately) and isolated PostgreSQL fixtures for Sprints 02–09. Shared-environment API authorization, physical-device behavior and measured non-functional targets still need verification. The original testing requirements in Section 11 remain acceptance work.
 
 Documentation validation checks that every original FR, BR, NFR and AC ID is retained, table rows render consistently, and relative source links point to project files.
 
@@ -1566,16 +1570,16 @@ Documentation validation checks that every original FR, BR, NFR and AC ID is ret
 
 | ID | Issue / decision needed | Related requirements |
 | --- | --- | --- |
-| OQ-015 | Resolve public level/topic API annotations versus authenticated-only learning policy; current UI has no guest entry. | BR-001, Section 2 |
-| OQ-016 | Provide verify-email contract/screen and verify backend rejection of unverified accounts. | FR-002–FR-005 |
-| OQ-017 | Standardize credential contract: current login uses username, not email. Registration minimum password length is 6; reset minimum is 8. | FR-001, FR-004, FR-010 |
-| OQ-018 | Configure a production HTTPS endpoint and cleartext policy; current default is emulator HTTP. | NFR-006 |
-| OQ-019 | Remove ordinary-preferences token fallback or define a secure failure strategy. | NFR-007 |
-| OQ-020 | Gate/redact BODY network logging so credentials and token payloads are not exposed. | NFR-011 |
-| OQ-021 | Verify session-expiration navigation and retry behavior with real 401/refresh failures; local token presence is the initial login check. | NFR-015, AC-016 |
-| OQ-022 | Define persistent content/pending-write schema and retry/conflict contracts before promising offline learning. | FR-027, FR-045–FR-058 |
-| OQ-023 | Confirm whether API 37 local-network permission should gate the whole app in production; currently denial blocks the NavHost. | Platform / startup |
-| OQ-024 | Confirm backend DTOs, authorization and original quota limits using backend source or OpenAPI; none was supplied. | Section 10, OQ-001–OQ-014 |
+| OQ-015 | Resolve public level/topic API annotations versus authenticated-only learning policy; current UI has no guest entry. **Status (Sprint 09): open** — D02 product decision; catalog reads remain public, writes are Admin-only. | BR-001, Section 2 |
+| OQ-016 | Provide verify-email contract/screen and verify backend rejection of unverified accounts. **Status: resolved locally** ([Sprint 02](sprints/sprint-02-report.md)); real SMTP and shared-environment demo pending. | FR-002–FR-005 |
+| OQ-017 | Standardize credential contract: current login uses username, not email. Registration minimum password length is 6; reset minimum is 8. **Status: resolved** — username login retained; registration and reset both use the 8-character/72-byte policy ([Sprint 02](sprints/sprint-02-report.md)). | FR-001, FR-004, FR-010 |
+| OQ-018 | Configure a production HTTPS endpoint and cleartext policy; current default is emulator HTTP. **Status: partly resolved** — release requires an HTTPS URL and forbids cleartext; a deployed endpoint does not exist yet and no release build has been run. | NFR-006 |
+| OQ-019 | Remove ordinary-preferences token fallback or define a secure failure strategy. **Status: resolved** ([Sprint 01](sprints/sprint-01-report.md)): encrypted storage only; storage failure rejects sign-in. | NFR-007 |
+| OQ-020 | Gate/redact BODY network logging so credentials and token payloads are not exposed. **Status: resolved** — request logging removed; Sprint 09 static review found no `Log.*` or HTTP logging in app code. | NFR-011 |
+| OQ-021 | Verify session-expiration navigation and retry behavior with real 401/refresh failures; local token presence is the initial login check. **Status: verified locally** — Sprint 09 emulator run: revoked session, refresh got 401, app returned to sign-in. Shared-environment and poor-network checks pending. | NFR-015, AC-016 |
+| OQ-022 | Define persistent content/pending-write schema and retry/conflict contracts before promising offline learning. **Status: resolved** ([Sprint 05](sprints/sprint-05-report.md), [Sprint 06](sprints/sprint-06-report.md)); physical-device and Doze behavior unverified. | FR-027, FR-045–FR-058 |
+| OQ-023 | Confirm whether API 37 local-network permission should gate the whole app in production; currently denial blocks the NavHost. **Status: resolved for debug** ([Sprint 01](sprints/sprint-01-report.md)): the permission is requested only for development local-network URLs and does not block production HTTPS. Not exercised against a release build. | Platform / startup |
+| OQ-024 | Confirm backend DTOs, authorization and original quota limits using backend source or OpenAPI; none was supplied. **Status: resolved** — backend source audited ([backend audit](contracts/backend-audit.md)); quota limits set by the user and enforced in Sprint 07; authorization checked by the Sprint 09 route audit and fixture. | Section 10, OQ-001–OQ-014 |
 
 Evidence for startup behavior: [MainActivity](../app/src/main/kotlin/com/nihonix/mobile/MainActivity.kt), [AuthNavGraph](../app/src/main/kotlin/com/nihonix/mobile/feature/auth/presentation/navigation/AuthNavGraph.kt). The observations above document the inspected implementation; they do not change application code or assert backend defects.
 

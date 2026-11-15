@@ -1,57 +1,25 @@
 # F10 — Learning Streak & Calendar
 
-Status: Planned delivery; source baseline reviewed 2026-11-14.
-Requirements: FR-080–FR-087.
-Primary sprint: [Sprint 08](../sprints/sprint-08.md).
-Frontend owner: TBD. Backend owner: TBD. QA/reviewer: TBD.
+Status: Implemented and locally verified (Sprint 08; app/server totals cross-checked in the Sprint 09 emulator run); shared-environment and physical-device acceptance pending. Requirements FR-080–087. Updated 2026-11-16.
+[Sprint08](../sprints/sprint-08.md) · [Contract](../contracts/sprint-08-api.md) · [Report](../sprints/sprint-08-report.md).
 
-## Baseline and outcome
+## Delivered frontend
 
-Planned; no duration/activity/calendar implementation.
+- [x] Engaged foreground duration on loaded vocabulary/grammar detail, flashcard review and incomplete practice; background/navigation/idle pause.
+- [x] Stable UUID/timestamp/timezone activity outbox, Room6 private snapshots and independent WorkManager synchronization.
+- [x] Server daily minutes/goal, current/longest streak and monthly calendar with pending/error/retry/discard controls.
+- [x] Account isolation, old-response guards, migration and process-restart fixture.
 
-Deliver the behavior specified in [SRS](../SRS.md), Section 4.10. “Frontend” means the Android client in this repository. Backend tasks are proposed work until the backend repository and existing implementation have been audited.
+## Delivered backend
 
-## Dependencies
+- [x] Authenticated immutable activity ingestion, canonical UUID replay/conflict and atomic batch validation.
+- [x] Captured timezone/date slices with midnight/DST and late-offline recalculation.
+- [x] User-approved60 seconds qualifies streak; daily_goal_minutes independently controls reminder suppression.
+- [x] Practice completion counts without double timed credit; new completions capture timezone/day, legacy completion fallback UTC.
+- [x] Legacy mutable count rows preserved in storage without fabricated timed history; they are not displayed as new timed activity.
 
-- [F2 — User Profile & Settings](f02-profile-settings.md)
-- [F6 — Offline Content & Synchronization](f06-offline-sync.md)
-- [F7 — Learning Progress](f07-learning-progress.md)
-- Agreed API/error/ownership contract in [API decisions](../architecture/api-decisions.md).
-- Existing source presence does not mean release or backend acceptance has passed.
+Generation does not record time. The timer does not mark content learned. Process death can lose the last unchecked15-second interval/subsecond remainder. A failed initial preferences load currently needs lifecycle/navigation restart before tracking begins; this minor follow-up is recorded in the report.
 
-## Frontend work
+## Acceptance
 
-- [ ] Record duration and occurrence timestamps for agreed learning events, including F9 completion.
-- [ ] Queue offline activity with stable IDs and show pending/synced states.
-- [ ] Build daily minutes, current/longest streak and monthly calendar views.
-- [ ] Use server summaries and configured timezone rather than device-only streak calculations.
-
-## Backend work
-
-- [ ] Provide idempotent activity ingestion and streak/calendar summaries.
-- [ ] Define qualifying activity, duration rounding, day boundary and timezone-change rules.
-- [ ] Handle late/offline submissions without double counting.
-- [ ] Expose daily-goal completion consumed by F11 reminder scheduling.
-
-## API and data contract
-
-Proposed /learning-streaks activity/streak/calendar routes; confirm date range, timezone and aggregation semantics.
-
-Data/persistence: Activity ID, user, item/type, duration, occurred_at and timezone context; server-derived daily totals and streak.
-
-Before implementation, record exact methods, fields, nullability, errors, authentication, ownership, pagination/versioning and representative fixtures in the API decision log. Preserve existing client contracts or document an explicit migration.
-
-## Verification and acceptance
-
-- [ ] Offline activities sync once; late/duplicate submissions remain correct.
-- [ ] Test midnight, timezone changes, daylight-saving transitions and month boundaries.
-- [ ] Practice/study events update calendar and daily goal consistently.
-
-Acceptance mapping: AC-012, AC-013. These are targets, not passing test results. Apply the shared [delivery gates](../planning/delivery.md).
-
-## Delivery handoff
-
-- [ ] Backend contract audited and agreed; existing endpoints reused where suitable.
-- [ ] Frontend and backend changes reviewed with migration/configuration notes.
-- [ ] Integration verified against a shared environment; failures and remaining work recorded.
-- [ ] SRS source-review status, API decisions and sprint review updated with evidence.
+Local AC-012/013 evidence includes duplicate/lost replies, database reopen, timestamp/owner isolation, midnight/DST, goals, calendar and late data. Final consolidated regression is in the [report](../sprints/sprint-08-report.md): backend Jest and isolated fixtures PASS, instrumented suite 72 tests with 0 failures, same-APK restart PASS. The Sprint 09 emulator run (UTC) recorded about 66 s on a detail screen as 73 server seconds and showed streak 1, matching the server. See [acceptance matrix](../sprints/sprint-09-acceptance.md). Shared migration/HTTPS, physical/multi-device/Doze/network-transition acceptance and retention/scale policy remain rollout work.

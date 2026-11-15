@@ -1,6 +1,6 @@
 # Sprint roadmap
 
-Status: Sprints 01–06 implemented and locally tested; Sprint 07 is implemented and locally verified. Shared-environment acceptance and remaining decisions open. Sprints 08–09 proposed. Updated: 2026-11-15.
+Status: Sprints 01–08 implemented and locally verified; Sprint 09 (integration and acceptance) is in progress, see [acceptance matrix](sprint-09-acceptance.md). No sprint is accepted on a shared environment yet; deployment, real providers, physical devices and open decisions (D02, D16) remain. Updated: 2026-11-16.
 
 Latest evidence: [Sprint 07 execution report](sprint-07-report.md); [Sprint 06 execution report](sprint-06-report.md); [Sprint 05 execution report](sprint-05-report.md). Offline cache/progress have local automated evidence; shared-environment/provider rollout and earlier open decisions remain pending.
 
