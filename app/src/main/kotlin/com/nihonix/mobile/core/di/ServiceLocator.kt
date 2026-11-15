@@ -56,7 +56,8 @@ object ServiceLocator {
         androidx.room.Room.databaseBuilder(applicationContext,
             com.nihonix.mobile.core.offline.OfflineDatabase::class.java, "offline_$environmentKey.db").addMigrations(com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_1_2,
                 com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_2_3,
-                com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_3_4).build()
+                com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_3_4,
+                com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_4_5).build()
     }
     val syncScheduler by lazy { com.nihonix.mobile.core.offline.SyncScheduler(applicationContext, environmentKey) }
     val progressRepository by lazy {
@@ -67,6 +68,11 @@ object ServiceLocator {
     val flashcardsRepository by lazy {
         com.nihonix.mobile.feature.flashcards.data.FlashcardsRepository(offlineDatabase,
             networkModule.createService(com.nihonix.mobile.feature.flashcards.data.FlashcardsApi::class.java),
+            userStorage, tokenStorage, gson, syncScheduler::schedule)
+    }
+    val practiceRepository by lazy {
+        com.nihonix.mobile.feature.practice.data.PracticeRepository(offlineDatabase,
+            networkModule.createLongRunningService(com.nihonix.mobile.feature.practice.data.PracticeApi::class.java),
             userStorage, tokenStorage, gson, syncScheduler::schedule)
     }
     val catalogSync by lazy { com.nihonix.mobile.core.offline.CatalogSync(networkModule.okHttpClient,
@@ -90,6 +96,7 @@ object ServiceLocator {
             offlineDatabase.withTransaction {
                 progressRepository.purge(owner)
                 flashcardsRepository.purge(owner)
+                practiceRepository.purge(owner)
             }
         }
     }

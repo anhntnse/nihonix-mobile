@@ -203,6 +203,9 @@ class FlashcardsRepository(val database:OfflineDatabase,private val api:Flashcar
             discardInside(owner,kind,id)
         }
     }
+    suspend fun setKnown(owner:String,id:String):Boolean = database.withTransaction {
+        account()==owner&&(dao.set(owner,id)!=null||dao.server(owner,"set",id)!=null)
+    }
     suspend fun saveDraft(owner:String,id:String,payload:String) {
         database.withTransaction {if(account()==owner)dao.draft(EditorDraft(owner,id,payloads.store(owner,"draft:"+id,payload)))}
     }

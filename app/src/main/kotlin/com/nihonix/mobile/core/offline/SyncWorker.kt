@@ -38,7 +38,8 @@ class SyncWorker(context:Context,parameters:WorkerParameters):CoroutineWorker(co
                     catch(_:Exception) { false }
                 val progress=producer { ServiceLocator.progressRepository.sync(account) }
                 val flashcards=producer { ServiceLocator.flashcardsRepository.sync(account) }
-                if(!progress || !flashcards) return@withContext if(runAttemptCount<8) Result.retry() else Result.failure()
+                val practice=producer { ServiceLocator.practiceRepository.sync(account) }
+                if(!progress || !flashcards || !practice) return@withContext if(runAttemptCount<8) Result.retry() else Result.failure()
             }
             ServiceLocator.catalogSync.refresh()
             Result.success()

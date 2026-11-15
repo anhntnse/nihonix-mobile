@@ -37,7 +37,8 @@ fun TopicsScreen(
     modifier: Modifier = Modifier,
     onLearning: (Boolean, String?) -> Unit = { _, _ -> },
     onProgress: () -> Unit = {},
-    onFlashcards: () -> Unit = {}
+    onFlashcards: () -> Unit = {},
+    onPractice: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showLevelDialog by remember { mutableStateOf(false) }
@@ -97,6 +98,7 @@ fun TopicsScreen(
                 .padding(horizontal = 16.dp)
         ) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = onPractice) { Text("AI Practice") }
                 TextButton(onClick = { onLearning(true, uiState.selectedLevelCode) }) { Text("Vocabulary") }
                 TextButton(onClick = { onLearning(false, uiState.selectedLevelCode) }) { Text("Grammar") }
                 TextButton(onClick=onFlashcards) { Text("Flashcards") }

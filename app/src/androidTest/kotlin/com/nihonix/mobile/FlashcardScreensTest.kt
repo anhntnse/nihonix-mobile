@@ -98,6 +98,22 @@ class FlashcardScreensTest {
         compose.waitUntil(timeoutMillis=10_000){vm.uiState.value.editor==null&&vm.uiState.value.snapshot.sets.size==1}
         assertEquals(2,vm.uiState.value.snapshot.cards.size)
     }
+    @Test fun replayedAiPreviewDoesNotCreateAnotherSet() {
+        runBlocking{repository.saveFolder(folder)}
+        content()
+        compose.onNodeWithText("Personal").performClick()
+        val draft=com.nihonix.mobile.feature.practice.domain.GeneratedCards(UUID.randomUUID().toString(),folder.id,"AI animals",cards)
+        compose.runOnIdle{vm.previewGeneratedDraft(draft)}
+        compose.onNodeWithText("Preview cards").assertIsDisplayed()
+        assertTrue(vm.uiState.value.snapshot.sets.isEmpty())
+        compose.onNodeWithText("Save set").performClick()
+        compose.waitUntil(timeoutMillis=10_000){vm.uiState.value.editor==null&&vm.uiState.value.snapshot.sets.size==1}
+        compose.runOnIdle{vm.previewGeneratedDraft(draft)}
+        compose.waitUntil(timeoutMillis=10_000){vm.uiState.value.notice?.contains("already saved")==true}
+        assertNull(vm.uiState.value.editor)
+        assertEquals(draft.draft_id,vm.uiState.value.snapshot.sets.single().id)
+        assertEquals(2,vm.uiState.value.snapshot.messages.size)
+    }
     @Test fun reviewFlipPositionAndSideSurviveViewModelRecreation() {
         seed()
         val saved=SavedStateHandle(mapOf("setId" to set.id))

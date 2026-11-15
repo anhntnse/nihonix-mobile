@@ -105,6 +105,21 @@ class FlashcardsViewModel(private val repository:FlashcardsRepository,private va
             persistEditor(editor)
         }
     }
+    fun previewGeneratedDraft(draft:com.nihonix.mobile.feature.practice.domain.GeneratedCards) {
+        val account=state.value.snapshot.account ?: return
+        if(state.value.folderId!=draft.folder_id||state.value.editor?.id==draft.draft_id)return
+        validateSet(SetDraft(draft.draft_id,draft.folder_id,draft.set_name,draft.cards))?.let{error->
+            state.update{it.copy(error=error)};return
+        }
+        viewModelScope.launch {
+            val known=repository.setKnown(account,draft.draft_id)
+            if(repository.account()!=account||state.value.folderId!=draft.folder_id)return@launch
+            if(known){state.update{it.copy(notice="These generated cards were already saved.")};return@launch}
+            val editor=SetEditor(draft.draft_id,draft.folder_id,draft.set_name,draft.cards,preview=true)
+            generation++;saved["editorId"]=editor.id
+            state.update{it.copy(editor=editor,error=null)};persistEditor(editor)
+        }
+    }
     fun previewGenerated(cards:List<CardDraft>) {
         val folder=state.value.folderId ?: return
         val drafts=cards.map{it.copy(id=UUID.randomUUID().toString())}

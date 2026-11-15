@@ -1,6 +1,8 @@
 package com.nihonix.mobile.core.offline
 
 import androidx.room.*
+import com.nihonix.mobile.feature.practice.data.PracticeCache
+import com.nihonix.mobile.feature.practice.data.PracticeDao
 import com.nihonix.mobile.feature.flashcards.data.*
 import kotlinx.coroutines.flow.Flow
 
@@ -58,9 +60,14 @@ interface ProgressDao {
     @Query("DELETE FROM sync_checkpoints WHERE account=:account") suspend fun purgeCheckpoint(account:String)
 }
 @Database(entities=[CatalogCache::class,LocalProgress::class,OutboxMessage::class,SyncCheckpoint::class,
-    LocalFolder::class,LocalSet::class,LocalCard::class,ServerCopy::class,FlashcardCheckpoint::class,EditorDraft::class,FlashcardPayloadChunk::class],version=4,exportSchema=true)
+    LocalFolder::class,LocalSet::class,LocalCard::class,ServerCopy::class,FlashcardCheckpoint::class,EditorDraft::class,FlashcardPayloadChunk::class,PracticeCache::class],version=5,exportSchema=true)
 abstract class OfflineDatabase:RoomDatabase() {
     companion object {
+        val MIGRATION_4_5 = object: androidx.room.migration.Migration(4,5) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS practice_cache (account TEXT NOT NULL,`key` TEXT NOT NULL,kind TEXT NOT NULL,payload TEXT NOT NULL,savedAt INTEGER NOT NULL,PRIMARY KEY(account,`key`))")
+            }
+        }
         val MIGRATION_3_4 = object: androidx.room.migration.Migration(3,4) {
             override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS flashcard_payload_chunks (account TEXT NOT NULL,`key` TEXT NOT NULL,position INTEGER NOT NULL,text TEXT NOT NULL,PRIMARY KEY(account,`key`,position))")
@@ -84,6 +91,7 @@ abstract class OfflineDatabase:RoomDatabase() {
             }
         }
     }
+    abstract fun practice():PracticeDao
     abstract fun flashcards():FlashcardDao
     abstract fun catalog():CatalogDao
     abstract fun progress():ProgressDao

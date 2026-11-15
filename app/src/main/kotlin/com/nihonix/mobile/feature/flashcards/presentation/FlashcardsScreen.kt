@@ -20,18 +20,20 @@ import com.nihonix.mobile.feature.flashcards.domain.*
 
 @Composable
 fun FlashcardsScreen(viewModel:FlashcardsViewModel,onBack:()->Unit,onReview:(String)->Unit,
-    onFolder:(String)->Unit=viewModel::openFolder,onSet:(String)->Unit=viewModel::openSet) {
+    onFolder:(String)->Unit=viewModel::openFolder,onSet:(String)->Unit=viewModel::openSet,
+    aiViewModel:com.nihonix.mobile.feature.practice.presentation.PracticeViewModel?=null) {
     val state by viewModel.uiState.collectAsState()
-    key(state.snapshot.account) { FlashcardsContent(viewModel,state,onBack,onReview,onFolder,onSet) }
+    key(state.snapshot.account) { FlashcardsContent(viewModel,state,onBack,onReview,onFolder,onSet,aiViewModel) }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FlashcardsContent(vm:FlashcardsViewModel,state:FlashcardsUiState,onBack:()->Unit,onReview:(String)->Unit,
-    onFolder:(String)->Unit,onSet:(String)->Unit) {
+    onFolder:(String)->Unit,onSet:(String)->Unit,aiViewModel:com.nihonix.mobile.feature.practice.presentation.PracticeViewModel?) {
     val data=state.snapshot
     val folder=data.folders.find{it.id==state.folderId&&!it.deleted}
     val set=data.sets.find{it.id==state.setId&&!it.deleted}
     val title=if(state.setId!=null)set?.name?:"Set unavailable" else if(state.folderId!=null)folder?.name?:"Folder unavailable" else "Flashcards"
+    var showAi by rememberSaveable(state.folderId){mutableStateOf(false)}
     var folderDialog by rememberSaveable { mutableStateOf<String?>(null) }
     var folderSubmitting by rememberSaveable { mutableStateOf(false) }
     var confirm by rememberSaveable { mutableStateOf<String?>(null) }
@@ -78,6 +80,10 @@ private fun FlashcardsContent(vm:FlashcardsViewModel,state:FlashcardsUiState,onB
                 state.notice?.let{Text(it)}
                 state.error?.let{Text(it,color=MaterialTheme.colorScheme.error)}
                 if(state.loading||state.saving||state.editorLoading)LinearProgressIndicator(Modifier.fillMaxWidth())
+            }
+            if(folder!=null&&state.setId==null&&aiViewModel!=null)item("ai") {
+                OutlinedButton(onClick={showAi=!showAi}){Text(if(showAi)"Hide AI previews" else "Generate with AI")}
+                if(showAi)com.nihonix.mobile.feature.practice.presentation.FlashcardGenerationPanel(aiViewModel,folder.id){draft->act{vm.previewGeneratedDraft(draft)}}
             }
             items(data.messages.filter{it.state=="blocked"}.distinctBy{it.entityKey},key={"issue:"+it.entityKey}) { message ->
                 val parts=message.entityKey.split(':')

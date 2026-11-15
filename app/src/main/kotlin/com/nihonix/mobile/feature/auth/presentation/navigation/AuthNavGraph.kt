@@ -70,7 +70,7 @@ fun NihonixNavHost(
         val protectedRoute = currentRoute == TopicsDestinations.TOPICS ||
             currentRoute == TopicsDestinations.TOPIC_DETAIL ||
             currentRoute == AuthDestinations.PROFILE ||
-            currentRoute == LearningDestinations.LIST || currentRoute == LearningDestinations.DETAIL || currentRoute == "progress" || currentRoute?.startsWith("flashcards") == true
+            currentRoute == LearningDestinations.LIST || currentRoute == LearningDestinations.DETAIL || currentRoute == "progress" || currentRoute?.startsWith("flashcards") == true || currentRoute?.startsWith("practice") == true
         if (!hasSession && protectedRoute) {
             navController.navigate(AuthDestinations.LOGIN) {
                 popUpTo(0) { inclusive = true }
@@ -152,6 +152,7 @@ fun NihonixNavHost(
                 viewModel = topicsViewModel,
                 onProgress = { navController.navigate("progress") },
                 onFlashcards = { navController.navigate("flashcards") },
+                onPractice = { navController.navigate("practice?topicId=") },
                 onTopicClick = { identifier ->
                     navController.navigate(TopicsDestinations.topicDetailRoute(identifier))
                 },
@@ -174,6 +175,7 @@ fun NihonixNavHost(
             TopicDetailScreen(
                 identifier = identifier,
                 viewModel = detailViewModel,
+                onPractice = { topic -> navController.navigate("practice?topicId="+Uri.encode(topic)) },
                 onLearning = { vocabulary, topic, level ->
                     navController.navigate(LearningDestinations.list(if(vocabulary) ContentKind.SETS else ContentKind.GRAMMAR_TOPICS,
                         LearningFilter(topicId=topic,levelCode=level)))
@@ -204,13 +206,24 @@ fun NihonixNavHost(
             })
         }
 
+        composable("practice?topicId={topicId}",arguments=listOf(navArgument("topicId"){type=NavType.StringType;defaultValue=""})) {
+            val practice:com.nihonix.mobile.feature.practice.presentation.PracticeViewModel=viewModel(factory=viewModelFactory)
+            com.nihonix.mobile.feature.practice.presentation.PracticeScreen(practice,onBack={navController.popBackStack()},
+                onOpenSet={id->navController.navigate("practice/set/"+Uri.encode(id))})
+        }
+        composable("practice/set/{sessionId}",arguments=listOf(navArgument("sessionId"){type=NavType.StringType})) {
+            val practice:com.nihonix.mobile.feature.practice.presentation.PracticeViewModel=viewModel(factory=viewModelFactory)
+            com.nihonix.mobile.feature.practice.presentation.PracticeScreen(practice,onBack={navController.popBackStack()})
+        }
+
         listOf("flashcards","flashcards/folder/{folderId}","flashcards/folder/{folderId}/set/{setId}").forEach { route ->
             composable(route,arguments=buildList {
                 if(route.contains("{folderId}")) add(navArgument("folderId"){type=NavType.StringType})
                 if(route.contains("{setId}")) add(navArgument("setId"){type=NavType.StringType})
             }) {
                 val flashcards:com.nihonix.mobile.feature.flashcards.presentation.FlashcardsViewModel=viewModel(factory=viewModelFactory)
-                com.nihonix.mobile.feature.flashcards.presentation.FlashcardsScreen(flashcards,
+                val ai:com.nihonix.mobile.feature.practice.presentation.PracticeViewModel=viewModel(factory=viewModelFactory)
+                com.nihonix.mobile.feature.flashcards.presentation.FlashcardsScreen(flashcards,aiViewModel=ai,
                     onBack={navController.popBackStack()},
                     onReview={id->navController.navigate("flashcards/review/"+android.net.Uri.encode(id))},
                     onFolder={id->navController.navigate("flashcards/folder/"+android.net.Uri.encode(id))},

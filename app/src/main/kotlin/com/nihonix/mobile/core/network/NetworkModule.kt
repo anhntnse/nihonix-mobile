@@ -45,6 +45,11 @@ class NetworkModule(
             .build()
     }
 
+    fun <T> createLongRunningService(serviceClass: Class<T>): T = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .client(okHttpClient.newBuilder().readTimeout(70, TimeUnit.SECONDS).callTimeout(80, TimeUnit.SECONDS).build())
+        .addConverterFactory(GsonConverterFactory.create(gson)).build().create(serviceClass)
+
     fun <T> createService(serviceClass: Class<T>): T {
         return retrofit.create(serviceClass)
     }

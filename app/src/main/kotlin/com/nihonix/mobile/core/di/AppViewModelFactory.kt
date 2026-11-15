@@ -17,6 +17,18 @@ import com.nihonix.mobile.feature.topics.presentation.topics_list.TopicsViewMode
 @Suppress("UNCHECKED_CAST")
 class AppViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+        if (modelClass.isAssignableFrom(com.nihonix.mobile.feature.practice.presentation.PracticeViewModel::class.java)) {
+            return com.nihonix.mobile.feature.practice.presentation.PracticeViewModel(
+                ServiceLocator.practiceRepository, extras.createSavedStateHandle(), loadTopics = {
+                    var topics = emptyList<com.nihonix.mobile.feature.practice.presentation.PracticeTopic>()
+                    ServiceLocator.topicsLevelsRepository.getTopics().collect { result ->
+                        if (result is com.nihonix.mobile.core.result.Resource.Success) topics = result.data.map {
+                            com.nihonix.mobile.feature.practice.presentation.PracticeTopic(it.id, it.title.en.ifBlank { it.title.vi.ifBlank { it.slug } })
+                        }
+                    }
+                    topics
+                }, syncFlashcards = { ServiceLocator.flashcardsRepository.sync(it) }) as T
+        }
         if (modelClass.isAssignableFrom(com.nihonix.mobile.feature.flashcards.presentation.FlashcardsViewModel::class.java)) {
             return com.nihonix.mobile.feature.flashcards.presentation.FlashcardsViewModel(ServiceLocator.flashcardsRepository, extras.createSavedStateHandle()) as T
         }
