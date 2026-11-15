@@ -82,6 +82,13 @@ class TokenAuthenticatorTest {
         assertTrue(tokens.hasAccessToken())
     }
 
+    @Test fun aReplacementSessionForTheSameOwnerIsNotAdopted() {
+        val token="e30."+java.util.Base64.getUrlEncoder().withoutPadding().encodeToString("""{"sid":"new-session"}""".toByteArray())+".sig"
+        tokens.saveTokens(token,"new-refresh")
+        assertNull(authenticator.authenticate(null,unauthorized(tag=SessionRequest("user-1","old-session"))))
+        assertEquals("new-refresh",tokens.getRefreshToken());assertEquals(0,server.requestCount)
+    }
+
     @Test fun retryLimitStopsARejectedAccessTokenLoop() {
         val original = unauthorized()
         val retried = original.newBuilder().priorResponse(original).build()

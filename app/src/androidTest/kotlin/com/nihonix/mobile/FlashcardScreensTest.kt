@@ -52,6 +52,9 @@ class FlashcardScreensTest {
         compose.waitUntil(timeoutMillis=10_000){!vm.uiState.value.loading}
     }
     private fun waitForSet() {compose.waitUntil(timeoutMillis=10_000){vm.uiState.value.snapshot.sets.any{it.id==set.id}}}
+    // The editor is a LazyColumn: items outside the viewport are not composed, so performScrollTo() on them fails.
+    // Scroll the editor list (the dialog window is the last scrollable root) to the item first.
+    private fun scrollEditorTo(text:String) {compose.onAllNodes(hasScrollAction()).onLast().performScrollToNode(hasText(text))}
     @Test fun createFolderAndBulkSetValidateThenPersistJapaneseCards() {
         content()
         compose.onNodeWithText("New folder").performClick()
@@ -66,8 +69,10 @@ class FlashcardScreensTest {
         compose.onNodeWithText("Front 1").performScrollTo().performTextInput("こんにちは")
         compose.onNodeWithText("Back 1").performScrollTo().performTextInput("Hello")
         compose.onNodeWithText("Add card").performClick()
-        compose.onNodeWithText("Front 2").performScrollTo().performTextInput("ありがとう")
-        compose.onNodeWithText("Back 2").performScrollTo().performTextInput("Thank you")
+        scrollEditorTo("Front 2")
+        compose.onNodeWithText("Front 2").performTextInput("ありがとう")
+        scrollEditorTo("Back 2")
+        compose.onNodeWithText("Back 2").performTextInput("Thank you")
         compose.onNodeWithText("Save set").performClick()
         compose.waitUntil(timeoutMillis=10_000){vm.uiState.value.editor==null&&vm.uiState.value.snapshot.sets.size==1}
         compose.onNodeWithText("Greetings").assertIsDisplayed()
@@ -145,7 +150,8 @@ class FlashcardScreensTest {
         compose.runOnIdle{vm.openFolder(folder.id);vm.editSet(set.id)}
         compose.onNodeWithText("Front 1").performScrollTo().performClick()
         compose.onNodeWithText("Save set").assertIsDisplayed()
-        compose.onNodeWithText("Back 2").performScrollTo().assertIsDisplayed()
+        scrollEditorTo("Back 2")
+        compose.onNodeWithText("Back 2").assertIsDisplayed()
         compose.onNodeWithText("Save set").performClick()
         compose.waitUntil(timeoutMillis=10_000){vm.uiState.value.editor==null}
     }
