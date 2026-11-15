@@ -33,7 +33,12 @@ class SyncWorker(context:Context,parameters:WorkerParameters):CoroutineWorker(co
         try {
             if(account.isNotEmpty()) {
                 if(ServiceLocator.progressRepository.account()!=account) return@withContext Result.success()
-                if(!ServiceLocator.progressRepository.sync(account)) return@withContext if(runAttemptCount<8) Result.retry() else Result.failure()
+                suspend fun producer(call:suspend ()->Boolean):Boolean = try { call() }
+                    catch(cancelled:CancellationException) { throw cancelled }
+                    catch(_:Exception) { false }
+                val progress=producer { ServiceLocator.progressRepository.sync(account) }
+                val flashcards=producer { ServiceLocator.flashcardsRepository.sync(account) }
+                if(!progress || !flashcards) return@withContext if(runAttemptCount<8) Result.retry() else Result.failure()
             }
             ServiceLocator.catalogSync.refresh()
             Result.success()

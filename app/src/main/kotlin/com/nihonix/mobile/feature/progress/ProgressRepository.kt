@@ -24,7 +24,7 @@ class ProgressRepository(val database:OfflineDatabase,private val api:ProgressAp
     fun account():String?=users.getUser()?.id?.takeIf { tokens.hasAccessToken() }
     private fun activeFlow()=combine(users.currentUserFlow,tokens.isAuthenticated) { user,authenticated->user?.id?.takeIf{authenticated} }.distinctUntilChanged()
     fun records():Flow<List<LocalProgress>> = activeFlow().flatMapLatest { id->if(id==null) flowOf(emptyList()) else database.progress().observe(id) }
-    fun outbox():Flow<List<OutboxMessage>> = activeFlow().flatMapLatest { id->if(id==null) flowOf(emptyList()) else database.progress().observeOutbox(id) }
+    fun outbox():Flow<List<OutboxMessage>> = activeFlow().flatMapLatest { id->if(id==null) flowOf(emptyList()) else database.progress().observeProducer(id,"progress") }
     override fun observe(kind:String,id:String):Flow<ItemProgress> = combine(records(),outbox()) { rows,messages->
         val row=rows.find{it.kind==kind && it.itemId==id}
         val message=messages.lastOrNull{it.entityKey=="$kind:$id"}
@@ -62,7 +62,7 @@ class ProgressRepository(val database:OfflineDatabase,private val api:ProgressAp
         val dao=database.progress()
         repeat(20) {
             if(account()!=owner) return true
-            val messages=dao.pending(owner)
+            val messages=dao.pendingProducer(owner,"progress")
             if(messages.isEmpty()) return@repeat
             val supported=messages.filter{it.producer=="progress"}
             if(supported.isEmpty()) return true
@@ -72,8 +72,8 @@ class ProgressRepository(val database:OfflineDatabase,private val api:ProgressAp
                 val permanent=response.code() in listOf(400,403,404,409,422)
                 database.withTransaction {
                     if(account()==owner) supported.forEach { original ->
-                        if(dao.message(owner,original.mutationId)!=null) dao.enqueue(original.copy(
-                            state=if(permanent) "blocked" else "pending",error="Sync failed (HTTP ${response.code()}).",attempts=original.attempts+1))
+                        dao.message(owner,original.mutationId)?.let { current -> dao.updateMessageState(owner,current.mutationId,
+                            if(permanent) "blocked" else "pending","Sync failed (HTTP ${response.code()}).",current.attempts+1) }
                     }
                 }
                 return response.code() in 400..499 && response.code() !in listOf(408,429)
@@ -88,7 +88,7 @@ class ProgressRepository(val database:OfflineDatabase,private val api:ProgressAp
                     val id=ack["mutation_id"].asString
                     val message=dao.message(owner,id) ?: continue
                     if(ack["status"].asString=="rejected") {
-                        dao.enqueue(message.copy(state="blocked",error=ack["message"]?.asString ?: "This update was rejected."))
+                        dao.updateMessageState(owner,message.mutationId,"blocked",ack["message"]?.asString ?: "This update was rejected.",message.attempts)
                     } else {
                         dao.acknowledge(owner,id)
                         ack.getAsJsonObject("record")?.let { merge(owner,it) }
@@ -119,7 +119,7 @@ class ProgressRepository(val database:OfflineDatabase,private val api:ProgressAp
         if(record["user_id"].asString!=owner) return
         val dao=database.progress()
         val kind=record["item_type"].asString;val id=record["item_id"].asString
-        if(dao.messages(owner).any{it.entityKey=="$kind:$id"}) return
+        if(dao.messagesProducer(owner,"progress").any{it.entityKey=="$kind:$id"}) return
         val version=record["version"].asLong
         if((dao.get(owner,kind,id)?.serverVersion ?: -1)>version) return
         dao.put(LocalProgress(owner,kind,id,record["status"].asString,record["mutation_id"].asString,record["client_updated_at"].asString,
@@ -129,7 +129,7 @@ class ProgressRepository(val database:OfflineDatabase,private val api:ProgressAp
     suspend fun retryBlocked() {
         val owner=account() ?: return
         val dao=database.progress()
-        for(message in dao.messages(owner).filter{it.state=="blocked"}) {
+        for(message in dao.messagesProducer(owner,"progress").filter{it.state=="blocked"}) {
             val mutation=gson.fromJson(message.payload,ProgressMutation::class.java)
             val current=dao.get(owner,mutation.item_type,mutation.item_id) ?: continue
             save(owner,current.kind,LearningEntry(current.itemId,current.itemId,topicId=current.topicId,levelCode=current.levelCode),current.status=="learned",message.mutationId)
@@ -142,8 +142,8 @@ class ProgressRepository(val database:OfflineDatabase,private val api:ProgressAp
             if(account()!=owner) return@withTransaction
             val dao=database.progress()
             // Hide optimistic edits; replay server history from the start to restore canonical state.
-            dao.messages(owner).forEach { dao.discardProgress(owner,it.mutationId) }
-            dao.purgeOutbox(owner);dao.purgeCheckpoint(owner)
+            dao.messagesProducer(owner,"progress").forEach { dao.discardProgress(owner,it.mutationId) }
+            dao.purgeProducer(owner,"progress");dao.purgeCheckpoint(owner)
         }
         schedule(owner)
     }

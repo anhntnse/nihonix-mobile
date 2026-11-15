@@ -83,6 +83,10 @@ android {
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
 android.sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
+// The processor exports the current schema before the test APK packages migration assets.
+tasks.matching { it.name == "mergeDebugAndroidTestAssets" }.configureEach {
+    dependsOn("kspDebugKotlin")
+}
 
 dependencies {
     // Align app/test serialization: Room migration bundles require the 1.8 JVM default ABI.

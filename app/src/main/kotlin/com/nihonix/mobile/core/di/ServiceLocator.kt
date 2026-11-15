@@ -2,6 +2,7 @@ package com.nihonix.mobile.core.di
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.room.withTransaction
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
 import com.google.gson.Gson
@@ -53,13 +54,20 @@ object ServiceLocator {
     ).joinToString("") { "%02x".format(it) }
     val offlineDatabase by lazy {
         androidx.room.Room.databaseBuilder(applicationContext,
-            com.nihonix.mobile.core.offline.OfflineDatabase::class.java, "offline_$environmentKey.db").addMigrations(com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_1_2).build()
+            com.nihonix.mobile.core.offline.OfflineDatabase::class.java, "offline_$environmentKey.db").addMigrations(com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_1_2,
+                com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_2_3,
+                com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_3_4).build()
     }
     val syncScheduler by lazy { com.nihonix.mobile.core.offline.SyncScheduler(applicationContext, environmentKey) }
     val progressRepository by lazy {
         com.nihonix.mobile.feature.progress.ProgressRepository(offlineDatabase,
             networkModule.createService(com.nihonix.mobile.feature.progress.ProgressApi::class.java),
             tokenStorage, userStorage, gson, syncScheduler::schedule)
+    }
+    val flashcardsRepository by lazy {
+        com.nihonix.mobile.feature.flashcards.data.FlashcardsRepository(offlineDatabase,
+            networkModule.createService(com.nihonix.mobile.feature.flashcards.data.FlashcardsApi::class.java),
+            userStorage, tokenStorage, gson, syncScheduler::schedule)
     }
     val catalogSync by lazy { com.nihonix.mobile.core.offline.CatalogSync(networkModule.okHttpClient,
         offlineDatabase.catalog(), com.nihonix.mobile.core.network.ApiConstants.DEFAULT_BASE_URL) }
@@ -78,7 +86,12 @@ object ServiceLocator {
     }
 
     val accountRepository: AccountRepository by lazy {
-        AccountRepositoryImpl(networkModule.createService(AccountApiService::class.java), tokenStorage, userStorage, gson, progressRepository::purge)
+        AccountRepositoryImpl(networkModule.createService(AccountApiService::class.java), tokenStorage, userStorage, gson) { owner ->
+            offlineDatabase.withTransaction {
+                progressRepository.purge(owner)
+                flashcardsRepository.purge(owner)
+            }
+        }
     }
 
     val topicsLevelsApiService: TopicsLevelsApiService by lazy {
