@@ -214,6 +214,7 @@ class TopicsViewModel(
                             it.copy(
                                 isTopicsLoading = false,
                                 topics = resource.data,
+                                notice = resource.message?.takeIf { message -> message.startsWith("Offline") },
                                 isTopicsEmpty = resource.data.isEmpty(),
                                 topicsError = null
                             )

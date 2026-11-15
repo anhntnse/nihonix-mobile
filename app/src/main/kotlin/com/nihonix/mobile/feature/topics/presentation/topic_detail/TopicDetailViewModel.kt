@@ -64,6 +64,7 @@ class TopicDetailViewModel(
                             it.copy(
                                 isLoading = false,
                                 topic = topic,
+                                notice = resource.message?.takeIf { message -> message.startsWith("Offline") },
                                 levelDetail = topic.level,
                                 isEmpty = false,
                                 errorMessage = null

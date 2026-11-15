@@ -17,7 +17,8 @@ data class TopicsUiState(
     val searchQuery: String = "",
     val isTopicsLoading: Boolean = false,
     val isTopicsEmpty: Boolean = false,
-    val topicsError: String? = null
+    val topicsError: String? = null,
+    val notice: String? = null
 ) {
     val filteredTopics: List<Topic>
         get() {
@@ -40,5 +41,6 @@ data class TopicDetailUiState(
     val topic: Topic? = null,
     val levelDetail: JlptLevel? = null,
     val isEmpty: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val notice: String? = null
 )

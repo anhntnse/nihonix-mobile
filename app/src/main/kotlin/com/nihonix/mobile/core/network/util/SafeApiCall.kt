@@ -21,7 +21,7 @@ suspend inline fun <T, R> safeApiCall(
             val body = response.body()
             if (body != null && body.success) {
                 if (body.data != null) {
-                    Resource.Success(transform(body.data), body.message)
+                    Resource.Success(transform(body.data), if (response.headers()["X-Nihonix-Cache"] == "offline") "Offline — showing saved content." else body.message)
                 } else {
                     Resource.Empty
                 }

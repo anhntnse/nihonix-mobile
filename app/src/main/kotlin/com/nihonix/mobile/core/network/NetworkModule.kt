@@ -15,7 +15,8 @@ class NetworkModule(
     private val tokenStorage: TokenStorage,
     private val userStorage: UserStorage,
     private val gson: Gson,
-    private val baseUrl: String = ApiConstants.DEFAULT_BASE_URL
+    private val baseUrl: String = ApiConstants.DEFAULT_BASE_URL,
+    private val catalogStore: com.nihonix.mobile.core.offline.CatalogStore? = null
 ) {
     init {
         ApiEndpoint.validate(baseUrl, allowDevelopmentHttp = BuildConfig.DEBUG)
@@ -31,6 +32,7 @@ class NetworkModule(
             .readTimeout(ApiConstants.TIMEOUT_READ_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(ApiConstants.TIMEOUT_WRITE_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(authInterceptor)
+            .apply { catalogStore?.let { addInterceptor(com.nihonix.mobile.core.offline.CatalogCacheInterceptor(it, baseUrl)) } }
             .authenticator(tokenAuthenticator)
             .build()
     }

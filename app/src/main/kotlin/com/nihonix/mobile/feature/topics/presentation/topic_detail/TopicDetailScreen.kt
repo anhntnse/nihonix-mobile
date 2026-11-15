@@ -151,6 +151,7 @@ fun TopicDetailScreen(
                         levelDetail = uiState.levelDetail ?: uiState.topic!!.level,
                         isLoading = uiState.isLoading,
                         errorMessage = uiState.errorMessage,
+                        notice = uiState.notice,
                         onOpenBundle = { showBundle = true },
                         onLearning = { vocabulary -> onLearning(vocabulary, uiState.topic!!.id, uiState.topic!!.levelCode) }
                     )
@@ -166,6 +167,7 @@ private fun TopicDetailContent(
     levelDetail: JlptLevel?,
     isLoading: Boolean,
     errorMessage: String?,
+    notice: String?,
     onOpenBundle: () -> Unit,
     onLearning: (Boolean) -> Unit
 ) {
@@ -176,6 +178,7 @@ private fun TopicDetailContent(
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        notice?.let { Text(it) }
         Button(onClick = { onLearning(true) }, modifier = Modifier.fillMaxWidth()) { Text("Study vocabulary") }
         Button(onClick = { onLearning(false) }, modifier = Modifier.fillMaxWidth()) { Text("Study grammar") }
         OutlinedButton(onClick = onOpenBundle, modifier = Modifier.fillMaxWidth()) { Text("Explore topic content") }
