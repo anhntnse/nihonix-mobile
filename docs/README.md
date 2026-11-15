@@ -1,11 +1,12 @@
 # Nihonix documentation
 
-Updated: 2026-11-14.
+Updated: 2026-11-15.
 
 ## Start here
 
 - [Email verification fix](troubleshooting/email-verification.md): missing-account errors, SMTP tracing and regression evidence (2026-11-15).
 
+- [Sprint 05 execution report](sprints/sprint-05-report.md): offline catalog, durable progress, process recovery and rollout limits.
 - [Sprint 04 execution report](sprints/sprint-04-report.md): vocabulary/grammar delivery, contracts and tests.
 - [Sprint 03 execution report](sprints/sprint-03-report.md): roadmap/configuration delivery and rollout evidence.
 - [Sprint 02 execution report](sprints/sprint-02-report.md): account/profile delivery, test evidence and rollout work.
@@ -13,7 +14,7 @@ Updated: 2026-11-14.
 - [Software requirements specification](SRS.md): product requirements and source-reviewed implementation status.
 - [Original Word-to-Markdown conversion](nihonix-original.md): preserved source reference.
 - [Feature plans](features/README.md): all 13 features, with Android frontend and backend tasks.
-- [Sprint roadmap](sprints/README.md): proposed delivery order and individual sprint backlogs.
+- [Sprint roadmap](sprints/README.md): delivery order, implemented increments and individual sprint backlogs.
 - [Delivery process](planning/delivery.md): status rules, handoff and acceptance gates.
 - [API and architecture decisions](architecture/api-decisions.md): unresolved contracts and technical decisions.
 

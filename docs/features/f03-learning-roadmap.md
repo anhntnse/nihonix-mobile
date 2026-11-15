@@ -9,8 +9,8 @@ Requirements: FR-021–FR-027. Primary sprint: [03](../sprints/sprint-03.md). Ow
 - [x] Display per-level topic/vocabulary/grammar counts.
 - [x] Retrieve complete bundles and browse vocabulary/grammar content.
 - [x] Handle loading, missing/empty data and retry; save filters/search/navigation state.
-- [ ] Persist content for offline access with F6 in Sprint 05 (FR-027).
-- [ ] Complete F4/F5 learning interactions in Sprint 04.
+- [x] Persist previously fetched content with F6 in Sprint 05 (FR-027); [evidence](../sprints/sprint-05-report.md).
+- [x] Complete F4/F5 learning interactions in Sprint 04; explicit progress actions added in Sprint 05.
 
 ## Backend plan and delivery
 
@@ -25,6 +25,6 @@ Requirements: FR-021–FR-027. Primary sprint: [03](../sprints/sprint-03.md). Ow
 
 [Canonical API](../contracts/sprint-03-api.md) defines counts, bundle arrays, version hashes and access rules. Existing GET/PATCH users/me/level remains. Preserve vi/en/jp content and stable IDs; translated application UI remains out of scope.
 
-AC-003 and topic-browsing AC-004 have local automated evidence in the [Sprint 03 report](../sprints/sprint-03-report.md); shared-environment acceptance is pending. Bundle version is not a persistent-sync cursor. Offline acceptance remains open.
+AC-003 and topic-browsing AC-004 have local automated evidence in the [Sprint 03 report](../sprints/sprint-03-report.md); shared-environment acceptance is pending. Bundle version is not a persistent-sync cursor. Offline AC-005/AC-006 has local Sprint 05 evidence; shared-environment acceptance remains open.
 
 Dependencies: F1/F2 sessions/profile; F6 cache/sync; [API decisions](../architecture/api-decisions.md). Apply [delivery gates](../planning/delivery.md).

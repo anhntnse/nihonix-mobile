@@ -1,6 +1,8 @@
 # Nihonix — Software Requirements Specification
 
-Updated: 2026-11-14. Source: `nihonix.docx`, Android source and the supplied backend audit.
+Updated: 2026-11-15. Source: `nihonix.docx`, Android source and the supplied backend audit.
+
+**Sprint 05 update:** Persistent public catalog/ETag caching, authoritative deletion inventory, Room/WorkManager outbox and manual learned/unlearned progress with topic/level summaries are implemented and locally tested. [Contract](contracts/sprint-05-api.md) · [Verification/rollout limits](sprints/sprint-05-report.md). Offline covers previously fetched content; flashcard/activity producers and shared rollout remain separate.
 
 **Sprint 04 update:** Vocabulary sets/items and grammar sub-topics/patterns now have online list/detail flows, multilingual search, filters, pagination and rich Japanese examples. See [test evidence](sprints/sprint-04-report.md) and [API contract](contracts/sprint-04-api.md). Offline FR-036/FR-044 and learning progress remain Sprint 05; shared-environment acceptance is pending.
 
@@ -14,7 +16,7 @@ This document retains the original product requirements, feature numbering, FR-0
 
 **Status convention:** “Implemented in client” means the inspected source contains client logic and wiring; it does not mean the backend or end-to-end behavior passed testing. “Partial” means some required behavior exists. “Planned” means no implementation was found in the inspected app. “Unverified” means external/backend evidence is needed.
 
-**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study, flashcards, AI/quota, progress, offline synchronization, streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
+**Current scope:** secure registration/email verification, username/password login, recovery, session rotation/revocation, profile editing/avatar/deletion/settings, JLPT selection/update, topic browsing/counts/bundles, and startup configuration/health/maintenance/version behavior are implemented and locally tested. Online vocabulary/grammar browsing and details are delivered in Sprint 04. Persistent offline study and vocabulary/grammar progress synchronization are delivered locally in Sprint 05. Flashcards, AI/quota, streak/calendar and notifications remain later-sprint work. Shared deployment/provider acceptance remains pending; see the execution reports above.
 
 ## 1. Introduction
 
@@ -297,7 +299,7 @@ PORO - Japanese Grammar - Education App | MWM
 | FR-024 | Users can browse topics belonging to a level. | High | Implemented in client | Level list/detail and topic list/detail wired to screens; live data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
 | FR-025 | Users can view topic details. | High | Implemented in client | Level list/detail and topic list/detail wired to screens; live data not verified. [TopicsLevelsApiService](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/api/TopicsLevelsApiService.kt), [TopicsLevelsRepositoryImpl](../app/src/main/kotlin/com/nihonix/mobile/feature/topics/data/repository/TopicsLevelsRepositoryImpl.kt) |
 | FR-026 | Users can retrieve a complete topic bundle. | High | Implemented and locally tested | Versioned bundle includes vocabulary sets/items and grammar groups/patterns; Android content tabs and retry/empty states. [Contract](contracts/sprint-03-api.md). Offline persistence deferred. |
-| FR-027 | Application supports caching topic content for offline access. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-027 | Application supports caching topic content for offline access. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
 
 Content hierarchy:
 
@@ -347,7 +349,7 @@ Offline mode should use previously downloaded content instead of requiring a net
 
 ### 4.4. F4 – Vocabulary Learning
 
-> **Source review:** Planned: no vocabulary feature, API service, repository, or screen was found.
+> **Sprint 04/05 source review:** Vocabulary sets/items have list/detail/search/filter/page flows, rich Japanese content, persistent public cache and explicit learned/unlearned actions. Shared rollout is pending.
 
 Description: Allow users to browse and study Japanese vocabulary.
 
@@ -369,7 +371,7 @@ QUARTET Vocab & Kanji - Education App | MWM
 | FR-033 | Users can view vocabulary sets by topic. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
 | FR-034 | Users can view vocabulary set details. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
 | FR-035 | Application supports pagination for vocabulary lists. | Medium | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
-| FR-036 | Application caches vocabulary content for offline learning. | High | Planned — Sprint 05 | Persistent offline content and learning events remain F6/F7; current reads are online. |
+| FR-036 | Application caches vocabulary content for offline learning. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
 
 Vocabulary information should support the fields provided by backend data, such as:
 
@@ -391,7 +393,7 @@ Lưu ý: Đây là các trường nội dung mong muốn ở giao diện; cần 
 
 ### 4.5. F5 – Grammar Learning
 
-> **Source review:** Planned: no grammar feature, API service, repository, or screen was found.
+> **Sprint 04/05 source review:** Grammar groups/patterns have list/detail/search/filter/page flows, examples/conjugation, persistent public cache and explicit learned/unlearned actions. Shared rollout is pending.
 
 Description: Allow users to study Japanese grammar through structured grammar topics and patterns.
 
@@ -410,7 +412,7 @@ Bunpo! - Une application pour apprendre la grammaire japonaise !
 | FR-041 | Users can search and filter grammar patterns. | Medium | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
 | FR-042 | Users can view grammar pattern details. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
 | FR-043 | Users can view grammar patterns belonging to a sub-topic. | High | Implemented and locally tested | Lists/details, filters/search, paging and Japanese content have [Sprint 04 evidence](sprints/sprint-04-report.md); shared-environment acceptance pending. |
-| FR-044 | Application supports offline grammar content. | High | Planned — Sprint 05 | Persistent offline content and learning events remain F6/F7; current reads are online. |
+| FR-044 | Application supports offline grammar content. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
 
 Grammar content should support:
 
@@ -428,19 +430,19 @@ Related grammar sub-topic.
 
 ### 4.6. F6 – Offline Content & Synchronization
 
-> **Source review:** Planned: no persistent content cache, ETag request validation, 304 cache path, pending-write queue, connectivity synchronization or worker exists. A topic etag field and display alone do not implement cache validation.
+> **Sprint 05 source review:** Room cache/ETag restoration, authoritative deletion invalidation and WorkManager outbox now exist. Offline scope is previously fetched projections; see the contract for limits and rollout gates.
 
 Description: Allow users to download learning content and access it without an internet connection.
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-045 | Application can retrieve synchronization metadata. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-046 | Application can compare local and remote content versions. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-047 | Application can download content when the local version is outdated. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-048 | Application supports ETag-based cache validation. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-049 | Application handles HTTP 304 responses without downloading unchanged content. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-050 | Application can access previously downloaded learning content offline. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-051 | Application can synchronize pending user data when connectivity is restored. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-045 | Application can retrieve synchronization metadata. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-046 | Application can compare local and remote content versions. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-047 | Application can download content when the local version is outdated. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-048 | Application supports ETag-based cache validation. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-049 | Application handles HTTP 304 responses without downloading unchanged content. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-050 | Application can access previously downloaded learning content offline. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-051 | Application can synchronize pending user data when connectivity is restored. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
 
 Supported synchronization entities:
 
@@ -460,9 +462,9 @@ Content synchronization flow:
 
 Application checks network availability.
 
-Application requests the synchronization manifest for the selected level.
+Application requests the complete authoritative catalog inventory (all six collections); browsing remains filterable by level.
 
-Backend returns entity keys, ETags and update timestamps.
+Backend returns entity keys/content versions; resource responses carry ETags. Inventory absence represents deletion.
 
 Application compares remote ETags with local cached versions.
 
@@ -488,19 +490,19 @@ Synchronization must handle network interruption and retry safely.
 
 ### 4.7. F7 – Learning Progress
 
-> **Source review:** Planned: no learning-progress persistence, calculation, or synchronization exists.
+> **Sprint 05 source review:** Explicit learned/unlearned vocabulary/grammar actions persist atomically with outbox edits; backend receipts, deltas and current-catalog summaries are implemented. Opening content alone does not mark completion.
 
 Description: Track the user's learning progress across vocabulary, grammar and other supported learning items.
 
 | ID | Functional Requirement | Priority | Client status | Evidence / remaining work |
 | --- | --- | --- | --- | --- |
-| FR-052 | Application records learning progress. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-053 | Application can submit multiple progress updates in one batch. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-054 | Application retrieves progress updates from the backend. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-055 | Application supports incremental progress synchronization. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-056 | Users can view learning progress summaries. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-057 | Users can view progress by JLPT level and topic. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
-| FR-058 | Application preserves pending progress updates while offline. | High | Planned | No corresponding feature implementation found; original requirement retained as target scope. |
+| FR-052 | Application records learning progress. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-053 | Application can submit multiple progress updates in one batch. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-054 | Application retrieves progress updates from the backend. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-055 | Application supports incremental progress synchronization. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-056 | Users can view learning progress summaries. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-057 | Users can view progress by JLPT level and topic. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
+| FR-058 | Application preserves pending progress updates while offline. | High | Implemented and locally tested | Room/ETag cache and account-scoped durable progress; see [Sprint 05 contract](contracts/sprint-05-api.md) and [verification](sprints/sprint-05-report.md). Offline scope is previously fetched content; shared rollout pending. |
 
 Progress data requirements:
 
@@ -1316,10 +1318,10 @@ Offline mode.
 | AC-002 | Unverified users cannot access authenticated features. | Unverified: backend enforcement required |
 | AC-003 | User can browse JLPT levels from N5 to N1. | Client browsing implemented; verify real N5–N1 dataset |
 | AC-004 | User can access topics, vocabulary and grammar content. | Partial: topics exist; vocabulary/grammar missing |
-| AC-005 | User can access previously synchronized content offline. | Planned: implementation and acceptance testing required |
-| AC-006 | Application can synchronize content using ETag. | Planned: implementation and acceptance testing required |
-| AC-007 | Learning progress is preserved across application restarts. | Planned: implementation and acceptance testing required |
-| AC-008 | Progress synchronization does not create duplicated records. | Planned: implementation and acceptance testing required |
+| AC-005 | User can access previously synchronized content offline. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
+| AC-006 | Application can synchronize content using ETag. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
+| AC-007 | Learning progress is preserved across application restarts. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
+| AC-008 | Progress synchronization does not create duplicated records. | Implemented; local automated evidence in [Sprint 05 report](sprints/sprint-05-report.md). Shared rollout pending. |
 | AC-009 | User can create and manage personal flashcard folders and sets. | Planned: implementation and acceptance testing required |
 | AC-010 | AI can generate supported flashcards and exercises within quota. | Planned: implementation and acceptance testing required |
 | AC-011 | User can complete exercises and view results. | Planned: implementation and acceptance testing required |

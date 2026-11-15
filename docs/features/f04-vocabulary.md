@@ -9,7 +9,7 @@ Requirements: FR-028–FR-036. Owners/reviewer: TBD.
 - [x] Bounded page loading, empty/error/retry states and stable list keys.
 - [x] Japanese readings, localized meanings/examples and set-to-child navigation.
 - [x] Saved filter/search/language state and stale-response protection.
-- [ ] Persistent cached reads and learning completion events with F6/F7 in Sprint 05.
+- [x] Persistent cached reads and explicit learned/unlearned actions with F6/F7; [Sprint 05 evidence](../sprints/sprint-05-report.md).
 
 ## Backend plan
 
@@ -21,4 +21,4 @@ Requirements: FR-028–FR-036. Owners/reviewer: TBD.
 
 [Canonical API](../contracts/sprint-04-api.md) · [Sprint 04 evidence](../sprints/sprint-04-report.md).
 
-Local evidence covers vocabulary AC-004 and FR-028–FR-035. FR-036 and AC-005/AC-006 offline behavior remain Sprint 05. Dependencies: F3 topics, F6 cache and F7 progress. Apply [delivery gates](../planning/delivery.md).
+Local evidence covers vocabulary AC-004 and FR-028–FR-035. FR-036 and AC-005/AC-006 have local [Sprint 05 evidence](../sprints/sprint-05-report.md). Dependencies: F3 topics, F6 cache and F7 progress. Apply [delivery gates](../planning/delivery.md).

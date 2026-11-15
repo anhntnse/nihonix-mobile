@@ -4,7 +4,7 @@
 
 Requirements live in [SRS](../SRS.md); frontend/backend tasks live in [feature plans](../features/README.md); sprint commitments and reviews live in [sprints](../sprints/README.md). The supplied NestJS/TypeORM/PostgreSQL backend has been [audited at a pinned commit](../contracts/backend-audit.md) and checked against its local API. Production HTTPS, deployment ownership and provider readiness remain unverified. Reuse the audit and implement only missing or incorrect behavior.
 
-Frontend follows the existing Kotlin/Compose/Material 3 MVVM structure, repository contracts, Retrofit/OkHttp/Gson, coroutines/Flow and manual ServiceLocator/ViewModel factory wiring. Do not schedule a Hilt/XML UI rewrite as a prerequisite. Room/WorkManager and account-scoped outbox boundaries are selected in the [offline design](../architecture/offline-sync.md); implementation remains Sprint 05 work.
+Frontend follows the existing Kotlin/Compose/Material 3 MVVM structure, repository contracts, Retrofit/OkHttp/Gson, coroutines/Flow and manual ServiceLocator/ViewModel factory wiring. Do not schedule a Hilt/XML UI rewrite as a prerequisite. Room/WorkManager and account-scoped outbox boundaries are selected in the [offline design](../architecture/offline-sync.md); Sprint 05 supplies local implementation/test evidence, while shared rollout remains pending.
 
 ## Work-item states
 

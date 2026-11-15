@@ -9,7 +9,7 @@ Requirements: FR-037–FR-044. Owners/reviewer: TBD.
 - [x] Topic/JLPT filters, multilingual keyword search and bounded page loading.
 - [x] Structures, readings, explanations, examples, conjugation rules and grammar points.
 - [x] Parent-to-child navigation, saved filters and loading/empty/error/retry states.
-- [ ] Cached reads and completion events through F6/F7 in Sprint 05.
+- [x] Cached reads and explicit learned/unlearned actions through F6/F7; [Sprint 05 evidence](../sprints/sprint-05-report.md).
 
 ## Backend plan
 
@@ -21,4 +21,4 @@ Requirements: FR-037–FR-044. Owners/reviewer: TBD.
 
 [Canonical API](../contracts/sprint-04-api.md) · [Sprint 04 evidence](../sprints/sprint-04-report.md).
 
-Local evidence covers grammar AC-004 and FR-037–FR-043. FR-044 offline behavior remains Sprint 05. Dependencies: F3 topics, F6 cache and F7 progress. Apply [delivery gates](../planning/delivery.md).
+Local evidence covers grammar AC-004 and FR-037–FR-043. FR-044 has local [Sprint 05 evidence](../sprints/sprint-05-report.md). Dependencies: F3 topics, F6 cache and F7 progress. Apply [delivery gates](../planning/delivery.md).

@@ -1,18 +1,18 @@
 # API and architecture decisions
 
-Status: Partially resolved through Sprint 03. Updated: 2026-11-14.
+Status: Partially resolved through Sprint 05. Updated: 2026-11-15.
 
 This register tracks decisions required to execute the [feature plans](../features/README.md). Routes in the SRS outside the existing auth/topics services are proposals until verified. Do not invent a backend language/framework or assume endpoints are production-ready.
 
 ## Current frontend baseline
 
-Kotlin, Compose/Material 3, Navigation Compose, MVVM feature packages, repository interfaces, Retrofit/OkHttp/Gson and coroutines/Flow. Dependencies use ServiceLocator and AppViewModelFactory. Sprint 01 tokens use encrypted preferences without an ordinary-preferences fallback; user JSON uses private SharedPreferences. No content database, background sync, FCM or AI integration exists in the reviewed baseline.
+Kotlin, Compose/Material 3, Navigation Compose, MVVM feature packages, repository interfaces, Retrofit/OkHttp/Gson and coroutines/Flow. Dependencies use ServiceLocator and AppViewModelFactory. Sprint 01 tokens use encrypted preferences without an ordinary-preferences fallback; user JSON uses private SharedPreferences. Sprint 05 adds Room public-content caching, protected account-scoped outbox and WorkManager background synchronization. FCM and AI integration remain future work.
 
 Existing API methods are documented in [SRS Appendix A](../SRS.md#appendix-a-implemented-client-api-contracts). The default URL is emulator HTTP, profile retrieval is POST auth/me and login submits username/password.
 
 ## Decisions to close
 
-D01 and D03 now have source-audit evidence; D06 selects the Android architecture, with backend sync contracts pending. D15's Android security/startup changes are implemented; deployment HTTPS is still missing. Other product/backend decisions remain open. Target sprint is a planning dependency, not an agreed deadline.
+D01 and D03 now have source-audit evidence; D06/D07/D08 now have Sprint 05 implementation and local contract evidence. D15's Android security/startup changes are implemented; deployment HTTPS is still missing. Other product/backend decisions remain open. Target sprint is a planning dependency, not an agreed deadline.
 
 | ID | Decision and required evidence | Features | Target sprint |
 | --- | --- | --- | --- |
@@ -48,6 +48,10 @@ Add a dated entry using the following fields:
 - Links to implementation, contract fixtures and verification evidence.
 
 Then update affected feature/sprint files and the SRS. Do not silently convert an unresolved proposal into an implementation fact.
+
+## Sprint 05 outcomes — 2026-11-15
+
+D06/D07 implemented locally: environment-specific Room v2, non-destructive migration, public projection/ETag cache, complete inventory deletion semantics, protected account-scoped outbox, WorkManager retries and atomic receipt/delta checkpoints. D08: the user explicitly confirmed manual Đã học/Bỏ đánh dấu; item types vocabulary/grammar, statuses learned/not_learned, timestamp/UUID LWW and current-catalog topic/level summaries. [Contract](../contracts/sprint-05-api.md) · [Evidence](../sprints/sprint-05-report.md). D09 flashcard conflicts and F10 activity remain separate. Shared rollout/production HTTPS and D02 policy remain open.
 
 ## Sprint 04 outcomes — 2026-11-15
 

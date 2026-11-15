@@ -1,8 +1,8 @@
 # Sprint roadmap
 
-Status: Sprints 01–04 implemented and locally tested; shared-environment acceptance and remaining decisions open. Sprints 05–09 proposed. Updated: 2026-11-15.
+Status: Sprints 01–05 implemented and locally tested; shared-environment acceptance and remaining decisions open. Sprints 06–09 proposed. Updated: 2026-11-15.
 
-Latest evidence: [Sprint 04 execution report](sprint-04-report.md). Shared-environment/provider rollout and earlier open decisions remain pending; offline study/progress follows in Sprint 05.
+Latest evidence: [Sprint 05 execution report](sprint-05-report.md). Offline cache/progress have local automated evidence; shared-environment/provider rollout and earlier open decisions remain pending.
 
 Assume two-week sprints with Android frontend and backend work proceeding together. Team size, velocity, availability, estimates and calendar dates are unknown, so this is a dependency-based sequence rather than a committed 18-week schedule. The [backend audit](../contracts/backend-audit.md) establishes the current source/local API baseline; its findings must guide estimation and remaining contract decisions.
 
