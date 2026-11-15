@@ -35,7 +35,8 @@ fun TopicsScreen(
     onTopicClick: (String) -> Unit,
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier,
-    onLearning: (Boolean, String?) -> Unit = { _, _ -> }
+    onLearning: (Boolean, String?) -> Unit = { _, _ -> },
+    onProgress: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showLevelDialog by remember { mutableStateOf(false) }
@@ -69,6 +70,7 @@ fun TopicsScreen(
             TopAppBar(
                 title = { Text("Topics & Levels") },
                 actions = {
+                    TextButton(onClick=onProgress) { Text("Tiến độ") }
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
@@ -97,6 +99,7 @@ fun TopicsScreen(
                 TextButton(onClick = { onLearning(true, uiState.selectedLevelCode) }) { Text("Vocabulary") }
                 TextButton(onClick = { onLearning(false, uiState.selectedLevelCode) }) { Text("Grammar") }
             }
+            uiState.notice?.let { Text(it) }
             UserLevelSummaryCard(
                 uiState = uiState,
                 onOpenLevelDialog = { showLevelDialog = true },

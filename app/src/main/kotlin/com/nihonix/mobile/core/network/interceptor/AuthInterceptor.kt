@@ -24,10 +24,15 @@ class AuthInterceptor(
             return chain.proceed(newRequest)
         }
 
+        val expected = originalRequest.tag(SessionRequest::class.java)
+        if (expected != null && expected.userId != userStorage.getUser()?.id) {
+            throw java.io.IOException("Account changed before request was sent.")
+        }
         val accessToken = tokenStorage.getAccessToken()
         return if (!accessToken.isNullOrBlank()) {
             val authenticatedRequest = originalRequest.newBuilder()
                 .header(ApiConstants.HEADER_AUTHORIZATION, "${ApiConstants.BEARER_PREFIX}$accessToken")
+                .apply { expected?.userId?.let { header("X-Nihonix-Account", it) } }
                 .tag(SessionRequest::class.java, SessionRequest(userStorage.getUser()?.id))
                 .build()
             chain.proceed(authenticatedRequest)

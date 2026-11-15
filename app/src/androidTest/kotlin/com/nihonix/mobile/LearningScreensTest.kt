@@ -43,6 +43,28 @@ class LearningScreensTest {
                 else -> word
             })
     }
+    @Test fun learnedStateChangesOnlyAfterExplicitActionAndCanBeUndone() {
+        val progress=kotlinx.coroutines.flow.MutableStateFlow(com.nihonix.mobile.feature.progress.ItemProgress())
+        var writes=0
+        val tracker=object:com.nihonix.mobile.feature.progress.ProgressTracker {
+            override fun observe(kind:String,id:String)=progress
+            override suspend fun mark(kind:String,entry:LearningEntry,learned:Boolean):Resource<Unit> {
+                writes++;assertEquals("vocabulary",kind);assertEquals("hello",entry.slug)
+                progress.value=com.nihonix.mobile.feature.progress.ItemProgress(learned,true)
+                return Resource.Success(Unit)
+            }
+        }
+        val vm=LearningDetailViewModel(Repo(),SavedStateHandle(mapOf("kind" to "vocabulary-items","identifier" to "hello")),tracker)
+        compose.setContent { NihonixTheme(dynamicColor=false) { LearningDetailScreen(vm,{},{}) } }
+        compose.onNodeWithText("Đã học").performScrollTo().assertIsDisplayed()
+        assertEquals(0,writes)
+        compose.onNodeWithText("Đã học").performClick()
+        compose.onNodeWithText("Bỏ đánh dấu").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Đã lưu trên thiết bị · Chờ đồng bộ").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Bỏ đánh dấu").performScrollTo().performClick()
+        compose.onNodeWithText("Đã học").performScrollTo().assertIsDisplayed()
+        assertEquals(2,writes)
+    }
     @Test fun setDetailOpensItsWordsWithoutInventingCompletion() {
         val vm=LearningDetailViewModel(Repo(),SavedStateHandle(mapOf("kind" to "vocabulary-sets","identifier" to "set1")))
         var group:String?=null

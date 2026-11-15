@@ -70,7 +70,7 @@ fun NihonixNavHost(
         val protectedRoute = currentRoute == TopicsDestinations.TOPICS ||
             currentRoute == TopicsDestinations.TOPIC_DETAIL ||
             currentRoute == AuthDestinations.PROFILE ||
-            currentRoute == LearningDestinations.LIST || currentRoute == LearningDestinations.DETAIL
+            currentRoute == LearningDestinations.LIST || currentRoute == LearningDestinations.DETAIL || currentRoute == "progress"
         if (!hasSession && protectedRoute) {
             navController.navigate(AuthDestinations.LOGIN) {
                 popUpTo(0) { inclusive = true }
@@ -150,6 +150,7 @@ fun NihonixNavHost(
             val topicsViewModel: TopicsViewModel = viewModel(factory = viewModelFactory)
             TopicsScreen(
                 viewModel = topicsViewModel,
+                onProgress = { navController.navigate("progress") },
                 onTopicClick = { identifier ->
                     navController.navigate(TopicsDestinations.topicDetailRoute(identifier))
                 },
@@ -200,6 +201,11 @@ fun NihonixNavHost(
                 navController.navigate(LearningDestinations.list(child,LearningFilter(
                     topicId=entry.topicId,levelCode=entry.levelCode,parentId=entry.key)))
             })
+        }
+
+        composable("progress") {
+            val progress: com.nihonix.mobile.feature.progress.ProgressViewModel = viewModel(factory=viewModelFactory)
+            com.nihonix.mobile.feature.progress.ProgressScreen(progress) { navController.popBackStack() }
         }
 
         composable(AuthDestinations.PROFILE) {

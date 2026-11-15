@@ -52,6 +52,7 @@ fun LearningListScreen(viewModel: LearningViewModel,onBack: () -> Unit,
                     if(state.page>0) Text("${state.total} results",style=MaterialTheme.typography.labelLarge)
                 }
             }
+            state.notice?.let { notice -> item { Text(notice) } }
             if(state.loading && state.items.isEmpty()) item { CircularProgressIndicator(); Text("Loading content…") }
             if(!state.loading && state.error==null && state.items.isEmpty()) item {
                 Text("No content found. Try another search or filter.",style=MaterialTheme.typography.bodyLarge)
@@ -117,6 +118,7 @@ fun LearningDetailScreen(viewModel: LearningDetailViewModel,onBack: () -> Unit,o
     },actions={IconButton(onClick=viewModel::refresh) { Icon(Icons.Default.Refresh,"Refresh content") }})}) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding),contentPadding=PaddingValues(20.dp),
             verticalArrangement=Arrangement.spacedBy(16.dp)) {
+            state.notice?.let { notice -> item { Text(notice) } }
             if(state.loading) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
             state.error?.let { error -> item { Text(error,color=MaterialTheme.colorScheme.error)
                 Button(onClick=viewModel::refresh) { Text("Retry") } } }
@@ -141,6 +143,11 @@ fun LearningDetailScreen(viewModel: LearningDetailViewModel,onBack: () -> Unit,o
                                 style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
                             Text(if(viewModel.kind==ContentKind.WORDS) entry.meaning.getByLanguage(language) else entry.explanation.getByLanguage(language))
                             if(entry.difficulty.isNotBlank()) Text("Difficulty: ${entry.difficulty}")
+                            Button(onClick=viewModel::toggleLearned, enabled=!state.saving, modifier=Modifier.fillMaxWidth()) {
+                                Text(if(state.progress.learned) "Bỏ đánh dấu" else "Đã học")
+                            }
+                            if(state.progress.pending) Text("Đã lưu trên thiết bị · Chờ đồng bộ")
+                            state.progress.error?.let { Text(it, color=MaterialTheme.colorScheme.error) }
                         }
                     }
                 }

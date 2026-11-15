@@ -25,7 +25,8 @@ class AccountRepositoryImpl(
     private val api: AccountApiService,
     private val tokens: TokenStorage,
     private val users: UserStorage,
-    private val gson: Gson
+    private val gson: Gson,
+    private val purgeOffline: suspend (String) -> Unit = {}
 ) : AccountRepository {
     private fun <T, R> request(call: suspend () -> Response<ApiResponseDto<T>>, map: (T) -> R): Flow<Resource<R>> = flow {
         emit(Resource.Loading)
@@ -72,8 +73,12 @@ class AccountRepositoryImpl(
         try {
             val response = api.deleteAccount(id)
             if (response.isSuccessful) {
-                tokens.clearTokens()
-                users.clearUser()
+                if (users.getUser()?.id == id) {
+                    tokens.clearTokens()
+                    users.clearUser()
+                }
+                // In-flight sync must lose its session before the final purge transaction.
+                purgeOffline(id)
                 emit(Resource.Success(Unit, "Account deleted"))
             } else {
                 emit(Resource.Error("Account could not be deleted. Please try again.", response.code()))

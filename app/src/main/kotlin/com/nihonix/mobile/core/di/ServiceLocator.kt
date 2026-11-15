@@ -2,6 +2,8 @@ package com.nihonix.mobile.core.di
 
 import android.annotation.SuppressLint
 import android.content.Context
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.nihonix.mobile.core.network.NetworkModule
@@ -41,9 +43,26 @@ object ServiceLocator {
         NetworkModule(
             tokenStorage = tokenStorage,
             userStorage = userStorage,
-            gson = gson
+            gson = gson,
+            catalogStore = offlineDatabase.catalog()
         )
     }
+
+    val environmentKey: String = java.security.MessageDigest.getInstance("SHA-256").digest(
+        com.nihonix.mobile.core.network.ApiConstants.DEFAULT_BASE_URL.toByteArray(Charsets.UTF_8)
+    ).joinToString("") { "%02x".format(it) }
+    val offlineDatabase by lazy {
+        androidx.room.Room.databaseBuilder(applicationContext,
+            com.nihonix.mobile.core.offline.OfflineDatabase::class.java, "offline_$environmentKey.db").addMigrations(com.nihonix.mobile.core.offline.OfflineDatabase.MIGRATION_1_2).build()
+    }
+    val syncScheduler by lazy { com.nihonix.mobile.core.offline.SyncScheduler(applicationContext, environmentKey) }
+    val progressRepository by lazy {
+        com.nihonix.mobile.feature.progress.ProgressRepository(offlineDatabase,
+            networkModule.createService(com.nihonix.mobile.feature.progress.ProgressApi::class.java),
+            tokenStorage, userStorage, gson, syncScheduler::schedule)
+    }
+    val catalogSync by lazy { com.nihonix.mobile.core.offline.CatalogSync(networkModule.okHttpClient,
+        offlineDatabase.catalog(), com.nihonix.mobile.core.network.ApiConstants.DEFAULT_BASE_URL) }
 
     val authApiService: AuthApiService by lazy {
         networkModule.createService(AuthApiService::class.java)
@@ -59,7 +78,7 @@ object ServiceLocator {
     }
 
     val accountRepository: AccountRepository by lazy {
-        AccountRepositoryImpl(networkModule.createService(AccountApiService::class.java), tokenStorage, userStorage, gson)
+        AccountRepositoryImpl(networkModule.createService(AccountApiService::class.java), tokenStorage, userStorage, gson, progressRepository::purge)
     }
 
     val topicsLevelsApiService: TopicsLevelsApiService by lazy {
@@ -94,5 +113,17 @@ object ServiceLocator {
 
     fun initialize(context: Context) {
         applicationContext = context.applicationContext
+        syncScheduler.schedule("")
+        syncScheduler.periodic("")
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default).launch {
+            var previous: String? = null
+            kotlinx.coroutines.flow.combine(userStorage.currentUserFlow, tokenStorage.isAuthenticated) { user, signedIn ->
+                user?.id?.takeIf { signedIn }
+            }.collect { account ->
+                if (previous != account) previous?.let(syncScheduler::cancel)
+                if (account != null) { syncScheduler.schedule(account); syncScheduler.periodic(account) }
+                previous = account
+            }
+        }
     }
 }

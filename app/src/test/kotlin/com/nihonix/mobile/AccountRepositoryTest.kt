@@ -92,6 +92,19 @@ class AccountRepositoryTest {
         assertEquals("/api/users/u1", server.takeRequest().path)
     }
 
+    @Test fun successfulDeletionInvalidatesSessionBeforePurgingOfflineData() = runTest {
+        val api=Retrofit.Builder().baseUrl(server.url("/api/"))
+            .addConverterFactory(GsonConverterFactory.create()).build().create(AccountApiService::class.java)
+        var purged:String?=null
+        val deleting=AccountRepositoryImpl(api,tokens,users,Gson()) { owner ->
+            assertFalse("Late sync must fail its session check before purge begins",tokens.hasAccessToken())
+            assertNull(users.getUser())
+            purged=owner
+        }
+        server.enqueue(MockResponse().setResponseCode(204))
+        assertTrue(deleting.deleteAccount().toList().last() is Resource.Success)
+        assertEquals("u1",purged)
+    }
     @Test fun deletionFailurePreservesTheLocalAccount() = runTest {
         server.enqueue(MockResponse().setResponseCode(500))
         assertTrue(repo.deleteAccount().toList().last() is Resource.Error)

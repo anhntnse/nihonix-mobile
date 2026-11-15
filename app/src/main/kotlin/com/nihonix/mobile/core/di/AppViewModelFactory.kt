@@ -24,7 +24,7 @@ class AppViewModelFactory : ViewModelProvider.Factory {
             return LearningViewModel(ServiceLocator.learningRepository, extras.createSavedStateHandle()) as T
         }
         if (modelClass.isAssignableFrom(LearningDetailViewModel::class.java)) {
-            return LearningDetailViewModel(ServiceLocator.learningRepository, extras.createSavedStateHandle()) as T
+            return LearningDetailViewModel(ServiceLocator.learningRepository, extras.createSavedStateHandle(), ServiceLocator.progressRepository) as T
         }
         return create(modelClass)
     }
@@ -33,6 +33,8 @@ class AppViewModelFactory : ViewModelProvider.Factory {
         val authRepo = ServiceLocator.authRepository
         val topicsLevelsRepo = ServiceLocator.topicsLevelsRepository
         return when {
+            modelClass.isAssignableFrom(com.nihonix.mobile.feature.progress.ProgressViewModel::class.java) ->
+                com.nihonix.mobile.feature.progress.ProgressViewModel(ServiceLocator.progressRepository, ServiceLocator.offlineDatabase.catalog()) as T
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> {
                 LoginViewModel(authRepo) as T
             }

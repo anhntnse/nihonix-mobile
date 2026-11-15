@@ -16,7 +16,7 @@ data class LearningListState(
     val kind: ContentKind = ContentKind.SETS, val filter: LearningFilter = LearningFilter(),
     val items: List<LearningEntry> = emptyList(), val topics: List<LearningTopic> = emptyList(),
     val loading: Boolean = false, val error: String? = null, val topicsError: String? = null,
-    val total: Int = 0, val page: Int = 0, val hasMore: Boolean = false, val language: String = "en"
+    val total: Int = 0, val page: Int = 0, val hasMore: Boolean = false, val language: String = "en", val notice: String? = null
 )
 class LearningViewModel(private val repository: LearningRepository, private val saved: SavedStateHandle = SavedStateHandle()) : ViewModel() {
     private val state = MutableStateFlow(LearningListState(
@@ -76,7 +76,7 @@ class LearningViewModel(private val repository: LearningRepository, private val 
             if(generation != revision) return@launch
             when(result) {
                 is Resource.Success -> state.update {
-                    it.copy(loading=false,error=null,
+                    it.copy(loading=false,error=null,notice=result.message?.takeIf { message -> message.startsWith("Offline") },
                         items=(if(reset) result.data.items else it.items+result.data.items).distinctBy { entry -> entry.key },
                         total=result.data.total,page=result.data.page,hasMore=result.data.hasMore)
                 }
@@ -86,9 +86,27 @@ class LearningViewModel(private val repository: LearningRepository, private val 
         }
     }
 }
-data class LearningDetailState(val entry: LearningEntry? = null,val loading: Boolean = true,val error: String? = null)
-class LearningDetailViewModel(private val repository: LearningRepository,private val saved: SavedStateHandle = SavedStateHandle()) : ViewModel() {
+data class LearningDetailState(val entry: LearningEntry? = null,val loading: Boolean = true,val error: String? = null,
+    val notice: String? = null, val progress: com.nihonix.mobile.feature.progress.ItemProgress = com.nihonix.mobile.feature.progress.ItemProgress(), val saving: Boolean = false)
+class LearningDetailViewModel(private val repository: LearningRepository,private val saved: SavedStateHandle = SavedStateHandle(),
+    private val tracker: com.nihonix.mobile.feature.progress.ProgressTracker? = null) : ViewModel() {
     val kind = ContentKind.parse(saved["kind"])
+    private val progressKind get() = if (kind == ContentKind.WORDS) "vocabulary" else "grammar"
+    private var progressJob: Job? = null
+    fun toggleLearned() {
+        val current = state.value
+        val entry = current.entry ?: return
+        val progress = tracker ?: return
+        if (current.saving || kind.group) return
+        state.update { it.copy(saving=true,error=null) }
+        viewModelScope.launch {
+            try {
+                val result = progress.mark(progressKind, entry, !current.progress.learned)
+                state.update { it.copy(saving=false,error=(result as? Resource.Error)?.message) }
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (_: Exception) { state.update { it.copy(saving=false,error="Could not save progress. Please retry.") } }
+        }
+    }
     private val state = MutableStateFlow(LearningDetailState())
     val uiState = state.asStateFlow()
     private var job: Job? = null
@@ -98,7 +116,13 @@ class LearningDetailViewModel(private val repository: LearningRepository,private
         state.update { it.copy(loading=true,error=null) }
         job = viewModelScope.launch {
             when(val result = repository.detail(kind,saved["identifier"] ?: "")) {
-                is Resource.Success -> state.value=LearningDetailState(entry=result.data,loading=false)
+                is Resource.Success -> {
+                    state.value=LearningDetailState(entry=result.data,loading=false,notice=result.message?.takeIf { it.startsWith("Offline") })
+                    progressJob?.cancel()
+                    if (!kind.group) progressJob = viewModelScope.launch {
+                        tracker?.observe(progressKind, result.data.slug)?.collect { progress -> state.update { it.copy(progress=progress) } }
+                    }
+                }
                 is Resource.Error -> state.update { it.copy(loading=false,error=result.message) }
                 else -> state.update { it.copy(loading=false,error="Content was not found.") }
             }
