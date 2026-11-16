@@ -54,6 +54,9 @@ class AppViewModelFactory : ViewModelProvider.Factory {
         val authRepo = ServiceLocator.authRepository
         val topicsLevelsRepo = ServiceLocator.topicsLevelsRepository
         return when {
+            modelClass.isAssignableFrom(com.nihonix.mobile.feature.home.HomeViewModel::class.java) ->
+                com.nihonix.mobile.feature.home.HomeViewModel(authRepo.currentUserFlow, ServiceLocator.tokenStorage.isAuthenticated,
+                    com.nihonix.mobile.feature.home.RepositoryHomeDataSource(authRepo, ServiceLocator.activityRepository, ServiceLocator.progressRepository)) as T
             modelClass.isAssignableFrom(com.nihonix.mobile.feature.progress.ProgressViewModel::class.java) ->
                 com.nihonix.mobile.feature.progress.ProgressViewModel(ServiceLocator.progressRepository, ServiceLocator.offlineDatabase.catalog()) as T
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> {

@@ -35,6 +35,11 @@ Totals: 0 fully accepted, 15 Local pass, 2 Partial (AC-003, AC-015). Every row s
 
 ## Sprint 09 checks run
 
+### Group03 — Home Dashboard (2026-11-16)
+
+[Home execution evidence](../planning/remaining-work/evidence/home-dashboard.md) maps SRS §5.2 to existing profile/activity/progress data. Home replaces Topics as authenticated/login landing; all eight shortcuts preserve feature routes and back navigation. ViewModel tests cover independent failures, cached data, account switching, token loss, pending-vs-accepted semantics and day/timezone changes. Compose tests cover narrow/large-text/dark rendering, scroll/navigation restoration and notification/session routing; real Room fake-provider navigation tests exercise the repository adapter. This adds local evidence for §5.2 and AC-013/014/016/017; existing AC totals/shared/provider/NFR limits remain unchanged.
+
+
 ### Backend route-guard audit (static read of `src/**/*.controller.ts`, 2026-11-16)
 
 - Personal-data mutations and catalog authoring require `JwtAuthGuard`; authentication/challenge issuance/recovery endpoints remain public. Catalog and AI authoring writes additionally require `RolesGuard` with the exact Admin-only role set. The [section-02 matrix](../planning/remaining-work/evidence/authorization-matrix.md) supersedes this initial static inventory.

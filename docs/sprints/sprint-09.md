@@ -1,6 +1,6 @@
 # Sprint 09 — Integration, acceptance and release readiness
 
-Status: In progress (started 2026-11-16). Done locally: acceptance matrix, backend route-guard audit, cross-feature ownership fixture, emulator journey against an isolated local backend, release configuration review, flashcard test fix. Open: release-build run, shared-environment and physical-device acceptance, extending the journey to practice/flashcards/progress.
+Status: In progress (started 2026-11-16). Done locally: acceptance matrix, backend route-guard audit, cross-feature ownership fixture, emulator journey against an isolated local backend, release configuration review, flashcard test fix, [Home Dashboard group03](../planning/remaining-work/evidence/home-dashboard.md). Open: release-build run, shared-environment and physical-device acceptance, extending the journey to practice/flashcards/progress.
 Duration assumption: Two weeks.
 Start/end dates: TBD. Capacity/estimate: TBD.
 Sprint owner: TBD. Frontend owner: TBD. Backend owner: TBD. QA: TBD.

@@ -3,6 +3,7 @@ package com.nihonix.mobile.feature.auth.presentation.navigation
 import com.nihonix.mobile.feature.learning.presentation.*
 import com.nihonix.mobile.feature.learning.domain.*
 import android.net.Uri
+import com.nihonix.mobile.feature.home.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,26 +57,30 @@ object TopicsDestinations {
 fun NihonixNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    viewModelFactory: AppViewModelFactory = AppViewModelFactory()
+    viewModelFactory: androidx.lifecycle.ViewModelProvider.Factory = AppViewModelFactory(),
+    authenticated: kotlinx.coroutines.flow.StateFlow<Boolean> = ServiceLocator.tokenStorage.isAuthenticated,
+    notificationLaunches: kotlinx.coroutines.flow.StateFlow<Map<String,String>?> = ServiceLocator.notifications.launch,
+    acceptNotification: (Map<String,String>)->Boolean = { ServiceLocator.notifications.accepted(it)!=null },
+    consumeNotification: ()->Unit = { ServiceLocator.notifications.consumeLaunch() }
 ) {
-    val hasSession by ServiceLocator.tokenStorage.isAuthenticated.collectAsState()
-    val notificationLaunch by ServiceLocator.notifications.launch.collectAsState()
-    LaunchedEffect(notificationLaunch,hasSession) {
-        val data=notificationLaunch
-        if(data!=null) {
-            if(hasSession&&ServiceLocator.notifications.accepted(data)!=null)navController.navigate("activity"){launchSingleTop=true}
-            ServiceLocator.notifications.consumeLaunch()
-        }
-    }
+    val hasSession by authenticated.collectAsState()
+    val notificationLaunch by notificationLaunches.collectAsState()
     val currentEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
+    LaunchedEffect(notificationLaunch,hasSession,currentRoute) {
+        val data=notificationLaunch
+        if(data!=null&&currentRoute!=null) {
+            if(hasSession&&acceptNotification(data))navController.navigate("activity"){launchSingleTop=true}
+            consumeNotification()
+        }
+    }
     val startDestination = remember {
-        if (hasSession) TopicsDestinations.TOPICS else AuthDestinations.LOGIN
+        if (hasSession) "home" else AuthDestinations.LOGIN
     }
 
     // A refresh failure or logout removes protected destinations from the back stack.
     LaunchedEffect(hasSession, currentRoute) {
-        val protectedRoute = currentRoute == TopicsDestinations.TOPICS ||
+        val protectedRoute = currentRoute == "home" || currentRoute == TopicsDestinations.TOPICS ||
             currentRoute == TopicsDestinations.TOPIC_DETAIL ||
             currentRoute == AuthDestinations.PROFILE ||
             currentRoute == LearningDestinations.LIST || currentRoute == LearningDestinations.DETAIL || currentRoute == "progress" || currentRoute == "activity" || currentRoute?.startsWith("flashcards") == true || currentRoute?.startsWith("practice") == true
@@ -104,8 +109,9 @@ fun NihonixNavHost(
                 },
                 onNavigateToVerifyEmail = { navController.navigate(AuthDestinations.verificationRoute()) },
                 onLoginSuccess = {
-                    navController.navigate(TopicsDestinations.TOPICS) {
-                        popUpTo(AuthDestinations.LOGIN) { inclusive = true }
+                    if(authenticated.value)navController.navigate("home") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -152,6 +158,23 @@ fun NihonixNavHost(
                     navController.popBackStack()
                 }
             )
+        }
+
+        composable("home") {
+            val home:HomeViewModel = viewModel(factory=viewModelFactory)
+            HomeScreen(home) { destination->
+                val route=when(destination) {
+                    HomeDestination.Vocabulary->LearningDestinations.list(ContentKind.SETS,LearningFilter(levelCode=home.uiState.value.profile.data?.levelCode))
+                    HomeDestination.Grammar->LearningDestinations.list(ContentKind.GRAMMAR_TOPICS,LearningFilter(levelCode=home.uiState.value.profile.data?.levelCode))
+                    HomeDestination.Practice->"practice?topicId="
+                    HomeDestination.Flashcards->"flashcards"
+                    HomeDestination.Progress->"progress"
+                    HomeDestination.Calendar->"activity"
+                    HomeDestination.Topics->TopicsDestinations.TOPICS
+                    HomeDestination.Profile->AuthDestinations.PROFILE
+                }
+                navController.navigate(route){launchSingleTop=true}
+            }
         }
 
         composable(TopicsDestinations.TOPICS) {
@@ -273,7 +296,8 @@ fun NihonixNavHost(
                 },
                 onNavigateToTopics = {
                     navController.navigate(TopicsDestinations.TOPICS) {
-                        popUpTo(TopicsDestinations.TOPICS) { inclusive = true }
+                        popUpTo("home") { inclusive = false }
+                        launchSingleTop = true
                     }
                 },
                 onNavigateBack = {

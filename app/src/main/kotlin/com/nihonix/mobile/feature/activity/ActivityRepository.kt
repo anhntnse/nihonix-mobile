@@ -57,6 +57,16 @@ class ActivityRepository(val db:OfflineDatabase,private val api:ActivityApi,priv
   val p=data(api.preferences(SessionRequest(owner)))?:return false
   cachePreferences(owner,p);return account()==owner
  }
+ suspend fun refreshSummary(owner:String):Boolean{
+  if(account()!=owner)return false
+  val session=SessionRequest(owner)
+  val p=data(api.preferences(session))?:return false
+  if(account()!=owner)return false
+  cachePreferences(owner,p)
+  val s=data(api.summary(session))?:return false
+  cache(owner,"summary",s)
+  return account()==owner
+ }
  suspend fun refresh(year:Int,month:Int):Boolean{
   val owner=account()?:return false;val session=SessionRequest(owner)
   val p=data(api.preferences(session))?:return false;cachePreferences(owner,p)

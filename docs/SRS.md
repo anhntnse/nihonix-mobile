@@ -843,7 +843,7 @@ dribbble.com
 
 ### 5.2. Home Dashboard
 
-> **Source review:** Planned: topics/levels is the current landing screen. No home dashboard, daily goal, streak or practice shortcuts are implemented.
+> **Source review (group03, 2026-11-16):** Home is implemented locally as the signed-in/login landing screen. Greeting/JLPT uses the saved/refreshed profile; goal/today/streak use accepted server activity with timezone/day and cache freshness checks. Local learned counts and unsynced changes are labeled separately. Shortcuts open Vocabulary, Grammar, Practice, Flashcards, Progress, Calendar, Topics and Profile; no automatic generation/completion. Recent/recommended topics are omitted because no trustworthy source exists. [Design, mapping and verification](planning/remaining-work/evidence/home-dashboard.md).
 
 Home là màn hình tổng quan, cung cấp thông tin học tập quan trọng.
 
@@ -869,7 +869,7 @@ Learning calendar shortcut.
 
 ### 5.3. Core User Journey
 
-> **Source review:** Only registration/login, level selection, topic exploration and profile viewing currently exist. Study/practice/progress/habit steps remain target journeys.
+> **Source review (2026-11-16):** The core feature screens are implemented locally across Sprints 02–08. Group03 adds Home as the signed-in entry and verifies navigation to learning/practice/flashcards/progress/calendar/profile with fake-provider fixtures. Real-provider/shared-environment end-to-end acceptance remains separate; see [Home evidence](planning/remaining-work/evidence/home-dashboard.md) and [Sprint09 acceptance](sprints/sprint-09-acceptance.md).
 
 Main Learning Journey
 
