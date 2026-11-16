@@ -24,7 +24,7 @@ class LearningRepositoryTest {
     private fun page(items:String,total:Int=1,number:Int=1) =
         """{"success":true,"data":{"schema_version":1,"items":$items,"total":$total,"page":$number,"page_size":20,"has_more":false,"version":"$version"}}"""
     private val word="""{"slug":"hello","kana":"こんにちは","kanji":"今日は","meaning":{"vi":"Xin chào","en":"Hello"},"examples":[{"sentence_jp":"こんにちは","sentence_en":"Hello"}]}"""
-    @Test fun usesPublicPagedEndpointAndEscapesJapaneseSearch()=runBlocking {
+    @Test fun usesPagedEndpointAndEscapesJapaneseSearch()=runBlocking {
         server.enqueue(MockResponse().setBody(page("[$word]")))
         val result=repo.page(ContentKind.WORDS,LearningFilter("日本","topic-id","N5","set-id"),1) as Resource.Success
         assertEquals("こんにちは",result.data.items.single().kana)

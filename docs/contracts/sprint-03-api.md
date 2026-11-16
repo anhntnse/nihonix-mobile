@@ -2,6 +2,8 @@
 
 Implemented 2026-11-14 in Android and the existing sibling backend checkout. Local tests do not imply deployment. All routes below use /api and the existing success/message/data/errors/statusCode envelope.
 
+**D02 override — 2026-11-16:** User requires login for every catalog read per SRS/BR-001. Levels/topics/bundles, vocabulary/grammar, /catalog and entity-sync (including POST check) require Bearer JWT. Auth/config/liveness remain public; authoring requires Admin. Android removes catalog No-Authentication, gates cache on current local login and pins background refresh to account/session. Cached shared content remains available offline within that login; 401/403 never falls back. Conditional GET runs after JWT and returns private/no-cache, Vary Authorization. This supersedes earlier public-read statements below. [Decision/evidence](../planning/remaining-work/evidence/catalog-authentication.md).
+
 ## Catalog access and counts
 
 Existing public catalog reads are retained for compatibility. Android still uses its existing authenticated navigation; no guest entry screen was added. D02's stricter authenticated-catalog product policy remains unresolved. Catalog mutation routes now require an active verified JWT session and role admin: POST topics, topics/seed, vocabulary-sets, vocabulary-items/generate and grammar-patterns/generate. Guest requests return 401; ordinary users return 403. Admin content seeding is never triggered automatically by this sprint.

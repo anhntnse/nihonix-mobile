@@ -2,6 +2,8 @@
 
 D06/D07/D08: implemented locally in Sprint 05, 2026-11-15. The user confirmed manual learned/unlearned actions. [Wire contract](../contracts/sprint-05-api.md) and [verification](../sprints/sprint-05-report.md) are authoritative.
 
+**D02 override — 2026-11-16:** User requires login for every catalog read per SRS/BR-001. Levels/topics/bundles, vocabulary/grammar, /catalog and entity-sync (including POST check) require Bearer JWT. Auth/config/liveness remain public; authoring requires Admin. Android removes catalog No-Authentication, gates cache on current local login and pins background refresh to account/session. Cached shared content remains available offline within that login; 401/403 never falls back. Conditional GET runs after JWT and returns private/no-cache, Vary Authorization. This supersedes earlier public-read statements below. [Decision/evidence](../planning/remaining-work/evidence/catalog-authentication.md).
+
 ## Android
 
 Room v5 (Sprint07) retains the v2 public catalog JSON projections by exact URL/query, ETag and validation time. The database filename scopes the backend URL with SHA-256. Private progress uses composite account/item keys; outbox and checkpoints are account-scoped. Tokens/passwords never enter this database. Backup/device-transfer exclusions cover databases.

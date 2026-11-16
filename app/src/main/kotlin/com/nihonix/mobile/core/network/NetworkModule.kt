@@ -22,6 +22,13 @@ class NetworkModule(
         ApiEndpoint.validate(baseUrl, allowDevelopmentHttp = BuildConfig.DEBUG)
     }
 
+    fun currentCatalogSession(): com.nihonix.mobile.core.network.interceptor.SessionRequest? {
+        val token = tokenStorage.getAccessToken()?.takeIf { it.isNotBlank() } ?: return null
+        val owner = userStorage.getUser()?.id ?: return null
+        return com.nihonix.mobile.core.network.interceptor.SessionRequest(
+            owner, com.nihonix.mobile.core.network.interceptor.accessSessionId(token))
+    }
+
     val okHttpClient: OkHttpClient by lazy {
 
         val authInterceptor = AuthInterceptor(tokenStorage, userStorage)
@@ -32,7 +39,7 @@ class NetworkModule(
             .readTimeout(ApiConstants.TIMEOUT_READ_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(ApiConstants.TIMEOUT_WRITE_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(authInterceptor)
-            .apply { catalogStore?.let { addInterceptor(com.nihonix.mobile.core.offline.CatalogCacheInterceptor(it, baseUrl)) } }
+            .apply { catalogStore?.let { addInterceptor(com.nihonix.mobile.core.offline.CatalogCacheInterceptor(it, baseUrl, ::currentCatalogSession)) } }
             .authenticator(tokenAuthenticator)
             .build()
     }

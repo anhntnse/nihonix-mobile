@@ -30,6 +30,7 @@ class SyncWorker(context:Context,parameters:WorkerParameters):CoroutineWorker(co
     override suspend fun doWork():Result=withContext(Dispatchers.IO) {
         if(inputData.getString("environment")!=ServiceLocator.environmentKey) return@withContext Result.success()
         val account=inputData.getString("account").orEmpty()
+        if(account.isEmpty()) return@withContext Result.success()
         try {
             if(account.isNotEmpty()) {
                 if(ServiceLocator.progressRepository.account()!=account) return@withContext Result.success()
@@ -43,23 +44,30 @@ class SyncWorker(context:Context,parameters:WorkerParameters):CoroutineWorker(co
                 producer { ServiceLocator.notifications.reconcile() }
                 if(!progress || !flashcards || !practice || !activity) return@withContext if(runAttemptCount<8) Result.retry() else Result.failure()
             }
+            if(ServiceLocator.progressRepository.account()!=account) return@withContext Result.success()
             ServiceLocator.catalogSync.refresh()
             Result.success()
         } catch(cancelled:CancellationException) { throw cancelled }
         catch(_:Exception) { if(runAttemptCount<8) Result.retry() else Result.failure() }
     }
 }
-class CatalogSync(private val client:okhttp3.OkHttpClient,private val store:CatalogStore,private val baseUrl:String) {
+class CatalogSync(private val client:okhttp3.OkHttpClient,private val store:CatalogStore,private val baseUrl:String,
+    private val currentSession:()->com.nihonix.mobile.core.network.interceptor.SessionRequest?) {
     fun refresh() {
+        val session=currentSession()?:return
+        fun ensureSession() { check(currentSession()==session) { "Login changed during catalog sync." } }
         val manifest=client.newCall(okhttp3.Request.Builder().url(baseUrl+"catalog/manifest")
-            .header(com.nihonix.mobile.core.network.ApiConstants.HEADER_NO_AUTH,"true").build()).execute().use { response->
+            .tag(com.nihonix.mobile.core.network.interceptor.SessionRequest::class.java,session).build()).execute().use { response->
             check(response.isSuccessful && response.header("X-Nihonix-Cache")!="offline")
             response.body!!.string()
         }
-        pruneCatalog(store,manifest)
-        store.all().filterNot{it.url.endsWith("/catalog/manifest")}.sortedBy{it.checkedAt}.take(30).forEach { saved->
+        synchronized(store) { ensureSession();pruneCatalog(store,manifest) }
+        val catalogUrl=Regex("^"+Regex.escape(baseUrl)+"(catalog|levels|topics)(/|\\?|$)")
+        store.all().filter{catalogUrl.containsMatchIn(it.url)}
+            .filterNot{it.url.endsWith("/catalog/manifest")}.sortedBy{it.checkedAt}.take(30).forEach { saved->
+            ensureSession()
             client.newCall(okhttp3.Request.Builder().url(saved.url)
-                .header(com.nihonix.mobile.core.network.ApiConstants.HEADER_NO_AUTH,"true").build()).execute().use { response->
+                .tag(com.nihonix.mobile.core.network.interceptor.SessionRequest::class.java,session).build()).execute().use { response->
                 if(response.isSuccessful) response.body?.string()
             }
         }

@@ -49,6 +49,15 @@ Add a dated entry using the following fields:
 
 Then update affected feature/sprint files and the SRS. Do not silently convert an unresolved proposal into an implementation fact.
 
+## Nhóm 02 security outcomes — 2026-11-16
+
+Execution request authorizes local implementation of the [security plan](../planning/remaining-work/02-security-policy.md), not a silent product-policy change.
+
+- **D02 — Accepted (user, 2026-11-16):** require login for all catalog reads per BR-001, including levels/topics/bundles, legacy vocabulary/grammar, catalog pages/details/manifest and entity-sync GET/read-only POST. Guests and revoked sessions receive 401 before conditional GET/ETag handling. Authoring remains Admin-only. Android sends the saved session, gates cache access on current local login and pins background refresh to account/session; cached shared projections remain usable offline within that login. A remote revocation becomes knowable online; 401/403 never falls back to cache. Responses use private/no-cache and Vary Authorization. This intentionally changes the former public-read contract; deploy coordinated clients/backend separately. [Implementation and verification](../planning/remaining-work/evidence/catalog-authentication.md) · [82-route matrix](../planning/remaining-work/evidence/authorization-matrix.md). Earlier sprint entries below describe historical policy and are superseded by this decision.
+- **D-09-07 — Implemented and locally tested:** public `GET ai/health` returns liveness only, without provider key/config status. Authenticated `GET ai/quota` retains readiness. AppModule route inventory rejects new unreviewed public routes and missing/widened Admin protections. JWT remains controller-scoped; inventory is test enforcement, not runtime default-deny.
+- **D04 retention follow-up — Decision-required:** account deletion preserves DB data when fake avatar cleanup fails; successful retry cascades owner data and revokes access. Logs, provider backups, expired auth rows and restored deleted accounts still need explicit retention/recovery policy; no invented TTL.
+- [Security execution/retention/audit evidence](../planning/remaining-work/evidence/security-review.md) records dependency findings and remediation tasks. Registry findings do not establish app exploitability or imply dependencies were patched.
+
 ## Sprint 07 decisions — 2026-11-15
 
 D10/D11 accepted by the user's execution request and explicit quota selection. Keep existing Gemini adapter/Nest architecture; validate exact generated schemas; flashcards require explicit preview/save. Grade practice on the backend with atomic receipts and one durable completion event. Native persists account-private drafts/request IDs and immutable submission payloads in Room v5; generation remains explicit online work.

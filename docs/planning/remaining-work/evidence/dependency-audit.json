@@ -1,0 +1,1727 @@
+{
+  "date": "2026-11-16",
+  "repository": "nihonix-backend",
+  "baseline": "91d151ba58f9f84d2a2b6d65c7bae4ecea1f4699",
+  "command": "npm audit --omit=dev --json",
+  "note": "Affected-package aggregates, not proven app exploit counts. Read-only audit; no dependency updates. Fields normalized for review; registry severity and fix suggestions are not application acceptance.",
+  "metadata": {
+    "info": 0,
+    "low": 4,
+    "moderate": 31,
+    "high": 23,
+    "critical": 2,
+    "total": 60
+  },
+  "vulnerabilities": [
+    {
+      "name": "@angular-devkit/core",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "12.0.0-next.0 - 19.2.22 || 20.0.0-next.0 - 20.3.21 || 21.0.0-next.0 - 21.2.4 || 22.0.0-next.0 - 22.0.0-rc.3",
+      "effects": [
+        "@angular-devkit/schematics",
+        "@angular-devkit/schematics-cli",
+        "@nestjs/cli",
+        "@nestjs/schematics"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "ajv",
+        "picomatch"
+      ]
+    },
+    {
+      "name": "@angular-devkit/schematics",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "12.0.0-next.0 - 19.2.21 || 20.0.0-next.0 - 20.3.17 || 21.0.0-next.0 - 21.1.4 || 21.2.0-next.0 - 21.2.0-rc.2",
+      "effects": [
+        "@angular-devkit/schematics-cli",
+        "@nestjs/cli",
+        "@nestjs/schematics"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@angular-devkit/core"
+      ]
+    },
+    {
+      "name": "@angular-devkit/schematics-cli",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "0.1200.0-next.0 - 19.2.21 || 20.0.0-next.0 - 20.3.17 || 21.0.0-next.0 - 21.1.4 || 21.2.0-next.0 - 21.2.0-rc.2",
+      "effects": [
+        "@nestjs/cli"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@angular-devkit/core",
+        "@angular-devkit/schematics"
+      ]
+    },
+    {
+      "name": "@aws-sdk/client-sesv2",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.978.0",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core",
+        "@aws-sdk/credential-provider-node",
+        "@aws-sdk/middleware-user-agent",
+        "@aws-sdk/signature-v4-multi-region",
+        "@aws-sdk/util-user-agent-node"
+      ]
+    },
+    {
+      "name": "@aws-sdk/client-sso",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-sso"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core",
+        "@aws-sdk/middleware-user-agent",
+        "@aws-sdk/util-user-agent-node"
+      ]
+    },
+    {
+      "name": "@aws-sdk/core",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/client-sesv2",
+        "@aws-sdk/client-sso",
+        "@aws-sdk/credential-provider-env",
+        "@aws-sdk/credential-provider-http",
+        "@aws-sdk/credential-provider-ini",
+        "@aws-sdk/credential-provider-process",
+        "@aws-sdk/credential-provider-sso",
+        "@aws-sdk/credential-provider-web-identity",
+        "@aws-sdk/middleware-sdk-s3",
+        "@aws-sdk/middleware-user-agent",
+        "@aws-sdk/nested-clients",
+        "@aws-sdk/token-providers"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/xml-builder"
+      ]
+    },
+    {
+      "name": "@aws-sdk/credential-provider-env",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-ini",
+        "@aws-sdk/credential-provider-node"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core"
+      ]
+    },
+    {
+      "name": "@aws-sdk/credential-provider-http",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-ini",
+        "@aws-sdk/credential-provider-node"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core"
+      ]
+    },
+    {
+      "name": "@aws-sdk/credential-provider-ini",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-node"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core",
+        "@aws-sdk/credential-provider-env",
+        "@aws-sdk/credential-provider-http",
+        "@aws-sdk/credential-provider-process",
+        "@aws-sdk/credential-provider-sso",
+        "@aws-sdk/credential-provider-web-identity",
+        "@aws-sdk/nested-clients"
+      ]
+    },
+    {
+      "name": "@aws-sdk/credential-provider-node",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/client-sesv2"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/credential-provider-env",
+        "@aws-sdk/credential-provider-http",
+        "@aws-sdk/credential-provider-ini",
+        "@aws-sdk/credential-provider-process",
+        "@aws-sdk/credential-provider-sso",
+        "@aws-sdk/credential-provider-web-identity"
+      ]
+    },
+    {
+      "name": "@aws-sdk/credential-provider-process",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-ini",
+        "@aws-sdk/credential-provider-node"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core"
+      ]
+    },
+    {
+      "name": "@aws-sdk/credential-provider-sso",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-ini",
+        "@aws-sdk/credential-provider-node"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/client-sso",
+        "@aws-sdk/core",
+        "@aws-sdk/token-providers"
+      ]
+    },
+    {
+      "name": "@aws-sdk/credential-provider-web-identity",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-ini",
+        "@aws-sdk/credential-provider-node"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core",
+        "@aws-sdk/nested-clients"
+      ]
+    },
+    {
+      "name": "@aws-sdk/middleware-sdk-s3",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/signature-v4-multi-region"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core"
+      ]
+    },
+    {
+      "name": "@aws-sdk/middleware-user-agent",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/client-sesv2",
+        "@aws-sdk/client-sso",
+        "@aws-sdk/nested-clients",
+        "@aws-sdk/util-user-agent-node"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core"
+      ]
+    },
+    {
+      "name": "@aws-sdk/nested-clients",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-ini",
+        "@aws-sdk/credential-provider-web-identity",
+        "@aws-sdk/token-providers"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core",
+        "@aws-sdk/middleware-user-agent",
+        "@aws-sdk/util-user-agent-node"
+      ]
+    },
+    {
+      "name": "@aws-sdk/signature-v4-multi-region",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/client-sesv2"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/middleware-sdk-s3"
+      ]
+    },
+    {
+      "name": "@aws-sdk/token-providers",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/credential-provider-sso"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/core",
+        "@aws-sdk/nested-clients"
+      ]
+    },
+    {
+      "name": "@aws-sdk/util-user-agent-node",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.0",
+      "effects": [
+        "@aws-sdk/client-sesv2",
+        "@aws-sdk/client-sso",
+        "@aws-sdk/nested-clients"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "@aws-sdk/middleware-user-agent"
+      ]
+    },
+    {
+      "name": "@aws-sdk/xml-builder",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "3.894.0 - 3.972.18",
+      "effects": [
+        "@aws-sdk/core"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "fast-xml-parser"
+      ]
+    },
+    {
+      "name": "@isaacs/brace-expansion",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "5.0.0",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "@isaacs/brace-expansion has Uncontrolled Resource Consumption",
+          "url": "https://github.com/advisories/GHSA-7h2j-956f-4vf2",
+          "severity": "high",
+          "affectedRange": "<=5.0.0"
+        }
+      ]
+    },
+    {
+      "name": "@nestjs/cli",
+      "severity": "high",
+      "direct": true,
+      "affectedRange": ">=7.3.0-next.1",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        "@angular-devkit/core",
+        "@angular-devkit/schematics",
+        "@angular-devkit/schematics-cli",
+        "fork-ts-checker-webpack-plugin",
+        "glob",
+        "webpack"
+      ]
+    },
+    {
+      "name": "@nestjs/common",
+      "severity": "moderate",
+      "direct": true,
+      "affectedRange": "10.4.16 - 10.4.22 || 11.0.16 - 11.1.16 || 12.0.0-alpha.0 - 12.0.0-alpha.7",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        "file-type"
+      ]
+    },
+    {
+      "name": "@nestjs/config",
+      "severity": "high",
+      "direct": true,
+      "affectedRange": "1.1.6 - 4.0.3",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        "lodash"
+      ]
+    },
+    {
+      "name": "@nestjs/core",
+      "severity": "high",
+      "direct": true,
+      "affectedRange": "<=11.1.17 || 12.0.0-alpha.0 - 12.0.0-alpha.7",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "@nestjs/core Improperly Neutralizes Special Elements in Output Used by a Downstream Component ('Injection')",
+          "url": "https://github.com/advisories/GHSA-36xv-jgw5-4q75",
+          "severity": "moderate",
+          "affectedRange": "<=11.1.17"
+        },
+        "path-to-regexp"
+      ]
+    },
+    {
+      "name": "@nestjs/platform-express",
+      "severity": "high",
+      "direct": true,
+      "affectedRange": "<=11.1.17 || 12.0.0-alpha.0 - 12.0.0-alpha.7",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        "multer",
+        "path-to-regexp"
+      ]
+    },
+    {
+      "name": "@nestjs/schematics",
+      "severity": "moderate",
+      "direct": true,
+      "affectedRange": "8.0.0 - 11.0.9",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        "@angular-devkit/core",
+        "@angular-devkit/schematics"
+      ]
+    },
+    {
+      "name": "@nestjs/swagger",
+      "severity": "high",
+      "direct": true,
+      "affectedRange": "1.1.0 - 1.1.4 || 3.0.1 - 11.2.6",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        "js-yaml",
+        "lodash",
+        "path-to-regexp"
+      ]
+    },
+    {
+      "name": "ajv",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "<6.14.0 || >=7.0.0-alpha.0 <8.18.0",
+      "effects": [
+        "@angular-devkit/core"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "ajv has ReDoS when using `$data` option",
+          "url": "https://github.com/advisories/GHSA-2g4f-4pwh-qvx6",
+          "severity": "moderate",
+          "affectedRange": "<6.14.0"
+        },
+        {
+          "title": "ajv has ReDoS when using `$data` option",
+          "url": "https://github.com/advisories/GHSA-2g4f-4pwh-qvx6",
+          "severity": "moderate",
+          "affectedRange": ">=7.0.0-alpha.0 <8.18.0"
+        }
+      ]
+    },
+    {
+      "name": "axios",
+      "severity": "high",
+      "direct": true,
+      "affectedRange": "1.0.0 - 1.19.0",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF",
+          "url": "https://github.com/advisories/GHSA-3p68-rc4w-qgx5",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.0"
+        },
+        {
+          "title": "Axios HTTP/2 Session Cleanup State Corruption Vulnerability",
+          "url": "https://github.com/advisories/GHSA-qj83-cq47-w5f8",
+          "severity": "moderate",
+          "affectedRange": ">=1.13.0 <1.13.2"
+        },
+        {
+          "title": "Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy",
+          "url": "https://github.com/advisories/GHSA-w9j2-pvgh-6h63",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: Incomplete Fix for CVE-2025-62718 — NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0",
+          "url": "https://github.com/advisories/GHSA-pmwg-cvhr-8vh7",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`",
+          "url": "https://github.com/advisories/GHSA-3w6x-2g7m-8v23",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.2"
+        },
+        {
+          "title": "Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams",
+          "url": "https://github.com/advisories/GHSA-xhjh-pmcv-23jw",
+          "severity": "low",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream",
+          "url": "https://github.com/advisories/GHSA-445q-vr5w-6q77",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: no_proxy bypass via IP alias allows SSRF",
+          "url": "https://github.com/advisories/GHSA-m7pr-hjqh-92cm",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0",
+          "url": "https://github.com/advisories/GHSA-5c9x-8gcm-mpgx",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: HTTP adapter streamed responses bypass maxContentLength",
+          "url": "https://github.com/advisories/GHSA-vf2m-468p-8v99",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking",
+          "url": "https://github.com/advisories/GHSA-pf86-5x62-jrwf",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: Header Injection via Prototype Pollution",
+          "url": "https://github.com/advisories/GHSA-6chq-wfr3-2hj9",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion",
+          "url": "https://github.com/advisories/GHSA-xx6v-rp6x-q39c",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios is Vulnerable to Denial of Service via __proto__ Key in mergeConfig",
+          "url": "https://github.com/advisories/GHSA-43fc-jf86-j433",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <=1.13.4"
+        },
+        {
+          "title": "Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking",
+          "url": "https://github.com/advisories/GHSA-q8qp-cvcw-x6jj",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.15.2"
+        },
+        {
+          "title": "Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain",
+          "url": "https://github.com/advisories/GHSA-fvcv-3m26-pcqx",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.0"
+        },
+        {
+          "title": "Axios: unbounded recursion in toFormData causes DoS via deeply nested request data",
+          "url": "https://github.com/advisories/GHSA-62hf-57xw-28j9",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.15.1"
+        },
+        {
+          "title": "Axios: Regular Expression Denial of Service (ReDoS) via Cookie Name Injection",
+          "url": "https://github.com/advisories/GHSA-hfxv-24rg-xrqf",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.16.0"
+        },
+        {
+          "title": "Allocation of Resources Without Limits or Throttling in Axios",
+          "url": "https://github.com/advisories/GHSA-777c-7fjr-54vf",
+          "severity": "high",
+          "affectedRange": ">=1.7.0 <1.16.0"
+        },
+        {
+          "title": "Axios: Proxy-Authorization Credential Leak to Origin Server Across HTTP-to-HTTPS Redirect in Axios Node.js HTTP Adapter",
+          "url": "https://github.com/advisories/GHSA-p92q-9vqr-4j8v",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.16.0"
+        },
+        {
+          "title": "Axios: Proxy-Authorization header leaks to redirect target when proxy is re-evaluated to direct connection",
+          "url": "https://github.com/advisories/GHSA-j5f8-grm9-p9fc",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.16.0"
+        },
+        {
+          "title": "axios Vulnerable to Credential Theft and Response Hijacking via Prototype Pollution Gadget in Config Merge",
+          "url": "https://github.com/advisories/GHSA-3g43-6gmg-66jw",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.15.2"
+        },
+        {
+          "title": "axios Vulnerable to Full Man-in-the-Middle via Prototype Pollution Gadget in `config.proxy`",
+          "url": "https://github.com/advisories/GHSA-35jp-ww65-95wh",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <1.16.0"
+        },
+        {
+          "title": "axios has DoS & Header Injection via Prototype Pollution Read-Side Gadgets in axios merge functions",
+          "url": "https://github.com/advisories/GHSA-898c-q2cr-xwhg",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.16.0"
+        },
+        {
+          "title": "Axios: Prototype pollution gadgets can alter axios request construction",
+          "url": "https://github.com/advisories/GHSA-mmx7-hfxf-jppx",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.18.0"
+        },
+        {
+          "title": "Axios: Deep formToJSON Key Recursion Can Cause Denial of Service",
+          "url": "https://github.com/advisories/GHSA-pmv8-rq9r-6j72",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.18.0"
+        },
+        {
+          "title": "Axios: HTTP/2 streamed uploads bypass `maxBodyLength`",
+          "url": "https://github.com/advisories/GHSA-mwf2-3pr3-8698",
+          "severity": "moderate",
+          "affectedRange": ">=1.13.0 <1.18.0"
+        },
+        {
+          "title": "Axios: Nested axios option objects can consume polluted prototype values",
+          "url": "https://github.com/advisories/GHSA-7q8q-rj6j-mhjq",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.18.0"
+        },
+        {
+          "title": "Axios: Fetch adapter `ReadableStream` uploads bypass `maxBodyLength`",
+          "url": "https://github.com/advisories/GHSA-jqh4-m9w3-8hp9",
+          "severity": "moderate",
+          "affectedRange": ">=1.7.0 <1.18.0"
+        },
+        {
+          "title": "Axios: Excessive recursion in formDataToJSON can cause denial of service",
+          "url": "https://github.com/advisories/GHSA-42h9-826w-cgv3",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.18.0"
+        },
+        {
+          "title": "Axios: Prototype pollution gadget in fetch adapter can alter outbound requests",
+          "url": "https://github.com/advisories/GHSA-vh66-26gq-q6x8",
+          "severity": "moderate",
+          "affectedRange": ">=1.7.0 <1.20.0"
+        },
+        {
+          "title": "Axios: Prototype-Pollution Gadget in the Default Instance Allows Inherited Object.prototype.method to Override HTTP Method",
+          "url": "https://github.com/advisories/GHSA-9fr6-4gfg-395g",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.20.0"
+        },
+        {
+          "title": "Axios: HTTP/2 adapter bypasses configured DNS lookup and proxy controls",
+          "url": "https://github.com/advisories/GHSA-3pq3-5fj3-cg6v",
+          "severity": "high",
+          "affectedRange": ">=1.13.0 <1.20.0"
+        },
+        {
+          "title": "Axios: Denial of Service via Unhandled 'error' Event in HTTP/2 ClientHttp2Session Initialization",
+          "url": "https://github.com/advisories/GHSA-542g-h47m-68v8",
+          "severity": "high",
+          "affectedRange": ">=1.13.0 <1.20.0"
+        },
+        {
+          "title": "Axios: Header Injection via Inherited headers After Minimal Interceptor",
+          "url": "https://github.com/advisories/GHSA-j8rh-479h-cp32",
+          "severity": "moderate",
+          "affectedRange": ">=1.0.0 <1.20.0"
+        },
+        {
+          "title": "Axios: Fetch Adapter Header Injection via Inherited FormData getHeaders",
+          "url": "https://github.com/advisories/GHSA-4hqw-qxg8-jxx2",
+          "severity": "moderate",
+          "affectedRange": ">=1.12.0 <1.20.0"
+        }
+      ]
+    },
+    {
+      "name": "baseline-browser-mapping",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": ">=2.0.0 <2.11.0",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "baseline-browser-mapping process termination on invalid input causes denial of service",
+          "url": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
+          "severity": "moderate",
+          "affectedRange": ">=2.0.0 <2.11.0"
+        }
+      ]
+    },
+    {
+      "name": "body-parser",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "2.0.0 - 2.3.0",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "body-parser is vulnerable to denial of service when url encoding is used",
+          "url": "https://github.com/advisories/GHSA-wqch-xfxh-vrr4",
+          "severity": "moderate",
+          "affectedRange": ">=2.2.0 <2.2.1"
+        },
+        {
+          "title": "body-parser vulnerable to denial of service when invalid limit value silently disables size enforcement",
+          "url": "https://github.com/advisories/GHSA-v422-hmwv-36x6",
+          "severity": "low",
+          "affectedRange": ">=2.0.0 <2.3.0"
+        },
+        {
+          "title": "body-parser vulnerable to Denial of Service via trailing bytes after a compressed request body",
+          "url": "https://github.com/advisories/GHSA-27r3-jxmh-p828",
+          "severity": "high",
+          "affectedRange": ">=2.0.0 <2.4.0"
+        }
+      ]
+    },
+    {
+      "name": "brace-expansion",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "<=1.1.20 || 2.0.0 - 2.1.6",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+          "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v",
+          "severity": "moderate",
+          "affectedRange": "<1.1.13"
+        },
+        {
+          "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+          "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v",
+          "severity": "moderate",
+          "affectedRange": ">=2.0.0 <2.0.3"
+        },
+        {
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+          "severity": "high",
+          "affectedRange": ">=2.0.0 <2.1.2"
+        },
+        {
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+          "severity": "high",
+          "affectedRange": "<1.1.16"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+          "severity": "high",
+          "affectedRange": "<1.1.17"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+          "severity": "high",
+          "affectedRange": ">=2.0.0 <2.1.3"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+          "severity": "high",
+          "affectedRange": ">=2.0.0 <2.1.4"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+          "severity": "high",
+          "affectedRange": "<1.1.18"
+        },
+        {
+          "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+          "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+          "severity": "moderate",
+          "affectedRange": "<1.1.21"
+        },
+        {
+          "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+          "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+          "severity": "moderate",
+          "affectedRange": ">=2.0.0 <2.1.7"
+        },
+        {
+          "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+          "severity": "high",
+          "affectedRange": "<1.1.20"
+        },
+        {
+          "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+          "severity": "high",
+          "affectedRange": ">=2.0.0 <2.1.6"
+        },
+        {
+          "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+          "severity": "high",
+          "affectedRange": "<1.1.19"
+        },
+        {
+          "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+          "severity": "high",
+          "affectedRange": ">=2.0.0 <2.1.5"
+        }
+      ]
+    },
+    {
+      "name": "browserslist",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "<=4.28.6",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+          "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
+          "severity": "high",
+          "affectedRange": "<=4.28.6"
+        },
+        {
+          "title": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+          "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
+          "severity": "high",
+          "affectedRange": "<=4.28.6"
+        }
+      ]
+    },
+    {
+      "name": "deepmerge",
+      "severity": "low",
+      "direct": false,
+      "affectedRange": ">=4.2.0",
+      "effects": [
+        "fork-ts-checker-webpack-plugin"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "deepmerge mergeObject() allows prototype poisoning of returned objects",
+          "url": "https://github.com/advisories/GHSA-gcqx-w48m-w2h4",
+          "severity": "low",
+          "affectedRange": ">=4.2.0 <=4.3.1"
+        }
+      ]
+    },
+    {
+      "name": "diff",
+      "severity": "low",
+      "direct": false,
+      "affectedRange": "4.0.0 - 4.0.3",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch",
+          "url": "https://github.com/advisories/GHSA-73rr-hh4g-fpgx",
+          "severity": "low",
+          "affectedRange": ">=4.0.0 <4.0.4"
+        }
+      ]
+    },
+    {
+      "name": "fast-uri",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "3.0.0 - 3.1.8",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "fast-uri vulnerable to host confusion via literal backslash authority delimiter",
+          "url": "https://github.com/advisories/GHSA-v2hh-gcrm-f6hx",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <=3.1.3"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via backslash authority introducer",
+          "url": "https://github.com/advisories/GHSA-7p8r-x3mc-p8w7",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <3.1.5"
+        },
+        {
+          "title": "fast-uri vulnerable to path traversal via percent-encoded dot segments",
+          "url": "https://github.com/advisories/GHSA-q3j6-qgpj-74h6",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <=3.1.0"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via percent-encoded authority delimiters",
+          "url": "https://github.com/advisories/GHSA-v39h-62p7-jpjc",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <=3.1.1"
+        },
+        {
+          "title": "fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization",
+          "url": "https://github.com/advisories/GHSA-f65p-4m7j-42xc",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <3.1.6"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via percent-encoded scheme normalization",
+          "url": "https://github.com/advisories/GHSA-jqff-g426-hqxp",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <3.1.6"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via failed IDN canonicalization",
+          "url": "https://github.com/advisories/GHSA-4c8g-83qw-93j6",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <3.1.3"
+        },
+        {
+          "title": "fast-uri vulnerable to authority injection via an unvalidated port in serialize",
+          "url": "https://github.com/advisories/GHSA-qw65-cvwx-89v3",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <3.1.7"
+        },
+        {
+          "title": "fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets",
+          "url": "https://github.com/advisories/GHSA-hrr3-gc8f-f4qj",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <3.1.8"
+        },
+        {
+          "title": "fast-uri vulnerable to URI scheme spoofing via percent-encoded scheme decoding",
+          "url": "https://github.com/advisories/GHSA-w74x-v6f9-j3xg",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <3.1.9"
+        },
+        {
+          "title": "fast-uri vulnerable to improper path equivalence in relative reference normalization",
+          "url": "https://github.com/advisories/GHSA-xhq7-xmqj-769h",
+          "severity": "low",
+          "affectedRange": ">=3.0.0 <3.1.9"
+        },
+        {
+          "title": "fast-uri vulnerable to scheme injection via an unescaped first-segment colon in suffix references",
+          "url": "https://github.com/advisories/GHSA-333x-w4r6-6crp",
+          "severity": "low",
+          "affectedRange": ">=3.0.0 <3.1.9"
+        }
+      ]
+    },
+    {
+      "name": "fast-xml-parser",
+      "severity": "critical",
+      "direct": false,
+      "affectedRange": "<=5.11.2",
+      "effects": [
+        "@aws-sdk/xml-builder"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "fast-xml-parser has RangeError DoS Numeric Entities Bug",
+          "url": "https://github.com/advisories/GHSA-37qj-frw5-hhjh",
+          "severity": "high",
+          "affectedRange": ">=5.0.9 <=5.3.3"
+        },
+        {
+          "title": "fast-xml-parser has an entity encoding bypass via regex injection in DOCTYPE entity names",
+          "url": "https://github.com/advisories/GHSA-m7jm-9gc2-mpf2",
+          "severity": "critical",
+          "affectedRange": ">=5.0.0 <5.3.5"
+        },
+        {
+          "title": "fast-xml-parser affected by DoS through entity expansion in DOCTYPE (no expansion limit)",
+          "url": "https://github.com/advisories/GHSA-jmr7-xgp7-cmfj",
+          "severity": "high",
+          "affectedRange": ">=5.0.0 <5.3.6"
+        },
+        {
+          "title": "fast-xml-parser has stack overflow in XMLBuilder with preserveOrder",
+          "url": "https://github.com/advisories/GHSA-fj3w-jwp8-x2g3",
+          "severity": "low",
+          "affectedRange": ">=5.0.0 <5.3.8"
+        },
+        {
+          "title": "fast-xml-parser affected by numeric entity expansion bypassing all entity expansion limits (incomplete fix for CVE-2026-26278)",
+          "url": "https://github.com/advisories/GHSA-8gc5-j5rx-235r",
+          "severity": "high",
+          "affectedRange": ">=5.0.0 <5.5.6"
+        },
+        {
+          "title": "Entity Expansion Limits Bypassed When Set to Zero Due to JavaScript Falsy Evaluation in fast-xml-parser",
+          "url": "https://github.com/advisories/GHSA-jp2q-39xq-3w4g",
+          "severity": "moderate",
+          "affectedRange": ">=5.0.0 <5.5.7"
+        },
+        {
+          "title": "fast-xml-parser XMLBuilder: XML Comment and CDATA Injection via Unescaped Delimiters",
+          "url": "https://github.com/advisories/GHSA-gh4j-gqv2-49f6",
+          "severity": "moderate",
+          "affectedRange": "<5.7.0"
+        },
+        {
+          "title": "fast-xml-parser: Quadratic CPU consumption scanning unterminated stop-node tags",
+          "url": "https://github.com/advisories/GHSA-474x-hrwr-fgx4",
+          "severity": "low",
+          "affectedRange": "<=5.11.2"
+        }
+      ]
+    },
+    {
+      "name": "fflate",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "0.8.0 - 0.8.2",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "fflate unzipSync can enter an infinite loop when parsing malformed ZIP64 archives",
+          "url": "https://github.com/advisories/GHSA-px8p-9vwx-vf98",
+          "severity": "moderate",
+          "affectedRange": ">=0.8.0 <0.8.3"
+        }
+      ]
+    },
+    {
+      "name": "file-type",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "13.0.0 - 21.3.1",
+      "effects": [
+        "@nestjs/common"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "file-type affected by infinite loop in ASF parser on malformed input with zero-size sub-header",
+          "url": "https://github.com/advisories/GHSA-5v7r-6r5c-r473",
+          "severity": "moderate",
+          "affectedRange": ">=13.0.0 <21.3.1"
+        },
+        {
+          "title": "file-type: ZIP Decompression Bomb DoS via [Content_Types].xml entry",
+          "url": "https://github.com/advisories/GHSA-j47w-4g3g-c36v",
+          "severity": "moderate",
+          "affectedRange": ">=20.0.0 <=21.3.1"
+        }
+      ]
+    },
+    {
+      "name": "follow-redirects",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "<=1.15.11",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "follow-redirects leaks Custom Authentication Headers to Cross-Domain Redirect Targets",
+          "url": "https://github.com/advisories/GHSA-r4q5-vmmm-2653",
+          "severity": "moderate",
+          "affectedRange": "<=1.15.11"
+        }
+      ]
+    },
+    {
+      "name": "fork-ts-checker-webpack-plugin",
+      "severity": "low",
+      "direct": false,
+      "affectedRange": ">=5.0.0-alpha.1",
+      "effects": [
+        "@nestjs/cli"
+      ],
+      "fixAvailable": true,
+      "via": [
+        "deepmerge"
+      ]
+    },
+    {
+      "name": "form-data",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "4.0.0 - 4.0.5",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames",
+          "url": "https://github.com/advisories/GHSA-hmw2-7cc7-3qxx",
+          "severity": "high",
+          "affectedRange": ">=4.0.0 <4.0.6"
+        }
+      ]
+    },
+    {
+      "name": "glob",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "9.0.0 - 14.0.1",
+      "effects": [
+        "@nestjs/cli"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+          "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
+          "severity": "high",
+          "affectedRange": ">=10.2.0 <10.5.0"
+        },
+        {
+          "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+          "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
+          "severity": "high",
+          "affectedRange": ">=11.0.0 <11.1.0"
+        },
+        {
+          "title": "Glob: AbortSignal cancellation bypass allows post-timeout filesystem traversal",
+          "url": "https://github.com/advisories/GHSA-3g3m-2fjr-6pw4",
+          "severity": "moderate",
+          "affectedRange": ">=9.0.0 <=14.0.1"
+        }
+      ]
+    },
+    {
+      "name": "js-yaml",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "4.0.0 - 4.3.1",
+      "effects": [
+        "@nestjs/swagger"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "js-yaml has prototype pollution in merge (<<)",
+          "url": "https://github.com/advisories/GHSA-mh29-5h37-fv8m",
+          "severity": "moderate",
+          "affectedRange": ">=4.0.0 <4.1.1"
+        },
+        {
+          "title": "JS-YAML: Quadratic-complexity DoS in merge key handling via repeated aliases",
+          "url": "https://github.com/advisories/GHSA-h67p-54hq-rp68",
+          "severity": "moderate",
+          "affectedRange": ">=4.0.0 <=4.1.1"
+        },
+        {
+          "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+          "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+          "severity": "high",
+          "affectedRange": ">=4.0.0 <4.3.0"
+        },
+        {
+          "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+          "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
+          "severity": "high",
+          "affectedRange": ">=4.0.0 <4.3.1"
+        },
+        {
+          "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+          "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh",
+          "severity": "high",
+          "affectedRange": ">=4.0.0 <4.3.2"
+        }
+      ]
+    },
+    {
+      "name": "jws",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "<3.2.3",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "auth0/node-jws Improperly Verifies HMAC Signature",
+          "url": "https://github.com/advisories/GHSA-869p-cjfg-cm3x",
+          "severity": "high",
+          "affectedRange": "<3.2.3"
+        }
+      ]
+    },
+    {
+      "name": "lodash",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "4.0.0 - 4.17.23",
+      "effects": [
+        "@nestjs/config",
+        "@nestjs/swagger"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "lodash vulnerable to Code Injection via `_.template` imports key names",
+          "url": "https://github.com/advisories/GHSA-r5fr-rjxr-66jc",
+          "severity": "high",
+          "affectedRange": ">=4.0.0 <=4.17.23"
+        },
+        {
+          "title": "Lodash has Prototype Pollution Vulnerability in `_.unset`, `_.omit`, and `_.pullAt` functions",
+          "url": "https://github.com/advisories/GHSA-xxjr-mmjv-4gpg",
+          "severity": "moderate",
+          "affectedRange": ">=4.0.0 <=4.17.22"
+        }
+      ]
+    },
+    {
+      "name": "minimatch",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "<=3.1.3 || 7.0.0 - 11.0.0",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+          "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+          "severity": "high",
+          "affectedRange": "<3.1.3"
+        },
+        {
+          "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+          "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+          "severity": "high",
+          "affectedRange": ">=9.0.0 <9.0.6"
+        },
+        {
+          "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+          "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+          "severity": "high",
+          "affectedRange": ">=10.0.0 <10.2.1"
+        },
+        {
+          "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+          "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+          "severity": "high",
+          "affectedRange": "<3.1.3"
+        },
+        {
+          "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+          "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+          "severity": "high",
+          "affectedRange": ">=9.0.0 <9.0.7"
+        },
+        {
+          "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+          "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+          "severity": "high",
+          "affectedRange": ">=10.0.0 <10.2.3"
+        },
+        {
+          "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+          "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+          "severity": "high",
+          "affectedRange": "<3.1.4"
+        },
+        {
+          "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+          "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+          "severity": "high",
+          "affectedRange": ">=9.0.0 <9.0.7"
+        },
+        {
+          "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+          "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+          "severity": "high",
+          "affectedRange": ">=10.0.0 <10.2.3"
+        },
+        {
+          "title": "minimatch has potential denial of service via globparts amplification",
+          "url": "https://github.com/advisories/GHSA-g3hv-75wg-m249",
+          "severity": "moderate",
+          "affectedRange": ">=7.0.0 <11.0.1"
+        }
+      ]
+    },
+    {
+      "name": "multer",
+      "severity": "high",
+      "direct": true,
+      "affectedRange": "<=2.4.0",
+      "effects": [
+        "@nestjs/platform-express"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "Multer vulnerable to Denial of Service via incomplete cleanup",
+          "url": "https://github.com/advisories/GHSA-xf7r-hgr6-v32p",
+          "severity": "high",
+          "affectedRange": "<2.1.0"
+        },
+        {
+          "title": "Multer vulnerable to Denial of Service via resource exhaustion",
+          "url": "https://github.com/advisories/GHSA-v52c-386h-88mc",
+          "severity": "high",
+          "affectedRange": "<2.1.0"
+        },
+        {
+          "title": "Multer Vulnerable to Denial of Service via Uncontrolled Recursion",
+          "url": "https://github.com/advisories/GHSA-5528-5vmv-3xc2",
+          "severity": "high",
+          "affectedRange": "<2.1.1"
+        },
+        {
+          "title": "Multer vulnerable to Denial of Service via deeply nested field names",
+          "url": "https://github.com/advisories/GHSA-72gw-mp4g-v24j",
+          "severity": "high",
+          "affectedRange": ">=1.0.0 <2.2.0"
+        },
+        {
+          "title": "Multer vulnerable to Denial of Service via incomplete cleanup of aborted uploads",
+          "url": "https://github.com/advisories/GHSA-3p4h-7m6x-2hcm",
+          "severity": "moderate",
+          "affectedRange": ">=2.0.0-alpha.1 <2.2.0"
+        },
+        {
+          "title": "multer vulnerable to Denial of Service via crafted multipart field names",
+          "url": "https://github.com/advisories/GHSA-wc9g-mqfw-jrwm",
+          "severity": "high",
+          "affectedRange": "<2.3.0"
+        },
+        {
+          "title": "multer vulnerable to file size limit bypass via async fileFilter race condition",
+          "url": "https://github.com/advisories/GHSA-qvfw-j98x-7q72",
+          "severity": "low",
+          "affectedRange": "<2.3.0"
+        },
+        {
+          "title": "multer vulnerable to Denial of Service via oversized array index in field names",
+          "url": "https://github.com/advisories/GHSA-535w-7cp7-47q4",
+          "severity": "high",
+          "affectedRange": "<2.3.0"
+        },
+        {
+          "title": "multer vulnerable to Denial of Service via a pending asynchronous fileFilter after request teardown",
+          "url": "https://github.com/advisories/GHSA-q7qp-rjg7-q26m",
+          "severity": "high",
+          "affectedRange": ">=2.0.0 <2.5.0"
+        }
+      ]
+    },
+    {
+      "name": "nodemailer",
+      "severity": "high",
+      "direct": true,
+      "affectedRange": "<=10.1.3",
+      "effects": [],
+      "fixAvailable": {
+        "name": "nodemailer",
+        "version": "10.6.0",
+        "isSemVerMajor": true
+      },
+      "via": [
+        {
+          "title": "Nodemailer has SMTP command injection due to unsanitized `envelope.size` parameter",
+          "url": "https://github.com/advisories/GHSA-c7w3-x93f-qmm8",
+          "severity": "low",
+          "affectedRange": "<8.0.4"
+        },
+        {
+          "title": "Nodemailer Vulnerable to SMTP Command Injection via CRLF in Transport name Option (EHLO/HELO) ",
+          "url": "https://github.com/advisories/GHSA-vvjj-xcjg-gr5g",
+          "severity": "moderate",
+          "affectedRange": "<=8.0.4"
+        },
+        {
+          "title": "Nodemailer: CRLF injection in Nodemailer List-* header comments allows arbitrary message header injection",
+          "url": "https://github.com/advisories/GHSA-268h-hp4c-crq3",
+          "severity": "moderate",
+          "affectedRange": "<=8.0.8"
+        },
+        {
+          "title": "Nodemailer jsonTransport bypasses disableFileAccess and disableUrlAccess during message normalization",
+          "url": "https://github.com/advisories/GHSA-wqvq-jvpq-h66f",
+          "severity": "moderate",
+          "affectedRange": "<=8.0.8"
+        },
+        {
+          "title": "Nodemailer’s addressparser is vulnerable to DoS caused by recursive calls",
+          "url": "https://github.com/advisories/GHSA-rcmh-qjqh-p98v",
+          "severity": "high",
+          "affectedRange": ">=3.0.0 <=7.0.10"
+        },
+        {
+          "title": "Nodemailer: Message-level raw option bypasses disableFileAccess/disableUrlAccess, enabling arbitrary file read and full-response SSRF in the delivered message",
+          "url": "https://github.com/advisories/GHSA-p6gq-j5cr-w38f",
+          "severity": "high",
+          "affectedRange": "<=9.0.0"
+        },
+        {
+          "title": "Nodemailer: resolveContent() on a MailMessage bypasses disableFileAccess/disableUrlAccess when called with the legacy signature",
+          "url": "https://github.com/advisories/GHSA-8m3c-c648-2xjj",
+          "severity": "moderate",
+          "affectedRange": "<=9.1.0"
+        },
+        {
+          "title": "Nodemailer: IDN/Punycode domain allow-list bypass leads to email delivery to an attacker-controlled domain",
+          "url": "https://github.com/advisories/GHSA-wmmp-3585-3rmp",
+          "severity": "moderate",
+          "affectedRange": "<9.1.0"
+        },
+        {
+          "title": "Nodemailer: Quadratic (O(n²)) time complexity in addressparser allows remote denial of service via a crafted address list",
+          "url": "https://github.com/advisories/GHSA-2x7j-588g-ccc2",
+          "severity": "high",
+          "affectedRange": "<9.1.0"
+        },
+        {
+          "title": "Nodemailer: Recipient-domain validation bypass via RFC 5322 comment mis-parsing leads to email delivery to an attacker-controlled domain",
+          "url": "https://github.com/advisories/GHSA-cc9r-2j5m-2m83",
+          "severity": "moderate",
+          "affectedRange": ">=6.9.16 <9.1.0"
+        },
+        {
+          "title": "Nodemailer: Process-global DNS cache reuses TLS `servername` across transports, enabling cross-tenant SMTP credential disclosure",
+          "url": "https://github.com/advisories/GHSA-6vj9-mwq6-2f5v",
+          "severity": "moderate",
+          "affectedRange": ">=5.0.0 <10.0.2"
+        },
+        {
+          "title": "Nodemailer: Nested structured recipient arrays bypass the parser depth limit and cause stack exhaustion DoS",
+          "url": "https://github.com/advisories/GHSA-8vvx-rff5-p5rq",
+          "severity": "moderate",
+          "affectedRange": "<10.0.2"
+        },
+        {
+          "title": "Nodemailer: Quadratic backtracking in the addressparser free-text fallback allows remote denial of service",
+          "url": "https://github.com/advisories/GHSA-v53p-9fqp-m79j",
+          "severity": "high",
+          "affectedRange": "<=10.0.5"
+        },
+        {
+          "title": "Nodemailer: Improper TLS Certificate Validation in OAuth2 Token Fetch Enables Credential Interception",
+          "url": "https://github.com/advisories/GHSA-r7g4-qg5f-qqm2",
+          "severity": "high",
+          "affectedRange": "<=8.0.7"
+        },
+        {
+          "title": "Nodemailer: Quadratic (O(n^2)) DKIM header unfolding lets a large folded header cause remote denial of service during signing",
+          "url": "https://github.com/advisories/GHSA-39m8-27wv-hr27",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <=10.0.9"
+        },
+        {
+          "title": "Nodemailer: A nested comment ends early in addressparser, releasing the rest of the comment as a recipient",
+          "url": "https://github.com/advisories/GHSA-8c8m-p3m8-cjg8",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <10.1.4"
+        },
+        {
+          "title": "Nodemailer: A \";\" inside a quoted string or comment ends an address group early in addressparser, turning display text into a recipient",
+          "url": "https://github.com/advisories/GHSA-m943-m63m-w62w",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <10.1.4"
+        },
+        {
+          "title": "Nodemailer: A \">\" inside a quoted local part ends an angle-addr early in addressparser, delivering to a domain the header does not name",
+          "url": "https://github.com/advisories/GHSA-85x2-q946-cp5h",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <10.1.4"
+        },
+        {
+          "title": "Nodemailer: Quadratic backtracking in SMTP AUTH mechanism detection regexes allows pre-auth remote denial of service",
+          "url": "https://github.com/advisories/GHSA-4ffr-jq9g-5ffx",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <=10.0.12"
+        },
+        {
+          "title": "Nodemailer: RFC 5322 comment inside an angle-bracket address is never stripped",
+          "url": "https://github.com/advisories/GHSA-g73g-hqqh-jr95",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <=10.0.12"
+        },
+        {
+          "title": "Nodemailer: Quadratic (O(n^2)) SMTP client reply parsing lets a malicious server or MITM cause a pre-auth remote denial of service",
+          "url": "https://github.com/advisories/GHSA-4g23-2xm8-66gc",
+          "severity": "moderate",
+          "affectedRange": ">=3.0.0 <=10.0.9"
+        }
+      ]
+    },
+    {
+      "name": "path-to-regexp",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "8.0.0 - 8.3.0",
+      "effects": [
+        "@nestjs/core",
+        "@nestjs/platform-express",
+        "@nestjs/swagger"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "path-to-regexp vulnerable to Denial of Service via sequential optional groups",
+          "url": "https://github.com/advisories/GHSA-j3q9-mxjg-w52f",
+          "severity": "high",
+          "affectedRange": ">=8.0.0 <8.4.0"
+        },
+        {
+          "title": "path-to-regexp vulnerable to Regular Expression Denial of Service via multiple wildcards",
+          "url": "https://github.com/advisories/GHSA-27v5-c462-wpq7",
+          "severity": "moderate",
+          "affectedRange": ">=8.0.0 <8.4.0"
+        }
+      ]
+    },
+    {
+      "name": "picomatch",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "4.0.0 - 4.0.3",
+      "effects": [
+        "@angular-devkit/core"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "Picomatch: Method Injection in POSIX Character Classes causes incorrect Glob Matching",
+          "url": "https://github.com/advisories/GHSA-3v7f-55p6-f55p",
+          "severity": "moderate",
+          "affectedRange": ">=4.0.0 <4.0.4"
+        },
+        {
+          "title": "Picomatch has a ReDoS vulnerability via extglob quantifiers",
+          "url": "https://github.com/advisories/GHSA-c2c7-rcm5-vvqj",
+          "severity": "high",
+          "affectedRange": ">=4.0.0 <4.0.4"
+        }
+      ]
+    },
+    {
+      "name": "proxy-addr",
+      "severity": "critical",
+      "direct": false,
+      "affectedRange": "1.1.0 - 2.0.7",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet",
+          "url": "https://github.com/advisories/GHSA-jqcg-44mw-7w3h",
+          "severity": "critical",
+          "affectedRange": ">=1.1.0 <2.0.8"
+        }
+      ]
+    },
+    {
+      "name": "qs",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "<=6.16.0",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "qs's arrayLimit bypass in comma parsing allows denial of service",
+          "url": "https://github.com/advisories/GHSA-w7fw-mjwx-w883",
+          "severity": "low",
+          "affectedRange": ">=6.7.0 <=6.14.1"
+        },
+        {
+          "title": "qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion",
+          "url": "https://github.com/advisories/GHSA-6rw7-vpxm-498p",
+          "severity": "moderate",
+          "affectedRange": "<6.14.1"
+        },
+        {
+          "title": "qs has a remotely triggerable DoS: qs.stringify crashes with TypeError on null/undefined entries in comma-format arrays when encodeValuesOnly is set",
+          "url": "https://github.com/advisories/GHSA-q8mj-m7cp-5q26",
+          "severity": "moderate",
+          "affectedRange": ">=6.11.1 <=6.15.1"
+        },
+        {
+          "title": "qs: Denial of Service via Attacker Controlled isBuffer",
+          "url": "https://github.com/advisories/GHSA-4mjr-xmp4-gh2g",
+          "severity": "moderate",
+          "affectedRange": ">=2.2.5 <6.16.0"
+        },
+        {
+          "title": "qs : qs.stringify with arrayFormat 'comma' throws an uncaught TypeError on array elements carrying a non-callable own toString (DoS)",
+          "url": "https://github.com/advisories/GHSA-6pq8-jhm2-2vcw",
+          "severity": "moderate",
+          "affectedRange": ">=6.7.0 <=6.16.0"
+        }
+      ]
+    },
+    {
+      "name": "serialize-javascript",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "<=7.1.2",
+      "effects": [
+        "terser-webpack-plugin"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString()",
+          "url": "https://github.com/advisories/GHSA-5c6j-r48x-rmvq",
+          "severity": "high",
+          "affectedRange": "<=7.0.2"
+        },
+        {
+          "title": "Serialize JavaScript has CPU Exhaustion Denial of Service via crafted array-like objects",
+          "url": "https://github.com/advisories/GHSA-qj8w-gfj5-8c6v",
+          "severity": "moderate",
+          "affectedRange": ">=5.0.0 <7.0.5"
+        },
+        {
+          "title": "Serialize JavaScript: Cross-site scripting (XSS) via unescaped </script at the end of a serialized function body",
+          "url": "https://github.com/advisories/GHSA-m5mm-p8h7-m29v",
+          "severity": "low",
+          "affectedRange": "<7.1.3"
+        }
+      ]
+    },
+    {
+      "name": "terser-webpack-plugin",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "4.2.1 - 5.3.16",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        "serialize-javascript"
+      ]
+    },
+    {
+      "name": "typeorm",
+      "severity": "moderate",
+      "direct": true,
+      "affectedRange": "<=0.3.30",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "TypeORM: SQL Injection in UpdateQueryBuilder/SoftDeleteQueryBuilder orderBy (MySQL/MariaDB)",
+          "url": "https://github.com/advisories/GHSA-9ggv-8w38-r7pm",
+          "severity": "moderate",
+          "affectedRange": ">=0.1.12 <=0.3.28"
+        },
+        {
+          "title": " TypeORM: migration:generate template-literal code injection",
+          "url": "https://github.com/advisories/GHSA-2rp8-mm9q-fp49",
+          "severity": "moderate",
+          "affectedRange": "<0.3.31"
+        }
+      ]
+    },
+    {
+      "name": "uuid",
+      "severity": "moderate",
+      "direct": false,
+      "affectedRange": "<11.1.1",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+          "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+          "severity": "moderate",
+          "affectedRange": "<11.1.1"
+        }
+      ]
+    },
+    {
+      "name": "validator",
+      "severity": "high",
+      "direct": false,
+      "affectedRange": "<=13.15.20",
+      "effects": [],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "validator.js has a URL validation bypass vulnerability in its isURL function",
+          "url": "https://github.com/advisories/GHSA-9965-vmph-33xx",
+          "severity": "moderate",
+          "affectedRange": "<13.15.20"
+        },
+        {
+          "title": "Validator is Vulnerable to Incomplete Filtering of One or More Instances of Special Elements",
+          "url": "https://github.com/advisories/GHSA-vghf-hv5q-vc2g",
+          "severity": "high",
+          "affectedRange": "<13.15.22"
+        }
+      ]
+    },
+    {
+      "name": "webpack",
+      "severity": "low",
+      "direct": false,
+      "affectedRange": "5.49.0 - 5.104.0",
+      "effects": [
+        "@nestjs/cli"
+      ],
+      "fixAvailable": true,
+      "via": [
+        {
+          "title": "webpack buildHttp: allowedUris allow-list bypass via URL userinfo (@) leading to build-time SSRF behavior",
+          "url": "https://github.com/advisories/GHSA-8fgc-7cc6-rx7x",
+          "severity": "low",
+          "affectedRange": ">=5.49.0 <=5.104.0"
+        },
+        {
+          "title": "webpack buildHttp HttpUriPlugin allowedUris bypass via HTTP redirects → SSRF + cache persistence",
+          "url": "https://github.com/advisories/GHSA-38r7-794h-5758",
+          "severity": "low",
+          "affectedRange": ">=5.49.0 <5.104.0"
+        }
+      ]
+    }
+  ]
+}

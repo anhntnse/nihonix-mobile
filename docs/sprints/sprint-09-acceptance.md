@@ -15,7 +15,7 @@ No AC below is marked fully accepted. Delivery gates require shared-environment 
 | --- | --- | --- | --- | --- |
 | AC-001 | Register, verify email, log in | Local pass | [Sprint 02](sprint-02-report.md) `test:sprint02`; Sprint 09 emulator journey: sign up → verify code → sign in through the real app against a local backend | Real SMTP delivery (fake provider used); shared-environment demo |
 | AC-002 | Unverified users blocked | Local pass | Sprint 02 verified-login gate and fixture; Sprint 09 route-guard audit and `test:sprint09` anonymous 401 on 25 personal routes | Shared-environment demo; existing accounts must verify after migration |
-| AC-003 | Browse JLPT N5–N1 | Partial | [Sprint 03](sprint-03-report.md) fixture covers N5–N1 and zero counts; emulator journey showed seeded N5/N4 with topic list | Real N5–N1 dataset on a shared environment; D02 public-vs-authenticated policy undecided |
+| AC-003 | Browse JLPT N5–N1 | Partial | [Sprint 03](sprint-03-report.md) fixture covers N5–N1 and zero counts; emulator journey showed seeded N5/N4 with topic list | Real N5–N1 dataset on a shared environment; D02 authenticated-only accepted |
 | AC-004 | Topics, vocabulary, grammar content | Local pass | Sprint 03/04 fixtures and Compose tests; emulator journey: topics list, word list (3 results), word detail | Shared data and performance measurements. Vocabulary sets and grammar not browsed on device (seed had no sets) |
 | AC-005 | Previously synced content offline | Local pass | [Sprint 05](sprint-05-report.md) | Shared rollout, multi-device, Doze |
 | AC-006 | ETag synchronization | Local pass | Sprint 05 (HTTP 304, manifest) | Shared rollout |
@@ -37,18 +37,18 @@ Totals: 0 fully accepted, 15 Local pass, 2 Partial (AC-003, AC-015). Every row s
 
 ### Backend route-guard audit (static read of `src/**/*.controller.ts`, 2026-11-16)
 
-- Every route that writes data requires `JwtAuthGuard`. Catalog and AI authoring writes (`topics` POST and seed, `vocabulary-sets` POST, `vocabulary-items` and `grammar-patterns` generate) additionally require `RolesGuard` with `admin`.
-- Unguarded routes are all GET: `app` health/root, `app/config`, `levels`, `catalog`, `topics` reads and bundle, vocabulary and grammar reads, `entity-sync` (check and single entity) and `ai/health`. These expose catalog, configuration or health only, matching the preserved public-read behavior (D02).
+- Personal-data mutations and catalog authoring require `JwtAuthGuard`; authentication/challenge issuance/recovery endpoints remain public. Catalog and AI authoring writes additionally require `RolesGuard` with the exact Admin-only role set. The [section-02 matrix](../planning/remaining-work/evidence/authorization-matrix.md) supersedes this initial static inventory.
+- D02 Accepted 2026-11-16: public routes are root/health/config/ai-health and auth bootstrap/challenge endpoints. All catalog reads, including read-only POST entity-sync/check, require login per BR-001.
 - Personal-data controllers (`flashcards*`, `progress`, `practice`, `learning-streaks`, `devices`, `users`) use class-level guards.
-- Observations, no change made:
-  1. There is no global `APP_GUARD`. Each controller opts in, so a new controller defaults to public. Consider a global guard with an explicit public marker, or a test that enumerates routes.
-  2. `GET /ai/health` is public and returns `status` and `configured`, which tells anonymous callers whether an AI key is set. Low risk; decide whether to restrict it.
-  3. `entity-sync` is public by design but is not described in the Sprint 03/04 contracts. Confirm it is intentionally part of the public catalog policy.
+- Updated by section 02:
+  1. JWT remains controller-scoped; an AppModule route-inventory regression now checks exact public exceptions and Admin-only protections, including accidental role widening. This is test enforcement, not runtime default-deny.
+  2. `GET /ai/health` now returns public liveness only (`status: ok`), without `configured` or provider-dependent status. Authenticated quota retains readiness.
+  3. `entity-sync` requires login under Accepted D02. See [security evidence](../planning/remaining-work/evidence/security-review.md) for alternatives and retention/dependency gaps.
 
 ### Cross-feature ownership and role fixture (`npm run test:sprint09`, PASS 2026-11-16)
 
 File: `nihonix-backend/test/sprint09.ownership.integration.ts`. One Nest app with all personal-data modules, temporary PostgreSQL schema, real JWT HTTP, fake email/FCM/AI. It asserts:
-- 25 personal routes (flashcards, progress, practice, AI requests, activity, devices, users) return 401 anonymously.
+- Expanded section-02/D02 fixture: all 69 guarded route patterns (63 authenticated/owner or catalog and 6 Admin-only) return 401 anonymously; catalog accepts valid sessions, rejects stale/revoked JWT before ETag and preserves authenticated 304.
 - User B gets 404 on user A's flashcard folder/set/cards (read, update, delete), AI request status and cancel, practice set detail; B's progress delta and streak are empty; B cannot submit A's practice session (A's session stays not completed); `X-Nihonix-Account` of another user returns 409; B cannot remove A's device binding.
 - `/users`: self read OK; other user 403 on read/update/delete; list is admin-only; self-service PUT cannot change email, status or role.
 - Catalog writes (`topics`, `topics/seed`, `vocabulary-sets`, `vocabulary-items/generate`, `grammar-patterns/generate`): non-admin 403, admin passes the guard.
@@ -91,14 +91,14 @@ Findings:
 | D-09-04 | Shared migrations `1794614400000` (Sprint 02) through `1794959200000` (Sprint 08) not applied to a shared database; Sprint 08 down-migration is not a safe production rollback | Release-blocking | Env-blocked |
 | D-09-05 | No real FCM recipient, physical-device, Doze or multi-device acceptance | Release-blocking for AC-015 | Env-blocked, needs explicit authorization |
 | D-09-06 | R-1 backup exclusion for environment-scoped app config | Low | **Fixed locally**: sharedpref domain excluded in all backup modes; real API37 cloud/default + device-transfer simulation passed. [Evidence](../planning/remaining-work/evidence/local-corrections.md) |
-| D-09-07 | Backend has no global auth guard; `GET /ai/health` discloses AI key presence | Low | Open, decision needed |
+| D-09-07 | Public AI health exposure and route-guard regression | Low | **Fixed locally in section 02**: liveness-only health, authenticated quota unchanged, exact route/JWT/Admin regression. No global guard; D02 authenticated-only accepted. [Evidence](../planning/remaining-work/evidence/security-review.md) |
 
 No Critical authentication, ownership or data-loss defect has been found in the checks run so far. This is absence of findings in the checks above, not proof; non-functional requirements (performance, accessibility, behavior under load) have **not** been measured.
 
 ## Remaining Sprint 09 work
 
 Doable locally:
-- Decide D-09-07. R-1 is closed locally; quota freshness and streak plural follow-ups are also implemented and verified in the [local-corrections report](../planning/remaining-work/evidence/local-corrections.md).
+- D02 catalog policy Accepted: require login per BR-001; [regression](../planning/remaining-work/evidence/catalog-authentication.md). D-09-07 is fixed locally in [section 02](../planning/remaining-work/evidence/security-review.md); dependency remediation and retention decisions remain open there. R-1/quota/streak are closed locally in the [local-corrections report](../planning/remaining-work/evidence/local-corrections.md).
 - Extend the UI journey to practice, flashcards, progress and a non-UTC timezone.
 - Add a Sprint 09 step to the regression list (`test:sprint09`) and record it in the backend handoff.
 

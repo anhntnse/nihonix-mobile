@@ -19,8 +19,9 @@ private object CacheOrdering {
     }
 }
 
-class CatalogCacheInterceptor(private val store:CatalogStore,private val baseUrl:String):Interceptor {
-    private fun allowed(request:Request):Boolean = request.method=="GET" && request.header("Authorization")==null &&
+class CatalogCacheInterceptor(private val store:CatalogStore,private val baseUrl:String,
+    private val currentSession:()->com.nihonix.mobile.core.network.interceptor.SessionRequest?):Interceptor {
+    private fun allowed(request:Request):Boolean = request.method=="GET" &&
         request.url.toString().startsWith(baseUrl) &&
         Regex("^"+Regex.escape(baseUrl)+"(catalog|levels|topics)(/|\\?|$)").containsMatchIn(request.url.toString())
     private fun restored(request:Request,row:CatalogCache,offline:Boolean)=Response.Builder().request(request)
@@ -30,22 +31,41 @@ class CatalogCacheInterceptor(private val store:CatalogStore,private val baseUrl
     override fun intercept(chain:Interceptor.Chain):Response {
         val request=chain.request()
         if(!allowed(request)) return chain.proceed(request)
+        val tagged=request.tag(com.nihonix.mobile.core.network.interceptor.SessionRequest::class.java)
+        val authorization=request.header("Authorization")
+        val bound=tagged?.userId?.takeIf{authorization?.startsWith("Bearer ")==true}?.let{
+            com.nihonix.mobile.core.network.interceptor.SessionRequest(it,
+                com.nihonix.mobile.core.network.interceptor.accessSessionId(authorization?.removePrefix("Bearer ")))
+        }
+        if(bound==null||currentSession()!=bound) return Response.Builder().request(request)
+            .protocol(Protocol.HTTP_1_1).code(401).message("Sign in required")
+            .header("Content-Type","application/json")
+            .body("""{"success":false,"message":"Sign in to access learning content.","data":null,"statusCode":401}""".toResponseBody("application/json".toMediaType())).build()
+        fun ensureSession() { if(currentSession()!=bound) throw IOException("Login session changed during catalog access.") }
+        fun checked(response:Response):Response {
+            if(response.code!=401&&response.code!=403) {
+                try { ensureSession() } catch(error:IOException) { response.close();throw error }
+            }
+            return response
+        }
         val url=request.url.toString()
         val ordering=CacheOrdering.state(store)
         val (saved,epoch,sequence)=synchronized(store) { Triple(store.get(url),ordering.epoch,++ordering.sequence) }
         val started=System.currentTimeMillis()
         fun fallback():Response? = synchronized(store) {
+            ensureSession()
             if(ordering.epoch!=epoch) null else store.get(url)?.let { restored(request,it,true) }
         }
         val conditional=request.newBuilder().apply {
             if(saved?.etag!=null) header("If-None-Match",saved.etag) else removeHeader("If-None-Match")
         }.build()
-        var response=try { chain.proceed(conditional) } catch(error:IOException) {
+        var response=try { checked(chain.proceed(conditional)) } catch(error:IOException) {
             return fallback() ?: throw error
         }
         if(response.code==304) {
             response.close()
             val current=synchronized(store) {
+                ensureSession()
                 if(ordering.epoch!=epoch) throw IOException("Catalog changed during validation. Retry.")
                 val row=store.get(url)
                 if(row!=null && (ordering.writes[url] ?: 0)<=sequence) {
@@ -54,7 +74,8 @@ class CatalogCacheInterceptor(private val store:CatalogStore,private val baseUrl
                 row
             }
             if(current!=null) return restored(request,current,false)
-            response=chain.proceed(request.newBuilder().removeHeader("If-None-Match").build())
+            ensureSession()
+            response=checked(chain.proceed(request.newBuilder().removeHeader("If-None-Match").build()))
         }
         if(response.code in 500..599) fallback()?.let { response.close();return it }
         if(response.code==404 || response.code==410) {
@@ -68,9 +89,11 @@ class CatalogCacheInterceptor(private val store:CatalogStore,private val baseUrl
         }
         if(response.code==200) {
             val bytes=response.body?.bytes() ?: return response
+            ensureSession()
             val text=bytes.toString(Charsets.UTF_8)
             if(bytes.size<=8*1024*1024 && runCatching { JsonParser.parseString(text).asJsonObject["success"].asBoolean }.getOrDefault(false)) {
                 synchronized(store) {
+                    ensureSession()
                     if(ordering.epoch!=epoch) throw IOException("Catalog changed during download. Retry.")
                     val current=store.get(url)
                     if((ordering.writes[url] ?: 0)>sequence && current!=null) return restored(request,current,false)

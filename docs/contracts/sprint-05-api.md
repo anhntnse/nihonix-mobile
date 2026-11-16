@@ -2,6 +2,8 @@
 
 Implemented 2026-11-15 in the Android and sibling NestJS backend checkouts. Public reads and existing authentication contracts remain compatible. Local verification is recorded in the [report](../sprints/sprint-05-report.md); shared rollout is separate.
 
+**D02 override — 2026-11-16:** User requires login for every catalog read per SRS/BR-001. Levels/topics/bundles, vocabulary/grammar, /catalog and entity-sync (including POST check) require Bearer JWT. Auth/config/liveness remain public; authoring requires Admin. Android removes catalog No-Authentication, gates cache on current local login and pins background refresh to account/session. Cached shared content remains available offline within that login; 401/403 never falls back. Conditional GET runs after JWT and returns private/no-cache, Vary Authorization. This supersedes earlier public-read statements below. [Decision/evidence](../planning/remaining-work/evidence/catalog-authentication.md).
+
 ## Catalog
 
 - `GET /api/catalog/manifest`: public full authoritative inventory, schema_version=1, collections and SHA-256 version. Six collections: levels, topics, vocabulary-items, vocabulary-sets, grammar-sub-topics, grammar-patterns.

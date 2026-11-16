@@ -16,14 +16,16 @@ class CatalogCacheTest {
         override fun all()=rows.values.toList()
     }
     private val store=Store()
+    private val session=com.nihonix.mobile.core.network.interceptor.SessionRequest("account-a")
     private lateinit var client:OkHttpClient
     private val payload="""{"success":true,"data":{"items":[{"slug":"hello"}]}}"""
     @Before fun setup() {
         server.start()
-        client=OkHttpClient.Builder().addInterceptor(CatalogCacheInterceptor(store,server.url("/api/").toString())).build()
+        client=OkHttpClient.Builder().addInterceptor(CatalogCacheInterceptor(store,server.url("/api/").toString()){session}).build()
     }
     @After fun close() { server.shutdown() }
-    private fun request(path:String="/api/catalog/vocabulary-items")=Request.Builder().url(server.url(path)).build()
+    private fun request(path:String="/api/catalog/vocabulary-items")=Request.Builder().url(server.url(path)).header("Authorization","Bearer fixture")
+        .tag(com.nihonix.mobile.core.network.interceptor.SessionRequest::class.java,session).build()
     @Test fun delayed304CannotOverwriteNewerPayload() {
         val url=request().url.toString()
         store.put(CatalogCache(url,payload,"\"v1\"",0))
@@ -90,11 +92,12 @@ class CatalogCacheTest {
         server.enqueue(MockResponse().setResponseCode(503))
         client.newCall(request()).execute().use { assertEquals(payload,it.body!!.string());assertEquals("offline",it.header("X-Nihonix-Cache")) }
     }
-    @Test fun authenticatedAndPrivateReadsAreNeverCached() {
+    @Test fun onlyAuthenticatedCatalogReadsAreCachedAndCredentialsAreNotStored() {
         server.enqueue(MockResponse().setBody(payload));server.enqueue(MockResponse().setBody(payload))
-        client.newCall(request().newBuilder().header("Authorization","Bearer secret").build()).execute().close()
+        client.newCall(request()).execute().close()
         client.newCall(request("/api/users/me")).execute().close()
-        assertTrue(store.rows.isEmpty())
+        assertEquals(1,store.rows.size)
+        assertFalse(store.rows.values.single().toString().contains("Bearer"))
     }
     @Test fun notFoundEvictsPreviouslySavedDetail() {
         val request=request("/api/catalog/vocabulary-items/hello")

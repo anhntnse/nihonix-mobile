@@ -1,6 +1,6 @@
 # Kế hoạch công việc còn lại sau rà soát SRS/Sprint 01–09
 
-Ngày lập: 2026-11-16. Cập nhật: **nhóm 01 Verified locally**; nhóm 02–07 vẫn Planned. [Bằng chứng nhóm 01](evidence/local-corrections.md).
+Ngày lập: 2026-11-16. Cập nhật: **nhóm 01 Verified locally**; **nhóm 02 Verified locally** (D02 authenticated catalog, health/inventory/deletion/audit verified; dependency remediation và retention follow-up có backlog); nhóm 03–07 vẫn Planned. [Bằng chứng nhóm 01](evidence/local-corrections.md) · [Bằng chứng nhóm 02](evidence/security-review.md).
 
 Bộ plan chuyển kết quả rà soát thành các nhóm có thể giao việc và nghiệm thu riêng. Chỉ thêm tài liệu; không chạy test, provider, migration, deploy hoặc build release trong lần lập plan này.
 

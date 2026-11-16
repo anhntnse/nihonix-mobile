@@ -2,6 +2,8 @@
 
 Implemented 2026-11-15. Existing vocabulary/grammar routes retain their original array/detail contracts. Android uses the new bounded catalog projection below; no AI call occurs during GET requests.
 
+**D02 override — 2026-11-16:** User requires login for every catalog read per SRS/BR-001. Levels/topics/bundles, vocabulary/grammar, /catalog and entity-sync (including POST check) require Bearer JWT. Auth/config/liveness remain public; authoring requires Admin. Android removes catalog No-Authentication, gates cache on current local login and pins background refresh to account/session. Cached shared content remains available offline within that login; 401/403 never falls back. Conditional GET runs after JWT and returns private/no-cache, Vary Authorization. This supersedes earlier public-read statements below. [Decision/evidence](../planning/remaining-work/evidence/catalog-authentication.md).
+
 ## Routes
 
 Public reads use the existing /api prefix and success/message/data/errors/statusCode envelope.

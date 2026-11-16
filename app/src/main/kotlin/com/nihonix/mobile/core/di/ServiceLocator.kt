@@ -88,7 +88,7 @@ object ServiceLocator {
             userStorage, tokenStorage, gson, syncScheduler::schedule)
     }
     val catalogSync by lazy { com.nihonix.mobile.core.offline.CatalogSync(networkModule.okHttpClient,
-        offlineDatabase.catalog(), com.nihonix.mobile.core.network.ApiConstants.DEFAULT_BASE_URL) }
+        offlineDatabase.catalog(), com.nihonix.mobile.core.network.ApiConstants.DEFAULT_BASE_URL, networkModule::currentCatalogSession) }
 
     val authApiService: AuthApiService by lazy {
         networkModule.createService(AuthApiService::class.java)
@@ -156,8 +156,8 @@ object ServiceLocator {
 
     fun initialize(context: Context) {
         applicationContext = context.applicationContext
-        syncScheduler.schedule("")
-        syncScheduler.periodic("")
+        // Cancel legacy anonymous catalog work; catalog sync now belongs to a signed-in account.
+        syncScheduler.cancel("")
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default).launch {
             var previous: String? = null
             kotlinx.coroutines.flow.combine(userStorage.currentUserFlow, tokenStorage.isAuthenticated) { user, signedIn ->
