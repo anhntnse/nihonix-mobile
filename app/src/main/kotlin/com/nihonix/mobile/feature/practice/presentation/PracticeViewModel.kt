@@ -153,13 +153,18 @@ class PracticeViewModel(val repository:PracticeRepository,private val saved:Save
  fun generatePractice(){
   val current=state.value
   if(!current.snapshot.quotaFresh||!canGenerate(current.snapshot.quota,"practice")){state.update{it.copy(error="Refresh AI allowance before generating.")};return}
-  generation{repository.startPractice(current.type,current.topicId,current.count.toIntOrNull()?:0)}
+  val account=current.snapshot.account?:return
+  generation{
+   if(!repository.canStartGeneration(account,"practice"))Resource.Error("Refresh AI allowance before generating.")
+   else repository.startPractice(current.type,current.topicId,current.count.toIntOrNull()?:0)
+  }
  }
  fun generateCards(folder:String,name:String,count:Int,topic:String){
   val account=repository.account()?:return
   if(!state.value.snapshot.quotaFresh||!canGenerate(state.value.snapshot.quota,"flashcards")){state.update{it.copy(error="Refresh AI allowance before generating.")};return}
   generation{
    if(!syncFlashcards(account))Resource.Error("Connect and sync this folder first.")
+   else if(!repository.canStartGeneration(account,"flashcards"))Resource.Error("Refresh AI allowance before generating.")
    else repository.startCards(folder,name,count,topic)
   }
  }

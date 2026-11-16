@@ -65,7 +65,7 @@ Server cross-checks via the API matched the UI: 73 engaged seconds, streak 1, go
 
 Not covered by the UI journey: practice, flashcards, progress and AI generation screens (covered by the instrumented suite and API fixtures), reminder delivery (fake provider), vocabulary sets and grammar (not seeded), non-UTC timezone.
 
-UI observations (minor, not blocking): the streak line reads "Current streak: 1 days" (no singular form); on API 37 the debug build needs a local-network permission step before it can reach `10.0.2.2` (not applicable to a public HTTPS release endpoint).
+UI observations from the earlier journey (minor, not blocking): the streak line read "Current streak: 1 days" (fixed locally by the [local corrections](../planning/remaining-work/evidence/local-corrections.md)); on API 37 the debug build needs a local-network permission step before it can reach `10.0.2.2` (not applicable to a public HTTPS release endpoint).
 
 ### Release configuration review (static, 2026-11-16)
 
@@ -77,7 +77,7 @@ Good:
 - Backend secrets (`.env.develop`, `.env.production`, `.env`, Firebase admin keys, service account files) are git-ignored; only `.env.example` is tracked. Android `.gitignore` now blocks admin SDK keys and `.secrets/`.
 
 Findings:
-- **R-1 (low)**: the `app_config_<hash>` SharedPreferences (cached public app configuration) is not in the backup exclusions. It contains no secret, but a restored copy could carry an old maintenance/version restriction to a new install. Add it to `backup_rules.xml` and `data_extraction_rules.xml`.
+- **R-1 (low), fixed locally 2026-11-16**: all installation-local SharedPreferences, including environment-scoped `app_config_<hash>`, are now excluded in legacy backup XML and cloud/device-transfer rules. Real API37 LocalTransport backup/restore reproduced the old restriction transfer before the fix and passed after it in cloud/default and transfer modes. [Evidence](../planning/remaining-work/evidence/local-corrections.md). Legacy/OEM device behavior remains outside this local check.
 - **R-2 (medium, unverified)**: release builds enable R8 optimization with no project keep-rules file, and the app uses Gson reflection (124 `@SerializedName` fields across DTOs). Release builds were only assembled in earlier sprints, never run. Run a release build on a device against a real HTTPS endpoint, covering login, content and sync, before any release candidate.
 - **R-3 (info)**: `app/google-services.json` is untracked and not ignored. It holds Firebase client configuration (not a server secret). Decide whether to commit it and restrict the API key in Google Cloud.
 
@@ -90,7 +90,7 @@ Findings:
 | D-09-03 | `assembleRelease` not verifiable without a deployed HTTPS `NIHONIX_RELEASE_API_BASE_URL`; R-2 above also depends on it | Release-blocking for a release candidate | Env-blocked |
 | D-09-04 | Shared migrations `1794614400000` (Sprint 02) through `1794959200000` (Sprint 08) not applied to a shared database; Sprint 08 down-migration is not a safe production rollback | Release-blocking | Env-blocked |
 | D-09-05 | No real FCM recipient, physical-device, Doze or multi-device acceptance | Release-blocking for AC-015 | Env-blocked, needs explicit authorization |
-| D-09-06 | R-1 backup exclusion for `app_config_*` | Low | Open, one-line fix per backup rule file |
+| D-09-06 | R-1 backup exclusion for environment-scoped app config | Low | **Fixed locally**: sharedpref domain excluded in all backup modes; real API37 cloud/default + device-transfer simulation passed. [Evidence](../planning/remaining-work/evidence/local-corrections.md) |
 | D-09-07 | Backend has no global auth guard; `GET /ai/health` discloses AI key presence | Low | Open, decision needed |
 
 No Critical authentication, ownership or data-loss defect has been found in the checks run so far. This is absence of findings in the checks above, not proof; non-functional requirements (performance, accessibility, behavior under load) have **not** been measured.
@@ -98,7 +98,7 @@ No Critical authentication, ownership or data-loss defect has been found in the 
 ## Remaining Sprint 09 work
 
 Doable locally:
-- Apply R-1, and decide D-09-07.
+- Decide D-09-07. R-1 is closed locally; quota freshness and streak plural follow-ups are also implemented and verified in the [local-corrections report](../planning/remaining-work/evidence/local-corrections.md).
 - Extend the UI journey to practice, flashcards, progress and a non-UTC timezone.
 - Add a Sprint 09 step to the regression list (`test:sprint09`) and record it in the backend handoff.
 

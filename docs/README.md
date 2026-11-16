@@ -4,6 +4,8 @@ Updated: 2026-11-15.
 
 ## Start here
 
+- [Kế hoạch công việc còn lại](planning/remaining-work/README.md): 7 nhóm sau rà soát SRS/Sprint 01–09; chỉ lập plan, không triển khai code, deploy hoặc build release.
+
 - [Email verification fix](troubleshooting/email-verification.md): missing-account errors, SMTP tracing and regression evidence (2026-11-15).
 
 - [Sprint 07 execution report](sprints/sprint-07-report.md): AI quota, private practice, durable submissions and generated-card preview/save.

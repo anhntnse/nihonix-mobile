@@ -20,7 +20,9 @@ internal class PracticeTestApi:PracticeApi{
  private fun <T> ok(data:T)=Response.success(ApiResponseDto(success=true,data=data))
  override suspend fun quota(session:SessionRequest):Response<ApiResponseDto<AiQuota>> {
   if(quotaUnavailable)return Response.error(503,"{}".toResponseBody())
-  return ok(AiQuota("2026-11-15","2026-11-15T17:00:00Z","Asia/Ho_Chi_Minh",15,AiProvider(true),
+  val today=java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"))
+  val reset=today.plusDays(1).atStartOfDay(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).toInstant().toString()
+  return ok(AiQuota(today.toString(),reset,"Asia/Ho_Chi_Minh",15,AiProvider(true),
    mapOf("practice" to AiBucket(3,if(quotaExceeded)3 else 0,0,if(quotaExceeded)0 else 3),"flashcards" to AiBucket(2,0,0,2))))
  }
  override suspend fun sets(topic:String?,type:String?,status:String?,page:Int,session:SessionRequest,pageSize:Int)=ok(PracticePage(listOf(set),1,1,20,false))

@@ -10,6 +10,8 @@ import com.nihonix.mobile.feature.auth.domain.model.User
 import com.nihonix.mobile.feature.practice.data.*
 import com.nihonix.mobile.feature.practice.domain.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import org.junit.*
 import org.junit.Assert.*
@@ -26,6 +28,52 @@ class OfflinePracticeTest{
  private lateinit var repository:PracticeRepository
  @Before fun setup(){context.deleteDatabase("sprint07-practice.db");db=open();repository=repo()}
  @After fun close(){db.close();context.deleteDatabase("sprint07-practice.db");context.deleteDatabase("sprint07-migration")}
+ @Test fun idleQuotaExpiresWithoutAnotherDatabaseWrite()=runBlocking{
+  repository.refreshQuota()
+  val states=mutableListOf<PracticeState>()
+  val collector=kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.currentCoroutineContext()).launch {
+   repository.observe().collect { states.add(it) }
+  }
+  try {
+   kotlinx.coroutines.withTimeout(10000) { while(states.none{it.quotaFresh}) kotlinx.coroutines.delay(20) }
+   kotlinx.coroutines.delay(61000)
+   assertFalse("Idle quota remained fresh after its TTL",states.last().quotaFresh)
+  } finally { collector.cancel(); collector.join() }
+ }
+ @Test fun futureQuotaTimestampIsNotTrustedAsFresh()=runBlocking{
+  repository.refreshQuota()
+  val quota=db.practice().get("account-a","quota")!!
+  db.practice().put(quota.copy(savedAt=System.currentTimeMillis()+120000))
+  assertFalse(repository.observe().first{it.quota!=null}.quotaFresh)
+ }
+ @Test fun generationReadinessRechecksClockAndOwnerBeforeNextObserverEmission()=runBlocking{
+  var clock=100000L
+  val checked=PracticeRepository(db,api,users,tokens,Gson(),{},now={clock})
+  checked.refreshQuota()
+  val snapshot=checked.observe().first{it.quotaFresh}
+  assertTrue(checked.canStartGeneration("account-a","practice"))
+  clock=160000
+  assertTrue(snapshot.quotaFresh)
+  assertFalse(checked.canStartGeneration("account-a","practice"))
+  clock=200000
+  checked.refreshQuota()
+  assertTrue(checked.canStartGeneration("account-a","flashcards"))
+  users.saveUser(User("account-b","other","b@example.test"))
+  assertFalse(checked.canStartGeneration("account-a","flashcards"))
+  assertFalse(checked.canStartGeneration("account-b","flashcards"))
+ }
+ @Test fun accountSwitchCancelsOldQuotaAndKeepsOtherAccountEmpty()=runBlocking{
+  repository.refreshQuota()
+  val states=mutableListOf<PracticeState>()
+  val collector=launch { repository.observe().collect { states.add(it) } }
+  try {
+   kotlinx.coroutines.withTimeout(10000) { while(states.none{it.account=="account-a"&&it.quotaFresh}) kotlinx.coroutines.delay(20) }
+   users.saveUser(User("account-b","other","b@example.test"))
+   kotlinx.coroutines.withTimeout(10000) { while(states.lastOrNull()?.account!="account-b") kotlinx.coroutines.delay(20) }
+   assertNull(states.last().quota)
+   assertFalse(states.last().quotaFresh)
+  } finally { collector.cancel(); collector.join() }
+ }
  @Test fun mostRecentGenerationIsShownFirstForRecovery()=runBlocking{
   db.practice().put(PracticeCache("account-a","generation:a","generation",Gson().toJson(StoredGeneration("a","fill_blank","{}")),100))
   db.practice().put(PracticeCache("account-a","generation:z","generation",Gson().toJson(StoredGeneration("z","fill_blank","{}")),200))

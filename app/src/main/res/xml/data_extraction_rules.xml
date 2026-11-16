@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <exclude domain="sharedpref" path="nihonix_secure_tokens.xml" />
-        <exclude domain="sharedpref" path="nihonix_tokens_fallback.xml" />
-        <exclude domain="sharedpref" path="nihonix_user_storage.xml" />
-        <exclude domain="sharedpref" path="nihonix_push_state.xml" />
+        <exclude domain="sharedpref" path="." />
         <exclude domain="database" path="." />
     </cloud-backup>
     <device-transfer>
-        <exclude domain="sharedpref" path="nihonix_secure_tokens.xml" />
-        <exclude domain="sharedpref" path="nihonix_tokens_fallback.xml" />
-        <exclude domain="sharedpref" path="nihonix_user_storage.xml" />
-        <exclude domain="sharedpref" path="nihonix_push_state.xml" />
+        <exclude domain="sharedpref" path="." />
         <exclude domain="database" path="." />
     </device-transfer>
 </data-extraction-rules>

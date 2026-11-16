@@ -15,6 +15,7 @@ import retrofit2.Response
 import java.io.IOException
 import java.util.UUID
 internal class ActivityTestApi:ActivityApi{
+ var currentStreak=1
  val receipts=mutableMapOf<String,ActivitySegment>();var lost=false;var duringReply:(()->Unit)?=null
  private fun <T> ok(value:T)=Response.success(ApiResponseDto(success=true,data=value))
  override suspend fun batch(body:ActivityBatch,session:SessionRequest):Response<ApiResponseDto<ActivityAck>>{
@@ -24,7 +25,7 @@ internal class ActivityTestApi:ActivityApi{
   return ok(ActivityAck(body.events.map{it.id}))
  }
  override suspend fun preferences(session:SessionRequest)=ok(ActivityPreferences(timezone="Asia/Ho_Chi_Minh"))
- override suspend fun summary(session:SessionRequest)=ok(ActivitySummary(1,2,60,1,15,false,true,"2026-11-15","Asia/Ho_Chi_Minh"))
+ override suspend fun summary(session:SessionRequest)=ok(ActivitySummary(currentStreak,2,60,1,15,false,true,"2026-11-15","Asia/Ho_Chi_Minh"))
  override suspend fun calendar(year:Int,month:Int,session:SessionRequest)=ok(ActivityCalendar(year,month,"Asia/Ho_Chi_Minh",listOf(ActivityDay("2026-11-15",60,1,true,false,1)),1))
 }
 @RunWith(AndroidJUnit4::class)

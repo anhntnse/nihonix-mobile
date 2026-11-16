@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Nihonix</string>
+    <plurals name="current_streak">
+        <item quantity="one">Current streak: %d day</item>
+        <item quantity="other">Current streak: %d days</item>
+    </plurals>
+    <plurals name="longest_streak">
+        <item quantity="one">Longest streak: %d day</item>
+        <item quantity="other">Longest streak: %d days</item>
+    </plurals>
 </resources>

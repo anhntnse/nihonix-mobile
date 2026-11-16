@@ -5,11 +5,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import android.content.res.Configuration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import java.util.Locale
+import com.nihonix.mobile.R
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun ActivityScreen(viewModel:ActivityViewModel,onBack:()->Unit={}){
  val ui by viewModel.uiState.collectAsState()
+ val context=LocalContext.current
+ val configuration=LocalConfiguration.current
+ // This screen's UI copy is English; use English plural rules even on vi/ja devices.
+ val streakResources=remember(context,configuration){
+  context.createConfigurationContext(Configuration(configuration).apply{setLocale(Locale.ENGLISH)}).resources
+ }
  val owner=ui.snapshot.account
  var discard by remember(owner){mutableStateOf<String?>(null)}
  val calendar=ui.snapshot.calendars["${ui.month.year}-${ui.month.monthValue}"]
@@ -24,8 +35,8 @@ import androidx.compose.ui.unit.dp
    ui.error?.let{item{Text(it,color=MaterialTheme.colorScheme.error)}}
    val summary=ui.snapshot.summary
    if(summary!=null)item("summary"){
-    Text("Current streak: ${summary.current_streak} days",style=MaterialTheme.typography.headlineSmall)
-    Text("Longest streak: ${summary.longest_streak} days")
+    Text(streakResources.getQuantityString(R.plurals.current_streak,summary.current_streak,summary.current_streak),style=MaterialTheme.typography.headlineSmall)
+    Text(streakResources.getQuantityString(R.plurals.longest_streak,summary.longest_streak,summary.longest_streak))
     Text("Today: ${summary.today_minutes} / ${summary.daily_goal_minutes} minutes",style=MaterialTheme.typography.titleLarge)
     Text(if(summary.goal_completed)"Daily goal completed" else "Keep learning toward your daily goal.")
     Text("Timezone: ${summary.timezone}")

@@ -15,6 +15,8 @@ This sprint is a planning increment, not a delivery commitment. Split scope or a
 
 ## Frontend backlog
 
+- [x] Local corrections: config backup exclusion, clock/reset-aware quota freshness with pre-generation recheck, and English streak plurals (including Vietnamese device locale). [Execution evidence](../planning/remaining-work/evidence/local-corrections.md); shared/provider acceptance is unchanged.
+
 - [~] Run complete registration → study → practice → progress → reminder journeys. (Done on emulator against a local isolated backend: sign up, verify, sign in, browse, study 66 s, streak/calendar, reminder settings, FCM token registration, sign out, session revocation → sign in. Practice, flashcards and progress screens not driven manually; reminder delivery not exercised. See [acceptance](sprint-09-acceptance.md).)
 - [ ] Exercise offline/process-death/account-switch scenarios and screen accessibility/layout checks.
 - [~] Verify release endpoint/logging/storage configuration; fix regression defects. (Static review done: findings R-1 low, R-2 medium unverified, R-3 info. Release build not run, needs deployed HTTPS URL. Flashcard UI test defects D-09-01/02 fixed in the test.)
@@ -42,7 +44,7 @@ Apply the [shared delivery gates](../planning/delivery.md). Use the [feature ind
 | Dependencies / blockers | Release-build run needs a deployed HTTPS `NIHONIX_RELEASE_API_BASE_URL`; shared migration/deployment; real FCM recipient and physical-device access need explicit authorization. Owners TBD. |
 | Demo / test evidence | [Acceptance matrix](sprint-09-acceptance.md); backend route-guard audit; backend and Android regressions re-run 2026-11-15/16 |
 | Completed acceptance | None recorded |
-| Carryover / defects | See defect table in [acceptance](sprint-09-acceptance.md). Fixed: D-09-01/02 (Sprint06 `FlashcardScreensTest`, brittle `performScrollTo` on lazy items; full instrumented suite 72 tests, 0 failures, 4 restart tests run manually). Open: D-09-03 release build, D-09-04 shared migrations, D-09-05 real FCM/device, D-09-06 backup rule for `app_config_*`, D-09-07 global guard and `ai/health`. Shared migration/HTTPS/physical-device items from Sprints 02–08 remain open. |
+| Carryover / defects | See defect table in [acceptance](sprint-09-acceptance.md). Fixed: D-09-01/02 (Sprint06 `FlashcardScreensTest`, brittle `performScrollTo` on lazy items; full instrumented suite 72 tests, 0 failures, 4 restart tests run manually). D-09-06 backup configuration is also fixed locally; see [local corrections](../planning/remaining-work/evidence/local-corrections.md). Open: D-09-03 release build, D-09-04 shared migrations, D-09-05 real FCM/device, D-09-07 global guard and `ai/health`. Shared migration/HTTPS/physical-device items from Sprints 02–08 remain open. |
 | Retrospective / next actions | Pending review |
 
 Update this record during delivery; only mark completed after integrated acceptance evidence is linked.

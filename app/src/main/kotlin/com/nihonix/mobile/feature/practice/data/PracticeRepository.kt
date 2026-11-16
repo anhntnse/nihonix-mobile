@@ -22,7 +22,8 @@ data class PracticeState(val account:String?=null,val sets:List<PracticeSet> = e
  val requests:List<StoredGeneration> = emptyList(),val messages:List<OutboxMessage> = emptyList(),val quota:AiQuota?=null,val quotaFresh:Boolean=false)
 @OptIn(ExperimentalCoroutinesApi::class)
 class PracticeRepository(val database:OfflineDatabase,private val api:PracticeApi,private val users:UserStorage,
- private val tokens:TokenStorage,val gson:Gson,private val schedule:(String)->Unit){
+ private val tokens:TokenStorage,val gson:Gson,private val schedule:(String)->Unit,
+ private val now:()->Long=System::currentTimeMillis){
  private val network=Mutex()
  private val dao get()=database.practice()
  private val queue get()=database.progress()
@@ -31,19 +32,28 @@ class PracticeRepository(val database:OfflineDatabase,private val api:PracticeAp
  fun observe():Flow<PracticeState> = combine(users.currentUserFlow,tokens.isAuthenticated){user,signedIn->user?.id?.takeIf{signedIn}}
   .distinctUntilChanged().flatMapLatest{owner->
    if(owner==null)flowOf(PracticeState()) else combine(dao.observe(owner),queue.observeProducer(owner,"practice")){rows,messages->
-    if(account()!=owner)PracticeState() else {
-     val quota=rows.find{it.key=="quota"}
-     PracticeState(owner,rows.filter{it.kind=="set"}.map{gson.fromJson(it.payload,PracticeSet::class.java)},
-      rows.filter{it.kind=="draft"}.map{gson.fromJson(it.payload,PracticeDraft::class.java)}.associateBy{it.sessionId},
-      rows.filter{it.kind=="generation"}.sortedByDescending{it.savedAt}.map{gson.fromJson(it.payload,StoredGeneration::class.java)},messages,
-      quota?.let{gson.fromJson(it.payload,AiQuota::class.java)},quota!=null&&System.currentTimeMillis()-quota.savedAt<60000)
+    val quota=rows.find{it.key=="quota"}
+    PracticeState(owner,rows.filter{it.kind=="set"}.map{gson.fromJson(it.payload,PracticeSet::class.java)},
+     rows.filter{it.kind=="draft"}.map{gson.fromJson(it.payload,PracticeDraft::class.java)}.associateBy{it.sessionId},
+     rows.filter{it.kind=="generation"}.sortedByDescending{it.savedAt}.map{gson.fromJson(it.payload,StoredGeneration::class.java)},messages,
+     quota?.let{gson.fromJson(it.payload,AiQuota::class.java)}) to quota?.savedAt
+   }.flatMapLatest{(snapshot,savedAt)->
+    if(savedAt==null||snapshot.quota==null)flowOf(if(account()==owner)snapshot else PracticeState())
+    else observeQuotaFreshness(savedAt,snapshot.quota.resets_at,now).map{fresh->
+     if(account()==owner)snapshot.copy(quotaFresh=fresh) else PracticeState()
     }
    }
   }
+ suspend fun canStartGeneration(owner:String,bucket:String):Boolean {
+  if(account()!=owner)return false
+  val row=dao.get(owner,"quota")?:return false
+  val quota=gson.fromJson(row.payload,AiQuota::class.java)
+  return account()==owner&&isQuotaFresh(row.savedAt,now(),quota.resets_at)&&canGenerate(quota,bucket)
+ }
  private suspend fun store(owner:String,key:String,kind:String,value:Any){
   val payload=gson.toJson(value)
   check(payload.toByteArray(Charsets.UTF_8).size<1024*1024){"Practice data is too large."}
-  dao.put(PracticeCache(owner,key,kind,payload,System.currentTimeMillis()))
+  dao.put(PracticeCache(owner,key,kind,payload,now()))
  }
  private fun failure(response:Response<*>):Resource.Error {
   val obj=runCatching{JsonParser.parseString(response.errorBody()?.string()).asJsonObject}.getOrNull()
